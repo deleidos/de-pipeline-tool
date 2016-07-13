@@ -1,9 +1,53 @@
 # Leidos DigitalEdge Pipeline Tool
 
-## 
+# About
+
+# Overview
+
+The DigitalEdge Pipeline Tool is an Apache Apex-based data ingestion and processing framework. Data is read from input sources, parsed into records, mapped via a schema, optionally enriched, and persisted to a data store.
+
+The tool allows the user to create, deploy, manage and monitor systems using an intuitive graphical interface.
+
+## Supported Apache Apex Operators
+
+Support input sources:
+* S3
+
+Supported input data formats:
+* JSON
+* CSV
+
+Supported Dimensional Enrichment caches:
+* Redis
+
+Supported data mapping formats:
+* SchemaWizard
+
+Supported output data stores:
+* MongoDB
+* Elasticsearch
 
 # Installation
- 
+
+Requirements:
+
+* A pre-configured Hadoop cluster with Apex Apex installed including a name node with dtCli installed.
+* A MongoDB instance.
+* An application server instance with Java 8 installed.
+* A web app instance.
+
+## Security and Firewall Access
+
+* The application server instance must be open to the web app instance on port:
+** 8080
+* The Hadoop cluster must be open to the application server instance on ports:
+** 22
+** 8088
+* Data stores must be open to the Hadoop cluster on their ports:
+** 9300 (Elasticsearch)
+** 27017 (MongoDB)
+* If the Redis Dimensional Enrichment operator is being used, the Hadoop cluster must be open to the Redis port:
+** 6379
 
 ## Server Configuration
 
@@ -37,11 +81,11 @@ Example configuration file:
 
 At a minimum, you will need to provide:
 * Your MongoDB hostname where DE metadata and system definitions will be stored.
-* The hostname of the Hadoop node where your Apex cluster is running. _Note: Requires Apache Apex dtCli to be installed._
+* The hostname of a Hadoop node where your Apex cluster is running. _Note: Requires Apache Apex dtCli to be installed on the node._
 * The username used to log in to the Hadoop Apache Apex node.
 * The path to the PEM key file used to log in to the Hadoop Apache Apex node. This file must be present on the machine running the application server.
 
-The other configuration values can be set for testing purposes but are not used by the server during runtime. In the future, there will be separate configurations for testing and runtime.
+The other configuration values can be set for unit testing purposes but are not used by the server during runtime. In the future, there will be separate configurations for testing and runtime.
 
 ## Web App Configuration
 
