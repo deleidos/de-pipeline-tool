@@ -1,0 +1,77 @@
+{
+	"description": "example Application",
+	"operators": [{
+		"name": "jsonParse",
+		"class": "com.deleidos.framework.operators.json.parser.JsonParserOperator",
+		"properties": {
+			"name": null
+		}
+	}, {
+		"name": "s3Input",
+		"class": "com.deleidos.framework.operators.s3.S3InputOperator",
+		"properties": {
+			"name": null,
+			"bucketName": "rtws.flight.data",
+			"path": "fd_small_updated",
+			"accessKey": "AKIAITMAS3RXDKITGU7Q",
+			"secretKey": "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",
+			"endPoint": null,
+			"splitter": "JSON",
+			"headerRows": "0",
+			"active": false
+		}
+	}, {
+		"name": "jsonMapping",
+		"class": "com.deleidos.framework.operators.mapping.JSONMappingOperator",
+		"properties": {
+			"name": null,
+			"modelName": "position",
+			"inputFormatName": "position",
+			"modelVersion": "1.4",
+			"modelPath": "\/tmp\/position_v1.4"
+		}
+	}, {
+		"name": "mongo",
+		"class": "com.deleidos.framework.operators.mongodb.MongoDbOutputOperator",
+		"properties": {
+			"name": null,
+			"hostName": "54.146.251.23",
+			"hostPort": "0",
+			"database": "local",
+			"userName": null,
+			"password": null,
+			"modelToIndexMapping": null
+		}
+	}],
+	"streams": [{
+		"name": "Stream 1",
+		"source": {
+			"operatorName": "s3Input",
+			"portName": "output"
+		},
+		"sinks": [{
+			"operatorName": "jsonParse",
+			"portName": "input"
+		}]
+	}, {
+		"name": "Stream 3",
+		"source": {
+			"operatorName": "jsonMapping",
+			"portName": "output"
+		},
+		"sinks": [{
+			"operatorName": "mongo",
+			"portName": "input"
+		}]
+	}, {
+		"name": "Stream 2",
+		"source": {
+			"operatorName": "jsonParse",
+			"portName": "output"
+		},
+		"sinks": [{
+			"operatorName": "jsonMapping",
+			"portName": "input"
+		}]
+	}]
+}

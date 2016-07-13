@@ -1,0 +1,32 @@
+package com.deleidos.analytics.common.util;
+
+import static org.junit.Assert.assertEquals;
+
+import org.junit.Test;
+
+/**
+ * Unit test base64 encoding and decoding.
+ * 
+ * @author vernona
+ */
+public class Base64UtilTest {
+	private static final String base64 = "ew0KICAiYWx0Q2hhbmdlIjogImdldChhbHRDaGFuZ2UpIiwNCiAgIndheXBvaW50c19sb24iOiAiZ2V0KHdheXBvaW50c19sb24pIiwNCiAgImFpcl9ncm91bmQiOiAiZ2V0KGFpcl9ncm91bmQpIiwNCiAgImlkZW50IjogImdldChpZGVudCkiLA0KICAidGltZVR5cGUiOiAiZ2V0KHRpbWVUeXBlKSIsDQogICJsb24iOiAiZ2V0KGxvbikiLA0KICAiZGVzdCI6ICJnZXQoZGVzdCkiLA0KICAidHlwZSI6ICJnZXQodHlwZSkiLA0KICAic3BlZWQiOiAiZ2V0KHNwZWVkKSIsDQogICJzcXVhd2siOiAiZ2V0KHNxdWF3aykiLA0KICAiZXRhIjogImdldChldGEpIiwNCiAgImFhdCI6ICJnZXQoYWF0KSIsDQogICJyZWciOiAiZ2V0KHJlZykiLA0KICAiZXRlIjogImdldChldGUpIiwNCiAgImlkIjogImdldChpZCkiLA0KICAibGF0IjogImdldChsYXQpIiwNCiAgImhleGlkIjogImdldChoZXhpZCkiLA0KICAiYWlyY3JhZnR0eXBlIjogImdldChhaXJjcmFmdHR5cGUpIiwNCiAgImhlYWRpbmciOiAiZ2V0KGhlYWRpbmcpIiwNCiAgImFsdCI6ICJnZXQoYWx0KSIsDQogICJ3YXlwb2ludHNfbGF0IjogImdldCh3YXlwb2ludHNfbGF0KSIsDQogICJhdGNpZGVudCI6ICJnZXQoYXRjaWRlbnQpIiwNCiAgImNsb2NrIjogImdldChjbG9jaykiLA0KICAiZ3MiOiAiZ2V0KGdzKSIsDQogICJmYWNpbGl0eV9oYXNoIjogImdldChmYWNpbGl0eV9oYXNoKSIsDQogICJmYWNpbGl0eV9uYW1lIjogImdldChmYWNpbGl0eV9uYW1lKSIsDQogICJhZHQiOiAiZ2V0KGFkdCkiLA0KICAiY29uZGl0aW9uIjogImdldChzdGF0dXMpIiwNCiAgInJvdXRlIjogImdldChyb3V0ZSkiLA0KICAiZWR0IjogImdldChlZHQpIiwNCiAgIm9yaWciOiAiZ2V0KG9yaWcpIiwNCiAgInVwZGF0ZVR5cGUiOiAiZ2V0KHVwZGF0ZVR5cGUpIg0KfQ==";
+
+	@Test
+	public void testDecode() {
+		String decoded = Base64Util.decodeToString(base64);
+		System.out.println(decoded);
+	}
+
+	@Test
+	public void testEncode() {
+		String encoded = Base64Util.encodeToString(Base64Util.decode(base64));
+		System.out.println(encoded);
+		assertEquals(base64, encoded);
+	}
+
+	@Test(expected = IllegalArgumentException.class)
+	public void testDecodeException() {
+		System.out.println(Base64Util.decodeToString(Base64Util.decodeToString(base64)));
+	}
+}
