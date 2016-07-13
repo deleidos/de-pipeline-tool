@@ -29,7 +29,7 @@ Supported output data stores:
 
 ## Installation
 
-Requirements:
+### Requirements
 
 * A pre-configured Hadoop cluster with Apex Apex installed including a name node with dtCli installed.
 * A MongoDB instance.
