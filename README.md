@@ -2,7 +2,7 @@
 
 # About
 
-# Overview
+## Overview
 
 The DigitalEdge Pipeline Tool is an Apache Apex-based data ingestion and processing framework. Data is read from input sources, parsed into records, mapped via a schema, optionally enriched, and persisted to a data store.
 
