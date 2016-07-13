@@ -1,14 +1,14 @@
 # Leidos DigitalEdge Pipeline Tool
 
-# About
+## About
 
-## Overview
+### Overview
 
 The DigitalEdge Pipeline Tool is an Apache Apex-based data ingestion and processing framework. Data is read from input sources, parsed into records, mapped via a schema, optionally enriched, and persisted to a data store.
 
 The tool allows the user to create, deploy, manage and monitor systems using an intuitive graphical interface.
 
-## Supported Apache Apex Operators
+### Supported Apache Apex Operators
 
 Support input sources:
 * S3
@@ -27,7 +27,7 @@ Supported output data stores:
 * MongoDB
 * Elasticsearch
 
-# Installation
+## Installation
 
 Requirements:
 
@@ -36,14 +36,14 @@ Requirements:
 * An application server instance with Java 8 installed.
 * A web app instance.
 
-## Security and Firewall Access
+### Security and Firewall Access
 
 * The application server instance must be open to the web app instance on port 8080.
 * The Hadoop cluster must be open to the application server instance on ports 22 and 8088.
 * Data stores must be open to the Hadoop cluster on their ports: 9300 (Elasticsearch), 27017 (MongoDB)
 * If the Redis Dimensional Enrichment operator is being used, the Hadoop cluster must be open to port 6379.
 
-## Server Configuration
+### Server Configuration
 
 The DigitalEdge Pipeline Tool runs in an embedded Jetty server. Installation and configured of an application is not required; the build produces a runnable jar.
 
@@ -81,7 +81,7 @@ At a minimum, you will need to provide:
 
 The other configuration values can be set for unit testing purposes but are not used by the server during runtime. In the future, there will be separate configurations for testing and runtime.
 
-## Web App Configuration
+### Web App Configuration
 
 The web app must be configured with the hostname of the backend jetty web socket server. 
 
