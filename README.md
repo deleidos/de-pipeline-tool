@@ -38,16 +38,10 @@ Requirements:
 
 ## Security and Firewall Access
 
-* The application server instance must be open to the web app instance on port:
-** 8080
-* The Hadoop cluster must be open to the application server instance on ports:
-** 22
-** 8088
-* Data stores must be open to the Hadoop cluster on their ports:
-** 9300 (Elasticsearch)
-** 27017 (MongoDB)
-* If the Redis Dimensional Enrichment operator is being used, the Hadoop cluster must be open to the Redis port:
-** 6379
+* The application server instance must be open to the web app instance on port 8080.
+* The Hadoop cluster must be open to the application server instance on ports 22 and 8088.
+* Data stores must be open to the Hadoop cluster on their ports: 9300 (Elasticsearch), 27017 (MongoDB)
+* If the Redis Dimensional Enrichment operator is being used, the Hadoop cluster must be open to 6379.
 
 ## Server Configuration
 
