@@ -53,9 +53,10 @@ public class SystemDataManager {
 	 * @return
 	 */
 	public List<OperatorMetadata> getOperatorMetadata() {
-		FindIterable<Document> documents = db.getOperatorMetadataCollection().find();
+		FindIterable<Document> documents = db.getSystemCollection().find();
 		Document document = documents.first();
 		System.out.println(document.toJson());
+		// OperatorMetadataList metadata = gson.fromJson(document.toJson(), OperatorMetadataList.class);
 		OperatorMetadataList metadata = gson.fromJson(document.toJson(), OperatorMetadataList.class);
 		return metadata.getMetadata();
 	}

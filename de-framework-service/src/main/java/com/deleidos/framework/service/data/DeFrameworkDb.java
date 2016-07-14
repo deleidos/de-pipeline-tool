@@ -16,7 +16,7 @@ public class DeFrameworkDb {
 	private final MongoClient client;
 	private final MongoDatabase db;
 	private final MongoCollection<Document> systemCollection;
-	private final MongoCollection<Document> operatorMetadataCollection;
+	private final MongoCollection<Document> operatorMetadataCollecti;
 
 	private static final String databaseName = "de_framework_db";
 	private static final String systemCollectionName = "system";
@@ -31,7 +31,7 @@ public class DeFrameworkDb {
 		client = new MongoClient(hostname);
 		db = client.getDatabase(databaseName);
 		systemCollection = db.getCollection(systemCollectionName);
-		operatorMetadataCollection = db.getCollection(operatorMetadataCollectionName);
+		operatorMetadataCollecti = db.getCollection(operatorMetadataCollectionName);
 	}
 
 	/**
@@ -67,6 +67,6 @@ public class DeFrameworkDb {
 	 * @return
 	 */
 	public MongoCollection<Document> getOperatorMetadataCollection() {
-		return operatorMetadataCollection;
+		return operatorMetadataCollecti;
 	}
 }
