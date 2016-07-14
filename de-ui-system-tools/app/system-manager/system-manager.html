@@ -1,0 +1,118 @@
+<div ng-controller="SystemManagerController">
+    <div md-whiteframe style="width: 100%; position: fixed; z-index: 3; background-color: white">
+      <md-input-container id="search" class="system-search">
+        <label for="system-search"><i class="fa fa-search md-container-ignore"></i></label>
+        <input id="system-search" type="text" class="form-control" placeholder="Search Systems..." ng-model="search.name"/>
+        <a class="fa fa-times-circle" ng-show="!!search.name" ng-click="search.name = ''"></a>
+      </md-input-container>
+    </div>
+    <div class="system-holder" ng-class="{'large': state === 0, 'small': state === 1}" ng-if="systems.length > 0">
+        <div class="system-outer flip-container" ng-repeat="(index, system) in systems | filter: search | orderBy: orderManager" ng-class="{'inactive': state === 1 && active !== system}" ontouchstart="this.classList.toggle('hover')" >
+            <div md-whiteframe class="flipper" ng-show="state === 0">
+                <div class="system-inner front" ng-class="{
+                    'online-back': system.class === 'online',
+                    'offline-back': system.class === 'offline',
+                    'error-back': system.class === 'error',
+                    'idle-back': system.class === 'new'
+                }">
+                    <div class="system-title">{{system.name}}</div>
+                    <div class="system-state" ng-if="system.properties.state">{{system.properties.state.toLowerCase()}}</div>
+                    <div class="system-state" ng-if="!system.properties.state">offline</div>
+                    <div class="system-symbol">
+                        <i class="fa fa-5x" ng-class="{
+                        'fa-circle-o': system.class === 'online',
+                        'fa-power-off': system.class === 'offline',
+                        'fa-ban': system.class === 'error',
+                        'fa-question-circle': system.class === 'new'
+                   }"></i>
+                    </div>
+                </div>
+                <div class="system-inner back" ng-click="setActive(system)" ng-class="{
+                    'online-back': system.class === 'online',
+                    'offline-back': system.class === 'offline',
+                    'error-back': system.class === 'error',
+                    'idle-back': system.class === 'new'
+                }">
+                    <div class="prop-container">
+                        <div class="system-back-name">
+                            {{system.name}}
+                        </div>
+                        <div class="system-prop" ng-repeat="(prop, value) in system.properties">
+                            {{prop}}: {{value}}
+                        </div>
+
+                        <div class="system-button-holder">
+                            <i title="Power Switch" class="system-button fa fa-power-off" ng-class="{'on-button': system.state !== 'online', 'off-button': system.state === 'online'}" ng-click="toggleSystem(system); $event.stopPropagation()"></i>&nbsp;
+                            <i title="Kill System" class="system-button fa fa-times" ng-class="{'disabled-button': system.state !== 'online'}" ng-click="system.state === 'online' && killSystem(system); $event.stopPropagation()"></i>&nbsp;
+                            <i title="System Builder" class="system-button fa fa-cubes" ng-class="{'disabled-button': system.state === 'online'}" ng-click="system.state !== 'online' && sendId(system.uuid); $event.stopPropagation()"></i>&nbsp;
+                            <i title="Delete System" class="system-button fa fa-trash" ng-class="{'disabled-button': system.state === 'online'}" ng-click="system.state !== 'online' && deleteSystem(system); $event.stopPropagation()"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div md-whiteframe ng-show="state === 1 && active.$$hashKey === system.$$hashKey" class="system-inner active" ng-class="{
+                    'online-back': system.class === 'online',
+                    'offline-back': system.class === 'offline',
+                    'error-back': system.class === 'error',
+                    'idle-back': system.class === 'new'
+                }">
+                <div class="prop-container">
+                    <div class="system-back-name">
+                        {{system.name}}
+                        <i class="system-button fa fa-times" ng-click="toggleState(); $event.stopPropagation()"></i>
+                    </div>
+                    <div class="system-prop" ng-repeat="(prop, value) in system.properties">
+                        {{prop}}: {{value}}
+                    </div>
+
+                    <div class="system-button-holder active">
+                        <i title="Power Switch" class="system-button fa fa-power-off" ng-class="{'on-button': system.state !== 'online', 'off-button': system.state === 'online'}" ng-click="toggleSystem(system); $event.stopPropagation()"></i>&nbsp;
+                        <i title="Kill System" class="system-button fa fa-times" ng-class="{'disabled-button': system.state !== 'online'}" ng-click="system.state === 'online' && killSystem(system); $event.stopPropagation()"></i>&nbsp;
+                        <i title="System Builder" class="system-button fa fa-cubes" ng-class="{'disabled-button': system.state === 'online'}" ng-click="system.state !== 'online' && sendId(system.uuid); $event.stopPropagation()"></i>&nbsp;
+                        <i title="Delete System" class="system-button fa fa-trash" ng-class="{'disabled-button': system.state === 'online'}" ng-click="system.state !== 'online' && deleteSystem(system); $event.stopPropagation()"></i>
+                    </div>
+                </div>
+            </div>
+            <div md-whiteframe ng-show="state === 1 && active.$$hashKey !== system.$$hashKey" ng-click="setActive(system)" class="system-inner front inactive" ng-class="{
+                    'online-back': system.class === 'online',
+                    'offline-back': system.class === 'offline',
+                    'error-back': system.class === 'error',
+                    'idle-back': system.class === 'new'
+                }">
+                <div class="system-title">{{system.name}}</div>
+                <div class="system-state-small" ng-if="system.properties.state">{{system.properties.state.toLowerCase()}}</div>
+                <div class="system-state-small" ng-if="!system.properties.state">offline</div>
+            </div>
+        </div>
+    </div>
+    <div class="system-holder" ng-class="{'large': state === 0, 'small': state === 1}" ng-if="systems.length < 1" >
+        <div ng-if="!displayList.length" class="alert alert-warning" style="margin-right: 20px">
+            <i class="fa fa-warning"></i>
+            The data service is either down or no systems are present at the time. Please refresh the page to repopulate this list.
+        </div>
+    </div>
+    <div class="info-spacer" ng-class="{'small': state === 0, 'large': state === 1}">
+        <div md-whiteframe class="info-holder" ng-click="toggleState()">
+            <i class="fa fa-plus-circle" ng-show="state === 0"></i>
+            <div class="info-none-text" ng-show="state === 1 && active.class !== 'online'">
+                System has failed, is offline, or isn't selected. Please switch to an online system or power on this one.
+            </div>
+            <div class="info-text" ng-show="state === 1 && active.class === 'online'">
+                <div ng-controller="ChartController" ng-show="active.online">
+                    <div class="chart-holder-left">
+                        <canvas id="tuple-chart" class="chart chart-line" chart-data="tupleChartData"
+                                chart-labels="tupleChartLabels" chart-legend="tupleChartLegend"
+                                chart-options="tupleChartOptions" chart-series="tupleChartSeries"
+                                chart-colors="tupleChartColors">
+                        </canvas>
+                    </div>
+                    <div class="chart-holder-right">
+                        <canvas id="cpu-chart" class="chart chart-pie" chart-data="cpuChartData"
+                                chart-labels="cpuChartLabels" chart-options="cpuChartOptions">
+                        </canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

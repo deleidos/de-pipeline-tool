@@ -1,0 +1,148 @@
+
+
+<div class="panel panel-success">
+    <div class="panel-heading">
+        <div class="pull-right btn-group">
+            <button class="btn btn-default" ng-click="newState()">
+                <span class="glyphicon glyphicon-plus"></span>
+            </button>
+            <button class="btn btn-default"  ng-click="showjson=!showjson">
+                <span class="glyphicon glyphicon-info-sign"></span>
+            </button>
+        </div>
+        <h3 class="panel-title">States</h3>
+        <div style="clear:both;"></div>
+    </div>
+    <div class="panel-body">
+        <div ng-if="!showjson">
+            <div ng-repeat="state in stateObjects">
+
+                <div class="panel panel-warning">
+                    <div class="panel-heading">
+                        <div class="pull-right btn-group">
+                            <button class="btn btn-default" ng-click="setActiveState(state)">
+                                <span class="glyphicon glyphicon-minus" ></span>
+                            </button>
+                            <button class="btn btn-default" ng-click="removeState(state)">
+                                <span class="glyphicon glyphicon-trash"></span>
+                            </button>
+                        </div>
+                        <h3 class="panel-title">{{state.display_name}}</h3>
+                        <div style="clear:both;"></div>
+                    </div>
+                    <div collapse="activeState != state" class="panel-body">
+                        <div class="row">
+                            <label class="col-sm-6">Name of State</label>
+                            <div class="col-sm-6">
+                                <input type="text" class="form-control" ng-model="state.name"/>
+                            </div>
+                        </div>
+
+                        <div style="clear:both; margin:5px;"></div>
+                        <div class="row">
+                            <label class="col-sm-6">Template</label>
+                            <div class="col-sm-6">
+                                <select class="form-control" ng-model="state.template">
+                                    <option>default</option>
+                                    <option>secondary</option>
+                                    <option>action</option>
+                                </select>
+                            </div>
+
+                        </div>
+                        <div style="clear:both; margin:5px;"></div>
+                        <div class="row">
+                            <div class="pull-right col-sm-6">
+                                <small style="font-size:8px;">
+                                    Position: [ <strong>{{state.x| number}}, {{state.y| number}}</strong> ]
+                                </small>
+                            </div>
+                        </div>
+                        <div style="clear:both; margin:5px;"></div>
+                        <div ng-repeat="source in state.sources">
+
+
+                            <div class="panel panel-success">
+                                <div class="panel-heading">
+                                    <div class="pull-right btn-group">
+                                        <button class="btn btn-default">
+                                            <small>UUID {{source.uuid}}</small>
+                                        </button>
+                                        <button class="btn btn-default" ng-click="removeIndex($index, state.sources);">
+                                            <span class="glyphicon glyphicon-trash"></span>
+                                        </button>
+                                    </div>
+                                    <h3 class="panel-title">UUID<br><small style="font-size:8px;">SOURCE</small></h3>
+                                    <div style="clear:both;"></div>
+                                </div>
+                                <div class="panel-body">
+
+
+                                    <div ng-repeat="connection in source.connections" ng-class="{'btn-warning': connection.mouseover}" style="padding:5px;">
+                                        <div class="btn-group btn-group-justified">
+                                            <div class="btn-group">
+                                                <button ng-if="connection.type != 'Action'" class="btn btn-default" ng-click="connection.type = 'Action'">
+                                                    <span style="color:#3860ff;" class="glyphicon glyphicon-retweet" title="Transition To {{connection.uuid}}"></span>
+                                                </button>
+                                                <button ng-if="connection.type == 'Action'" class="btn btn-default" ng-click="connection.type = 'Transition'">
+                                                    <span style="color:#ff7805;" class="glyphicon glyphicon-flash" title="Trigger Action {{connection.uuid}}"></span>
+                                                </button>
+                                            </div>
+                                            <div class="btn-group">
+                                                <button class="btn btn-default" ng-click="alert('ah, no action here')">
+                                                    <span class="glyphicon glyphicon glyphicon-hand-right"></span>
+                                                </button>
+                                            </div>
+                                            <div class="btn-group">
+                                                <button class="btn btn-default" ng-click="removeIndex($index, source.connections)">
+                                                    <span class="glyphicon glyphicon-trash"></span>
+                                                </button>
+                                            </div>
+
+                                        </div>
+                                        <div class="col-sm-12" style="padding:5px;">
+                                            <label class="col-sm-6">
+                                                Condition
+                                            </label>
+                                            <div class="col-sm-6">
+                                                <input type="text" class="form-control" ng-model="connection.condition"/>
+                                            </div>
+                                        </div>
+                                        <div style="clear:both"></div>
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
+
+
+                        <div ng-repeat="target in state.targets">
+
+                            <div class="panel panel-danger">
+                                <div class="panel-heading">
+                                    <div class="pull-right btn-group">
+                                        <button class="btn btn-default">
+                                            <small>UUID {{target.uuid}}</small>
+                                        </button>
+                                        <button class="btn btn-default" ng-click="removeIndex($index, state.targets);">
+                                            <span class="glyphicon glyphicon-trash"></span>
+                                        </button>
+                                    </div>
+                                    <h3 class="panel-title">UUID<br><small style="font-size:8px;">TARGET</small></h3>
+                                    <div style="clear:both;"></div>
+                                </div>
+                                <!--<div class="panel-body"> </div>-->
+                            </div>
+
+
+                        </div>
+
+                    </div>
+                </div>
+
+            </div>
+        </div>
+        <textarea style="width:100%; height:400px;" ng-if="showjson">{{stateObjects | json }}</textarea>
+    </div>
+</div>
+

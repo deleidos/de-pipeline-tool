@@ -83,6 +83,10 @@ The other configuration values can be set for unit testing purposes but are not 
 
 ### Web App Configuration
 
-The web app must be configured with the hostname of the backend jetty web socket server. 
+The web app must be configured with the hostname of the backend jetty web socket server in the file app/config.json. 
 
-TODO
+``` json
+{
+    "hostname": "ws://your.app.server.name/analytics"
+}
+```

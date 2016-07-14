@@ -1,0 +1,50 @@
+<div ng-controller="SystemBuilderController">
+    <operator-ribbon op-list="operatorList"></operator-ribbon>
+    <div id="system-builder-body">
+        <div class="col-sm-8 system-builder-canvas">
+            <div md-whiteframe class="panel-primary">
+                <div md-whiteframe class="panel-heading">
+                <span class="panel-title">
+                    System Name&nbsp;&nbsp;
+                    <input drop-disable ng-class="{'has-error' : !systemNameRegEx.exec(systemName) || (systemNamesIds.hasOwnProperty(systemName) && systemNamesIds[systemName] !== _id),
+                                      'no-error'  : systemNameRegEx.exec(systemName) && (!systemNamesIds.hasOwnProperty(systemName) || systemNamesIds[systemName] === _id)}"
+                           class="form-control system-name" style="color: black; max-width: 30%; display: inline" type="text" ng-model="systemName" ng-change="update()" maxlength="16" ng-trim="false">
+                </span>
+                    <div class="pull-right">
+                        <md-button class="butn butn-default butn-sm" ng-click="removeAll()">Clear all</md-button>
+                    </div>
+                    <div class="pull-right">
+                        <md-button class="butn butn-default butn-sm" ng-click="saveToManager()" ng-disabled="!systemNameRegEx.exec(systemName) || (systemNamesIds.hasOwnProperty(systemName) && systemNamesIds[systemName] !== _id) || buildInvalid">Save</md-button>&nbsp;&nbsp;
+                    </div>
+                    <div class="pull-right">
+                        <md-button class="butn butn-default butn-sm" ng-click="_id = null; saveToManager()" ng-disabled="!systemNameRegEx.exec(systemName) || systemNamesIds.hasOwnProperty(systemName) || buildInvalid">New Save</md-button>&nbsp;&nbsp;
+                    </div>
+                </div>
+                <div class="panel-body plumb-panel">
+                    <md-button class="col-sm-1 md-fab md-mini" aria-label="Return to original location" ng-click="resetPosition()" style="padding: 0; min-width: 0">
+                        <i class="fa fa-home fa-2x" style="margin-top: 5px"></i>
+                    </md-button>
+                    <md-button class="col-sm-1 md-fab md-mini" aria-label="Bring up a help modal" ng-click="helpModal()" style="padding: 0; min-width: 0; float: right">
+                        <i class="fa fa-question-circle fa-2x" style="margin-top: 7px"></i>
+                    </md-button>
+                    <md-slider-container id="zoom-slider">
+                        <!-- <span class="fa fa-search-minus" ng-click="decreaseZoom()"></span>
+                        <rzslider rz-slider-model="canvas.zoomlevel" rz-slider-options="sliderOptions"></rzslider>
+                        <span class="fa fa-search-plus" ng-click="increaseZoom()"></span> -->
+                        <md-slider md-discrete ng-model="canvas.zoomlevel" step="5" min="20" max="90" aria-label="Zoom Slider" md-vertical></md-slider>
+                    </md-slider-container>
+                    <p class="col-sm-2">{{saveText}}</p>
+                    <js-plumb-canvas ng-click="setActiveStateFromEvent($event)" ondragover="event.preventDefault()" ondrop="event.preventDefault(); $(this).scope().drop(event)" on-connection="onConnection"
+                                   x="canvas.x" y="canvas.y" zoom="canvas.zoomlevel"
+                                 ng-style="{left: '-1000px', top: '-1000px'}">
+                        <div ng-if="!refreshing" ng-include="'partials/defaultState.html'"></div>
+                    </js-plumb-canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-sm-4 operator-details">
+            <div md-whiteframe ng-include="'system-builder/operator-details.html'"></div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,19 @@
+<div ng-repeat="state in stateObjects track by $index">
+    <js-plumb-object md-whiteframe state-object="state" ng-style="{ 'left':state.x, 'top':state.y, 'background-color': state.color }" class="state-window circle"
+                     ng-class="{'active-state': activeState && activeState === state, 'md-whiteframe-16dp': activeState && activeState === state}">
+        <i class="delete fa fa-times fa-3x" ng-click="removeState(state)"></i>
+        <h3>{{state.name}}</h3>
+        <h4>{{state.display_name || 'Operator'}}</h4>
+
+        <div class="endpoint endpoint-source">
+            <js-plumb-endpoint ng-repeat="(epIndex, endpoint) in state.sources" anchor="RightMiddle" uuid="{{endpoint.uuid}}" settings="sourceEndpointStyle">
+                <js-plumb-connection ng-click="setActiveConnection($index)" ng-repeat="(cntIndex, connection) in endpoint.connections" ng-model="connection">
+                    <i class=" delete fa fa-times fa-3x" ng-click="removeStateConnection(state, epIndex, cntIndex)"></i>
+                </js-plumb-connection>
+            </js-plumb-endpoint>
+        </div>
+        <div class="endpoint endpoint-target">
+            <js-plumb-endpoint ng-repeat="endpoint in state.targets" anchor="LeftMiddle" uuid="{{endpoint.uuid}}" settings="targetEndpointStyle"></js-plumb-endpoint>
+        </div>
+    </js-plumb-object>
+</div>

@@ -1,0 +1,54 @@
+<div class="operator-ribbon">
+  <div  class="md-fab-top-right md-scale" style="transform: translate(0, -46%)">
+    <!--<div>
+      <button class="md-fab md-mini" aria-label="Search" ng-click="focusSearch()">
+        <i class="fa fa-search fa-lg"></i>
+      </button>
+    </div>-->
+    <!--<md-fab-actions>-->
+      <div id="search" class="pull-right op-search">
+        <label for="operator-search"><i class="fa fa-search"></i></label>
+        <input drop-disable id="operator-search" type="text" class="form-control" placeholder="Search Operators..." ng-model="search.display_name"/>
+      </div>
+    <!--</md-fab-actions>-->
+  </div>
+    <md-tabs style="z-index: -1" md-whiteframe md-selected:"activeCat.index" class="md-dynamic-height" >
+        <md-tab ng-repeat="opType in displayList" md-on-select="setActiveCat(opType)">
+            <md-tab-label class="operator-category">
+                <i class="fa fa-lg" ng-class="opType.icon" ng-style="{'color': opType.color}"></i>&nbsp;{{opType.name}}
+            </md-tab-label>
+            <md-tab-body class="position: 'relative'">
+              <ul class="operator-list" ng-style="{'border-color': '#DDD'}">
+                <!--<li ng-if="!!displayList.length">
+                  <div ng-disabled="true" class="butn butn-operator butn-add-operator md-button" ng-style="{'background-color': opType.color}" ng-click="addOperator()"
+                  aria-label="Add New Operator"
+                  title="Click or drag to add a new operator (disabled)">
+                  <p><i class="fa fa-plus fa-2x" style="transform: translate(0, 25%)"></i></p>
+                </div>
+              </li>-->
+              <li ng-repeat="operator in opType.operators | filter:search">
+                <div class="butn butn-operator md-button" ng-style="{'background-color': operator.color}" draggable="true" ondragstart="event.dataTransfer.setData('text/plain', JSON.stringify($(this).scope().operator));"
+                    aria-label="{{operator.display_name}}" title="Drag onto the System Configuration canvas to add a(n) {{ operator.display_type }} operator">
+                  <p class="operator-label">{{ operator.display_name }}</p>
+                </div>
+              </li>
+            </ul>
+          </md-tab-body>
+        </md-tab>
+        <!-- empty tab for spacing -->
+        <md-tab ng-disabled="true">
+          <md-tab-label class="operator-category">
+              <i class="fa fa-lg" ng-class="opType.icon" ng-style="{'color': opType.color}"></i>&nbsp;{{opType.name}}
+          </md-tab-label>
+        </md-tab>
+    </md-tabs>
+    <div ng-if="!displayList.length && !operatorLoading" class="alert alert-warning">
+      <i class="fa fa-warning"></i>
+      The data service either returned no operators or is down. Please refresh the page.
+    </div>
+
+    <div ng-if="!displayList.length && operatorLoading" class="alert alert-info">
+        <img ng-src="assets/img/ring-alt.gif" style="width:20px; height: 20px;"/>&nbsp;
+        Loading
+    </div>
+</div>

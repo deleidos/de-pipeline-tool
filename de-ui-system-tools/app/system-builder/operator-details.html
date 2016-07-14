@@ -1,0 +1,77 @@
+<div class="panel panel-warning">
+    <div md-whiteframe class="panel-heading">
+        <span class="panel-title">
+            Operator Details
+            <div style="display: inline-block; height: 2.5vh"></div>
+        </span>
+    </div>
+    <div class="panel-body details-panel">
+        <div md-whiteframe class="alert alert-info" ng-show="!activeState">
+            <i class="fa fa-info-circle"></i>&nbsp;Select an operator to edit its details
+        </div>
+        <div ng-show="!!activeState">
+            <h3>{{ activeState.template }} Operator</h3>
+            <div class="form-group">
+                <label for="opName">Operator Name</label>
+                <input drop-disable class="form-control" id="opName" type="text" ng-model="activeState.name" maxlength="13"
+                       ng-class="{'has-error' : activeState.form.operatorName.$invalid,
+                                  'no-error'  : !activeState.form.operatorName.$invalid}"
+                       ng-change="activeState.form.operatorName.$invalid = activeState.name === undefined || activeState.name.length < 1; validateState(activeState)"
+                       placeholder="Operator Name..."/>
+            </div>
+            <h3>Properties</h3>
+            <div class="form-group" ng-repeat="(i, prop) in activeState.properties">
+                <label>{{ prop.display_name }}</label> <span style="font-size: 8pt;">{{prop.type}}</span><span style="line-height: 243%" class="string-list-change"  ng-click="addToList(prop, activeState)" ng-if="prop.type === 'StringList'">Add <i class="fa fa-plus"></i></span>
+                <div ng-switch on="prop.type">
+                    <div ng-switch-when="String">
+                        <input drop-disable ng-class="{'has-error' : activeState.form[prop.name].$invalid && prop.required,
+                                          'no-error'  : !activeState.form[prop.name].$invalid && prop.required}"
+                               ng-if="prop.choices === null"
+                               class="form-control" type="text" ng-model="prop.value" ng-change="validateForm(activeState, i, 'normal', null)">
+                        <select ng-class="{'has-error' : activeState.form[prop.name].$invalid && prop.required,
+                                          'no-error'  : !activeState.form[prop.name].$invalid && prop.required}"
+                                ng-if="prop.choices !== null"
+                                class="form-control" ng-model="prop.value"
+                                ng-options="choice as choice for choice in prop.choices" ng-change="validateForm(activeState, i, 'select', null)">
+                            <!--<option ng-repeat="choice in prop.choices">
+                                {{choice}}
+                            </option>-->
+                        </select>
+                    </div>
+                    <div ng-switch-when="Integer">
+                        <input drop-disable ng-class="{'has-error' : activeState.form[prop.name].$invalid && prop.required,
+                                          'no-error'  : !activeState.form[prop.name].$invalid && prop.required}"
+                               class="form-control" type="number" ng-model="prop.value" ng-change="validateForm(activeState, i, 'integer', null)">
+                    </div>
+                    <div ng-switch-when="StringList">
+                        <input drop-disable ng-class="{'has-error' : activeState.form[prop.name + '0'].$invalid && prop.required,
+                                          'no-error'  : !activeState.form[prop.name + '0'].$invalid && prop.required}"
+                            class="form-control" type="text" ng-model="prop.value[0]" ng-change="validateForm(activeState, i, 'list', 0)"><br>
+                        <span ng-repeat="value in prop.value track by $index" ng-show="$index > 0">
+                            <span class="string-list-change" ng-click="removeFromList(activeState, i, $index); prop.value.splice($index, 1)">Remove <i class="fa fa-minus"></i></span>
+                            <input drop-disable ng-class="{'has-error' : activeState.form[prop.name + $index].$invalid && prop.required,
+                                              'no-error'  : !activeState.form[prop.name + $index].$invalid && prop.required}"
+                                   class="form-control" type="text" ng-model="prop.value[$index]" ng-change="validateForm(activeState, i, 'list', $index)"><br>
+                        </span>
+                    </div>
+                    <div ng-switch-when="File" style="margin-top: -20px;">
+                        <input drop-disable class="filePlaceHolder" placeholder="{{prop.fileName}}" disabled="disabled" title="{{prop.fileName}}">
+                        <input drop-disable ng-class="{'has-error' : activeState.form[prop.name].$invalid && prop.required,
+                                          'no-error'  : !activeState.form[prop.name].$invalid && prop.required}"
+                               ng-change="validateForm(activeState, i, 'file', null)"
+                               class="form-control fileHolder" type="file" ng-model="prop.value" accept=".json" app-filereader ng-name-val="prop.fileName">
+                    </div>
+                    <div ng-switch-default>
+                        <input drop-disable ng-class="{'has-error' : prop.value === undefined && prop.required,
+                                          'no-error'  : prop.value !== undefined && prop.required}"
+                               class="form-control" type="text" ng-model="prop.value" ng-required="prop.required"
+                               ng-change="validateForm(activeState, i, 'normal', null)">
+                    </div>
+                </div>
+            </div>
+            <div md-whiteframe class="alert alert-info" ng-show="!activeState.properties || activeState.properties.length === 0">
+                <i class="fa fa-info-circle"></i>&nbsp;No operator properties available
+            </div>
+        </div>
+    </div>
+</div>

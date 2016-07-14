@@ -1,0 +1,21 @@
+<div class="navbar navbar-default system-builder-nav">
+    <div class="flex">
+        <div class="navbar-header navbar-brand navbar-title">
+            DigitalEdge Pipeline Tool
+        </div>
+        <div class="pull-right">
+        <md-button class="navbar-header navbar-sub" ng-click="curr = 'systemBuilder'" ng-class="{'navbar-inactive': curr === 'systemManager'}">
+            <span class="navbar-brand"><i class="fa fa-cubes"></i><span class="large-only">&nbsp;&nbsp;System Builder</span></span>
+        </md-button>
+        <md-button class="navbar-header navbar-sub" ng-click="curr = 'systemManager'" ng-class="{'navbar-inactive': curr === 'systemBuilder'}">
+            <span class="navbar-brand"><i class="fa fa-table fa-lg"></i><span class="large-only">&nbsp;&nbsp;System Manager</span></span>
+        </md-button>
+      </div>
+    </div>
+</div>
+<div ng-hide="curr !== 'systemManager'">
+    <system-manager ng-app="systemManager"></system-manager>
+</div>
+<div ng-hide="curr !== 'systemBuilder'">
+    <system-builder ng-app="systemBuilder"></system-builder>
+</div>

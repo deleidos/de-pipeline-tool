@@ -1,0 +1,224 @@
+
+
+
+.system-holder{
+    display: inline-block;
+    margin-right: 1%;
+    margin-top: 34px;
+    width: 49%;
+}
+
+.system-spacer {
+    display: inline-block;
+    padding: 5px;
+    width: 100%;
+}
+
+.system-button-holder {
+    float: right;
+    color: #333;
+}
+
+.system-button {
+    padding-left: 10px;
+}
+
+.system-header, .system-button-holder {
+    font-size: 15pt;
+}
+
+.system-online:focus, .system-offline:focus, .system-error:focus, .system-add:focus{
+    outline: none;
+}
+
+.system-online > .system-header, .system-online > .system-button-holder > .system-button:hover{
+    color: green;
+}
+
+.system-offline > .system-header, .system-offline > .system-button-holder > .system-button:hover {
+    color: dimgrey;
+}
+
+.system-error > .system-header, .system-error > .system-button-holder > .system-button:hover {
+    color: #BB0000;
+}
+
+.system-online > .system-button-holder > .system-button:focus {
+    outline: none;
+}
+
+.system-offline > .system-button-holder > .system-button:focus {
+    outline: none;
+}
+
+.system-error > .system-button-holder > .system-button:focus {
+    outline: none;
+}
+
+.system-header > i {
+    text-shadow:
+    -1px -1px 0 #444,
+    1px -1px 0 #444,
+    -1px 1px 0 #444,
+    1px 1px 0 #444;
+}
+
+.system {
+    display: inline-block;
+    width: 100%;
+    background-color: #afcfdb;
+    padding: 5px;
+    border-radius: 5px;
+}
+
+.system-active, .system-info, .system:hover, .system-add:hover {
+    background-color: #d8e5eb;
+}
+
+.system-time {
+    float: right;
+}
+
+.info-buttons {
+    float: right;
+    font-size: 16pt;
+    line-height: 10pt;
+    padding: 5px 0 5px 0;
+}
+
+.info-holder {
+    display: inline-block;
+    padding: 5px;
+    margin-top: -15px;
+}
+
+.info-holder-small {
+    width: 49%;
+    float: left;
+    margin-left: 1%;
+}
+
+.info-holder-large {
+    width: 98%;
+    margin-left: 1%;
+}
+
+.system-info {
+    border-radius: 5px;
+    padding: 5px;
+    height: 100%;
+}
+
+.system-search input {
+    margin-right: 15px;
+    border-radius: 20px;
+    padding-left: 27px;
+    padding-right: 27px;
+    width: 350px;
+    z-index: 10;
+    background-color: white;
+    position: absolute;
+    right: 0;
+    top: 60px;
+}
+
+.system-search a {
+    text-decoration: none;
+    color: #b3b3b3;
+    z-index: 11;
+    position: absolute;
+    right: 24px;
+    top: 71px;
+}
+
+.system-search label {
+    z-index: 11;
+    position: absolute;
+    right: 342px;
+    top: 65px;
+}
+
+.system-name.has-error {
+    background-color: #FFAAAA;
+}
+
+.active-name {
+    font-size: 20pt;
+    font-weight: bold;
+}
+
+.fa:focus{
+    outline: none;
+}
+
+.info-button:hover {
+    color: grey;
+}
+
+.info-button:active {
+    color: black;
+}
+
+.active-prop-outline {
+    display: inline-block;
+    margin: 5px 5px 5px 15px;
+    padding: 5px 20px 10px 5px;
+    border: 1px #aaa solid;
+    border-radius: 5px;
+    min-width: 30%;
+    max-width: 95%;
+}
+
+.active-prop-val {
+    position: relative;
+    left: 15px;
+    background-color: #afcfdb;
+    padding: 5px;
+    border-radius: 5px;
+    /*width: 150px;*/
+    max-width: 93%;
+}
+
+.active-prop {
+    font-size: 12pt;
+}
+
+.confirm-window{
+    padding: 20px;
+    text-align: center;
+}
+
+.system-add {
+    width: 100%;
+    padding: 5px;
+    border-radius: 20px;
+    background-color: #afcfdb;
+    font-size: 16pt;
+    font-weight: bold
+}
+
+
+.system-add-holder {
+    width: 49%;
+    position: absolute;
+    left: 49%;
+    top: 60px;
+    margin-left: 1%;
+    padding: 0 365px 0 5px;
+}
+
+.chart-holder-left {
+    float: left;
+}
+
+.chart-holder-right {
+    float: right;
+}
+
+::-webkit-scrollbar {
+    width: 0;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #FF0000
+}
