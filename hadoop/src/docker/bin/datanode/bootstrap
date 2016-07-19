@@ -1,0 +1,22 @@
+#!/bin/bash
+set -ex
+
+perl -i -pe "s:NAMENODE:$NAMENODE:g" /etc/hadoop/conf/core-site.xml
+perl -i -pe "s:NAMENODE:$NAMENODE:g" /etc/hadoop/conf/hdfs-site.xml
+perl -i -pe "s:NAMENODE:$NAMENODE:g" /etc/hadoop/conf/yarn-site.xml
+
+if [ ! -d /data/1/dfs/dn ]; then
+	mkdir -p /data/1/dfs/dn
+	chown hdfs:hdfs /data/1/dfs/dn
+	chmod -R 700 /data/1/dfs/dn
+fi
+
+
+cd /etc/init.d/
+
+./hadoop-hdfs-datanode start
+
+while true
+do
+	sleep 1d
+done

@@ -1,0 +1,24 @@
+#!/bin/bash
+set -ex
+
+perl -i -pe "s:NAMENODE:$NAMENODE:g" /etc/hadoop/conf/core-site.xml
+perl -i -pe "s:NAMENODE:$NAMENODE:g" /etc/hadoop/conf/hdfs-site.xml
+perl -i -pe "s:NAMENODE:$NAMENODE:g" /etc/hadoop/conf/yarn-site.xml
+
+perl -i -pe "s:Defaults    requiretty:#Defaults    requiretty:g" /etc/sudoers
+
+if [ ! -d /var/lib/hadoop-hdfs ]; then
+	mkdir -p /var/lib/hadoop-hdfs
+	chown hdfs:hdfs /var/lib/hadoop-hdfs
+fi
+
+sudo -u hdfs hdfs dfsadmin -safemode wait
+
+cd /etc/init.d/
+
+./hadoop-hdfs-secondarynamenode start
+
+while true
+do
+	sleep 1d
+done

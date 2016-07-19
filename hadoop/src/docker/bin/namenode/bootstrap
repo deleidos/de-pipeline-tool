@@ -1,0 +1,91 @@
+#!/bin/bash
+set -ex
+
+perl -i -pe "s:NAMENODE:$NAMENODE:g" /etc/hadoop/conf/core-site.xml
+perl -i -pe "s:NAMENODE:$NAMENODE:g" /etc/hadoop/conf/hdfs-site.xml
+perl -i -pe "s:NAMENODE:$NAMENODE:g" /etc/hadoop/conf/yarn-site.xml
+
+perl -i -pe "s:Defaults    requiretty:#Defaults    requiretty:g" /etc/sudoers
+
+if [ ! -d /var/lib/hadoop-hdfs ]; then
+	mkdir -p /var/lib/hadoop-hdfs
+	chown hdfs:hdfs /var/lib/hadoop-hdfs
+	
+	sudo -u hdfs hdfs namenode -format
+fi
+
+cd /etc/init.d/
+./hadoop-hdfs-namenode start
+
+sudo -u hdfs hdfs dfsadmin -safemode wait
+
+
+set +e
+
+sudo -u hdfs hdfs dfs -test -e /tmp
+DIR_EXISTS=$?
+if [ $DIR_EXISTS -ne 0 ]; then
+	sudo -u hdfs hdfs dfs -mkdir /tmp
+	sudo -u hdfs hdfs dfs -chmod -R 1777 /tmp
+fi
+
+sudo -u hdfs hdfs dfs -test -e /user/hdfs
+DIR_EXISTS=$?
+if [ $DIR_EXISTS -ne 0 ]; then
+	sudo -u hdfs hdfs dfs -mkdir -p /user/hdfs
+	sudo -u hdfs hdfs dfs -chown hdfs /user/hdfs
+fi
+
+sudo -u hdfs hdfs dfs -test -e /user/history
+DIR_EXISTS=$?
+if [ $DIR_EXISTS -ne 0 ]; then
+	sudo -u hdfs hdfs dfs -mkdir -p /user/history
+	sudo -u hdfs hdfs dfs -chmod -R 1777 /user/history
+	sudo -u hdfs hdfs dfs -chown mapred:hadoop /user/history
+fi
+
+sudo -u hdfs hdfs dfs -test -e /user/mapred
+DIR_EXISTS=$?
+if [ $DIR_EXISTS -ne 0 ]; then
+	sudo -u hdfs hdfs dfs -mkdir -p /user/mapred
+	sudo -u hdfs hdfs dfs -chown mapred:hadoop /user/mapred
+fi
+
+sudo -u hdfs hdfs dfs -test -e /tmp/logs
+DIR_EXISTS=$?
+if [ $DIR_EXISTS -ne 0 ]; then
+	sudo -u hdfs hdfs dfs -mkdir -p /tmp/logs
+	sudo -u hdfs hdfs dfs -chown yarn:yarn /tmp/logs
+fi
+
+sudo -u hdfs hdfs dfs -test -e /tmp/hadoop-yarn
+DIR_EXISTS=$?
+if [ $DIR_EXISTS -ne 0 ]; then
+	sudo -u hdfs hdfs dfs -mkdir -p /tmp/hadoop-yarn
+	sudo -u hdfs hdfs dfs -chown yarn:yarn /tmp/hadoop-yarn
+fi
+
+sudo -u hdfs hdfs dfs -test -e /tmp/hadoop-yarn/staging/history/done_intermediate
+DIR_EXISTS=$?
+if [ $DIR_EXISTS -ne 0 ]; then
+	sudo -u hdfs hdfs dfs -mkdir -p /tmp/hadoop-yarn/staging/history/done_intermediate
+	sudo -u hdfs hdfs dfs -chmod 1777 /tmp/hadoop-yarn/staging/history/done_intermediate
+	sudo -u hdfs hdfs dfs -chown mapred:hadoop /tmp/hadoop-yarn/staging/history/done_intermediate
+fi
+
+sudo -u hdfs hdfs dfs -test -e /tmp/hadoop-yarn/staging/history/done
+DIR_EXISTS=$?
+if [ $DIR_EXISTS -ne 0 ]; then
+	sudo -u hdfs hdfs dfs -mkdir -p /tmp/hadoop-yarn/staging/history/done
+	sudo -u hdfs hdfs dfs -chmod 750 /tmp/hadoop-yarn/staging/history/done
+	sudo -u hdfs hdfs dfs -chown mapred:hadoop /tmp/hadoop-yarn/staging/history/done
+fi
+
+
+cd /etc/init.d/
+./hadoop-httpfs start &
+
+while true
+do
+	sleep 1d
+done

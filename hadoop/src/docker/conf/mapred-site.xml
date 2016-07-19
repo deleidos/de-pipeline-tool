@@ -1,0 +1,29 @@
+<?xml version="1.0"?>
+<?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
+
+<configuration>
+	<property>
+		<name>mapreduce.framework.name</name>
+		<value>yarn</value>
+	</property>
+
+	<property>
+		<name>mapreduce.jobhistory.address</name>
+		<value>HISTORYSERVER:10020</value>
+	</property>
+
+	<property>
+		<name>mapreduce.jobhistory.webapp.address</name>
+		<value>HISTORYSERVER:19888</value>
+	</property>
+	
+	<property>
+		<name>mapreduce.jobhistory.intermediate-done-dir</name>
+		<value>/tmp/hadoop-yarn/staging/history/done_intermediate</value>
+	</property>
+	
+	<property>
+		<name>mapreduce.jobhistory.done-dir</name>
+		<value>/tmp/hadoop-yarn/staging/history/done</value>
+	</property>
+</configuration>

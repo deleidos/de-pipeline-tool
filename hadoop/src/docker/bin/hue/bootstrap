@@ -1,0 +1,23 @@
+#!/bin/bash
+set -ex
+
+perl -i -pe "s:NAMENODE:$NAMENODE:g" /etc/hadoop/conf/core-site.xml
+perl -i -pe "s:NAMENODE:$NAMENODE:g" /etc/hadoop/conf/hdfs-site.xml
+perl -i -pe "s:NAMENODE:$NAMENODE:g" /etc/hadoop/conf/yarn-site.xml
+perl -i -pe "s:NAMENODE:$NAMENODE:g" /etc/hue/conf/hue.ini
+
+perl -i -pe "s:HISTORYSERVER:$HISTORYSERVER:g" /etc/hadoop/conf/mapred-site.xml
+perl -i -pe "s:HISTORYSERVER:$HISTORYSERVER:g" /etc/hue/conf/hue.ini
+
+perl -i -pe "s:RESOURCEMANAGER:$RESOURCEMANAGER:g" /etc/hadoop/conf/yarn-site.xml
+perl -i -pe "s:RESOURCEMANAGER:$RESOURCEMANAGER:g" /etc/hue/conf/hue.ini
+
+hdfs dfsadmin -safemode wait
+
+cd /etc/init.d/
+./hue start &
+
+while true
+do
+	sleep 1d
+done

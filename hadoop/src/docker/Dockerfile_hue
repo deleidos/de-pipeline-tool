@@ -1,0 +1,38 @@
+FROM centos:7.2.1511
+
+RUN rpm --import https://archive.cloudera.com/cdh5/redhat/7/x86_64/cdh/RPM-GPG-KEY-cloudera && \
+	yum clean all
+
+RUN rpm -Uih https://archive.cloudera.com/cdh5/one-click-install/redhat/7/x86_64/cloudera-cdh-5-0.x86_64.rpm && \
+	yum -y install \
+		java-1.8.0-openjdk-devel \
+		perl \
+		sudo && \
+	yum clean all
+
+ENV CDH_VERSION=5.6.0
+
+RUN perl -i -pe "s:/cdh/5/:/cdh/${CDH_VERSION}/:g" /etc/yum.repos.d/cloudera-cdh5.repo
+
+RUN yum -y install \
+		hue-common \
+		hue && \
+	yum clean all
+
+RUN rm -rf /var/lib/hadoop-hdfs
+
+COPY conf/* /etc/hadoop/conf/
+
+COPY bin/hue/bootstrap /sbin/bootstrap
+
+COPY conf_hue/hue.ini /etc/hue/conf/hue.ini
+
+RUN chmod +x /sbin/bootstrap
+
+RUN chown -R hdfs:hdfs /etc/hadoop
+
+RUN mkdir -p /var/lib/hadoop-hdfs && chown -R hdfs:hdfs /var/lib/hadoop-hdfs
+
+ENV JAVA_HOME=/usr/lib/jvm/java
+
+CMD ["/sbin/bootstrap"]

@@ -1,0 +1,36 @@
+#!/bin/bash
+set -ex
+
+perl -i -pe "s:NAMENODE:$NAMENODE:g" /etc/hadoop/conf/core-site.xml
+perl -i -pe "s:NAMENODE:$NAMENODE:g" /etc/hadoop/conf/hdfs-site.xml
+perl -i -pe "s:NAMENODE:$NAMENODE:g" /etc/hadoop/conf/yarn-site.xml
+
+perl -i -pe "s:HISTORYSERVER:$HISTORYSERVER:g" /etc/hadoop/conf/mapred-site.xml
+
+perl -i -pe "s:RESOURCEMANAGER:$RESOURCEMANAGER:g" /etc/hadoop/conf/yarn-site.xml
+
+perl -i -pe "s:Defaults    requiretty:#Defaults    requiretty:g" /etc/sudoers
+
+if [ ! -d /var/lib/hadoop-yarn ]; then
+	mkdir -p /var/lib/hadoop-yarn
+	chown yarn:yarn /var/lib/hadoop-yarn
+fi
+
+if [ ! -d /var/log/hadoop-yarn ]; then
+	mkdir -p /var/log/hadoop-yarn
+	chown yarn:yarn /var/log/hadoop-yarn
+fi
+
+sudo -u hdfs hdfs dfsadmin -safemode wait
+
+echo "Waiting for initial cluster initialization to complete"
+sleep 1m
+
+cd /etc/init.d/
+
+./hadoop-mapreduce-historyserver start
+
+while true
+do
+	sleep 1d
+done
