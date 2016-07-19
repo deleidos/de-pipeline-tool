@@ -36,6 +36,8 @@ Supported output data stores:
 * An application server instance with Java 8 installed.
 * A web app instance.
 
+The hadoop project contains a Docker-based DevOps process for deploying an Apex-enabled hadoop cluster. See the readme file for instructions (hadoop/README.md).
+
 ### Security and Firewall Access
 
 * The application server instance must be open to the web app instance on port 8080.
