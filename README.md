@@ -36,7 +36,7 @@ Supported output data stores:
 * An application server instance with Java 8 installed.
 * A web app instance.
 
-The hadoop project contains a Docker-based DevOps process for deploying an Apex-enabled hadoop cluster. See the readme file for instructions (hadoop/README.md).
+The hadoop project contains a Docker-based DevOps process for deploying an Apex-enabled hadoop cluster. [See the hadoop README file for instructions](hadoop/README.md).
 
 ### Security and Firewall Access
 
