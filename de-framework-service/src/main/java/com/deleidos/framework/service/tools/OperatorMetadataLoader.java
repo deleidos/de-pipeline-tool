@@ -2,8 +2,8 @@ package com.deleidos.framework.service.tools;
 
 import java.util.List;
 
-import com.deleidos.framework.service.data.DeFrameworkDb;
-import com.deleidos.analytics.config.AnalyticsConfig;
+import com.deleidos.framework.service.data.SystemDataManager;
+import com.google.gson.Gson;
 import com.deleidos.framework.model.system.OperatorMetadata;
 
 /**
@@ -14,8 +14,10 @@ import com.deleidos.framework.model.system.OperatorMetadata;
 public class OperatorMetadataLoader {
 
 	public static void main(String[] args) {
-		DeFrameworkDb db = new DeFrameworkDb(AnalyticsConfig.getInstance().getMongodbHostname());
+		SystemDataManager manager = SystemDataManager.getInstance();
 		List<OperatorMetadata> metadata = OperatorMetadataFactory.getInstance().getOperatorMetadata();
-		
+		manager.saveOperatorMetadata(metadata);
+		metadata = manager.getOperatorMetadata();
+		System.out.println((new Gson()).toJson(metadata));
 	}
 }
