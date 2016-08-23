@@ -1,6 +1,6 @@
 var myApp = angular.module('plumbApp.directives', []);
 
-myApp.directive('jsPlumbCanvas', [function() {
+myApp.directive('jsPlumbCanvas', ['$rootScope', function($rootScope) {
    var jsPlumbZoomCanvas = function(instance, zoom, el, transformOrigin) {
        transformOrigin = transformOrigin || [0, 0];
        var p = ["webkit", "moz", "ms", "o"],
@@ -36,8 +36,12 @@ myApp.directive('jsPlumbCanvas', [function() {
            instance.bind("connection", function(info, origEvent) {
                 if (typeof origEvent !== 'undefined' && origEvent.type === 'mouseup') {
                    console.log("[connection] event in jsPlumbCanvas Directive [DRAG & DROP]", info, origEvent);
-                   var targetUUID = $(info.target).attr('uuid');
-                   var sourceUUID = $(info.source).attr('uuid');
+                    var targetUUID = $(info.source).attr('uuid');
+                    var sourceUUID = $(info.target).attr('uuid');
+                   if (info.sourceEndpoint.canvas.classList.contains('ep-src')) {
+                     targetUUID = $(info.target).attr('uuid');
+                     sourceUUID = $(info.source).attr('uuid');
+                   }
                    scope.onConnection(instance, info.connection, targetUUID, sourceUUID);
                    instance.detach(info.connection);
                 }
@@ -48,20 +52,23 @@ myApp.directive('jsPlumbCanvas', [function() {
                minHeight: '1000px',
                display: 'block',
                border: '5px solid grey'
-           }).draggable({
-               drag: function() {
-                   var position = $(this).position();
-                   scope.x = position.left;
-                   scope.y = position.top;
-                   scope.$parent.$apply();
-               }
            });
+           if ($rootScope.mode && $rootScope.mode === 'move') {
+               $(element).draggable({
+                   drag: function() {
+                       var position = $(this).position();
+                       scope.x = position.left;
+                       scope.y = position.top;
+                       scope.$parent.$apply();
+                   }
+               });
+           }
            instance.setContainer($(element));
-           instance.bind("beforeStartDetach", function(params) {
-             if (params.endpoint.isTarget) {
-              return false;
-            }
-           });
+          //  instance.bind("beforeStartDetach", function(params) {
+          //    if (params.endpoint.isTarget) {
+          //     return false;
+          //   }
+          //  });
 
            var zoom = (typeof scope.zoom === 'undefined') ? 1 : scope.zoom / 100;
            jsPlumbZoomCanvas(instance, zoom, $(element)[0]);
@@ -92,7 +99,7 @@ myApp.directive('jsPlumbCanvas', [function() {
              $(element).offset(function() {
 				return {
 					left: scope.x,
-					top: scope.y
+					top: scope.y + 180
 				};
              });
            }
@@ -136,7 +143,7 @@ myApp.directive('jsPlumbCanvas', [function() {
    };
 }]);
 
-myApp.directive('jsPlumbObject', [function() {
+myApp.directive('jsPlumbObject', ['$rootScope', function($rootScope) {
     return {
         restrict: 'E',
         require: '^jsPlumbCanvas',
@@ -147,15 +154,17 @@ myApp.directive('jsPlumbObject', [function() {
         template: '<div ng-transclude></div>',
         link: function(scope, element, attrs, jsPlumbCanvas) {
             var instance = jsPlumbCanvas.scope.jsPlumbInstance;
-
-            instance.draggable(element, {
-                drag: function (event) {
-                    scope.stateObject.x = event.pos[0];
-                    scope.stateObject.y = event.pos[1];
-
-                    scope.$apply();
-                }
-            });
+            if ($rootScope.mode && $rootScope.mode === 'move') {
+                instance.draggable(element, {
+                    drag: function (event) {
+                        scope.stateObject.x = event.pos[0];
+                        scope.stateObject.y = event.pos[1];
+                        console.log(event);
+                        scope.$apply();
+                    }
+                });
+            }
+            //scope.stateObject.id = element[0].id;
 
             scope.$parent.$parent.$parent.dragWorkaround();
 
@@ -198,7 +207,7 @@ myApp.directive('jsPlumbEndpoint', [function() {
             // Hide target endpoint on input operators. They must have a target endpoint,
             // otherwise connections from them do not visibly disappear when deleted o_O
             if (element.scope().$parent.$parent.stateObject.classType === "input") {
-              if (ep.isTarget) {
+              if (scope.settings.cssClass === 'ep-target') {
                   ep.canvas.style.display = "none";
               }
             }
@@ -227,6 +236,8 @@ myApp.directive('jsPlumbConnection', ['$timeout', function($timeout) {
             var targetUUID = scope.ngModel.uuid;
 
             //we delay the connections by just a small bit for loading
+            console.log(sourceUUID);
+            console.log(targetUUID);
             console.log('[directive][jsPlumbConnection] ', scope, attrs);
 
             $timeout(function() {
@@ -246,28 +257,30 @@ myApp.directive('jsPlumbConnection', ['$timeout', function($timeout) {
                 }
 
                 var connection = jsPlumbEndpoint.connectionObjects[targetUUID];
+                if (connection && connection !== undefined) {
 
-                connection.bind("click", function() {
-                    scope.ngClick();
-                    scope.$apply();
-                });
+                    connection.bind("click", function () {
+                        scope.ngClick();
+                        scope.$apply();
+                    });
 
-                connection.bind("mouseenter", function() {
-                    scope.ngModel.mouseover = true;
-                    scope.$apply();
-                });
-                connection.bind("mouseleave", function() {
-                    scope.ngModel.mouseover = false;
-                    scope.$apply();
-                });
+                    connection.bind("mouseenter", function () {
+                        scope.ngModel.mouseover = true;
+                        scope.$apply();
+                    });
+                    connection.bind("mouseleave", function () {
+                        scope.ngModel.mouseover = false;
+                        scope.$apply();
+                    });
 
-                // Put a clone of the delete button on the label (centered on the line),
-                // then hide the original. We can't just move the original, it angers Angular
-                var overlay = connection.getOverlay("label");
-                if (overlay) {
-                    console.log('[getOverlay][label]', overlay, element);
-                    $(element).clone(true, true).appendTo(overlay.canvas);
-                    $(element).css("display", "none");
+                    // Put a clone of the delete button on the label (centered on the line),
+                    // then hide the original. We can't just move the original, it angers Angular
+                    var overlay = connection.getOverlay("label");
+                    if (overlay) {
+                        console.log('[getOverlay][label]', overlay, element);
+                        $(element).clone(true, true).appendTo(overlay.canvas);
+                        $(element).css("display", "none");
+                    }
                 }
 
 
@@ -275,8 +288,10 @@ myApp.directive('jsPlumbConnection', ['$timeout', function($timeout) {
 
 
             scope.$on('$destroy', function() {
-                console.log('jsPlumbConnection for $destroy');
-                if (jsPlumbEndpoint.connectionObjects[targetUUID].source && jsPlumbEndpoint.connectionObjects[targetUUID].target) {
+                if (jsPlumbEndpoint.connectionObjects[targetUUID] &&
+                    jsPlumbEndpoint.connectionObjects[targetUUID] !== undefined &&
+                    jsPlumbEndpoint.connectionObjects[targetUUID].source && jsPlumbEndpoint.connectionObjects[targetUUID].target) {
+                    console.log('jsPlumbConnection for $destroy', jsPlumbEndpoint.connectionObjects[targetUUID]);
                     instance.detach(jsPlumbEndpoint.connectionObjects[targetUUID]);
                 }
                 // if the connection is destroyed, I am assuming the parent endPoint is also destroyed, and we need to remove

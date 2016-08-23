@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.util.Collection;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.filefilter.SuffixFileFilter;
 import org.apache.commons.io.filefilter.TrueFileFilter;
 
@@ -16,8 +17,8 @@ import org.apache.commons.io.filefilter.TrueFileFilter;
 public class FileUtil {
 
 	/**
-	 * Get all files under a base directory with a particular extension. If recursive is true, sub-directories will be
-	 * searched.
+	 * Get all files under a base directory with a particular extension. If
+	 * recursive is true, sub-directories will be searched.
 	 * 
 	 * @param baseDir
 	 * @param extension
@@ -41,7 +42,19 @@ public class FileUtil {
 	}
 
 	/**
-	 * Get the file name without the extension. Everything after the first dot is excluded.
+	 * Get the contents of a file in resources as a string.
+	 * 
+	 * @param resourcePath
+	 * @return
+	 * @throws IOException
+	 */
+	public static String getResourceFileContentsAsString(String resourcePath) throws IOException {
+		return IOUtils.toString(FileUtil.class.getClassLoader().getResourceAsStream(resourcePath));
+	}
+
+	/**
+	 * Get the file name without the extension. Everything after the first dot
+	 * is excluded.
 	 * 
 	 * @param file
 	 * @return

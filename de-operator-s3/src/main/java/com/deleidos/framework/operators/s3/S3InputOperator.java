@@ -4,7 +4,6 @@ import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
 import org.apache.commons.compress.archivers.ArchiveEntry;
@@ -21,12 +20,10 @@ import com.amazonaws.services.s3.model.S3ObjectSummary;
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DefaultOutputPort;
 import com.deleidos.framework.operators.abstractsplitter.AbstractSplitter;
-
-import jline.internal.Log;
-
+import com.deleidos.framework.operators.common.InputTuple;
 
 public class S3InputOperator extends AbstractSplitter implements Runnable {
-	
+
 	// @NotNull
 	protected String bucketName;
 	protected String path;
@@ -41,22 +38,27 @@ public class S3InputOperator extends AbstractSplitter implements Runnable {
 	private transient Thread s3Thread;
 	private transient AWSCredentials credentials;
 	private Double headerRows = 0.0;
-	public transient DefaultOutputPort<ArrayList<byte[]>> output = new DefaultOutputPort<ArrayList<byte[]>>();
-	public void setSplitter(String splitter){
+	public transient DefaultOutputPort<InputTuple> output = new DefaultOutputPort<InputTuple>();
+
+	public void setSplitter(String splitter) {
 		this.splitter = splitter;
 	}
-	public String getSplitter(){
+
+	public String getSplitter() {
 		return this.splitter;
 	}
-	public void setHeaderRows(Double headerRows){
+
+	public void setHeaderRows(Double headerRows) {
 		this.headerRows = headerRows;
 	}
-	public Double getHeaderRows(){
+
+	public Double getHeaderRows() {
 		return this.headerRows;
 	}
+
 	@Override
 	public void setup(OperatorContext context) {
-		
+
 		try {
 			credentials = new BasicAWSCredentials(accessKey, secretKey);
 			s3Client = new AmazonS3Client(credentials);
@@ -80,16 +82,15 @@ public class S3InputOperator extends AbstractSplitter implements Runnable {
 		super.teardown();
 	}
 
-	
 	public void run() {
 		while (!shutdown) {
 			shutdown = true;
 			InputStream is = null;
 			TarArchiveInputStream tarIn = null;
 			try {
-				
+
 				List<String> files = getFiles(bucketName, path);
-			
+
 				for (String file : files) {
 					is = getFileStream(bucketName, file);
 
@@ -100,33 +101,31 @@ public class S3InputOperator extends AbstractSplitter implements Runnable {
 						tarIn = new TarArchiveInputStream(gzIn);
 
 						ArchiveEntry entry = null;
-					
-						try{
-						while ((entry = tarIn.getNextEntry()) != null) {
-							if (!entry.isDirectory()) {
-								
-								emitLines(tarIn);
+
+						try {
+							while ((entry = tarIn.getNextEntry()) != null) {
+								if (!entry.isDirectory()) {
+
+									emitLines(tarIn);
+								}
 							}
-						}
 						} catch (InterruptedException e) {
 							// TODO Auto-generated catch block
 							e.printStackTrace();
-						}finally{
-							if(gzIn != null){
+						} finally {
+							if (gzIn != null) {
 								gzIn.close();
 							}
-							if(in != null){
+							if (in != null) {
 								in.close();
 							}
 						}
 
-
-					}
-					else if(file.endsWith("json") || file.endsWith("csv")){
+					} else if (file.endsWith("json") || file.endsWith("csv")) {
 						emitLines(is);
 					}
 				}
-				
+
 			} catch (IOException | InterruptedException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -142,7 +141,7 @@ public class S3InputOperator extends AbstractSplitter implements Runnable {
 					} catch (IOException e) {
 					}
 				}
-				
+
 			}
 		}
 	}
@@ -172,20 +171,15 @@ public class S3InputOperator extends AbstractSplitter implements Runnable {
 	protected InputStream getFileStream(String bucketName, String key) {
 		return s3Client.getObject(bucketName, key).getObjectContent();
 	}
-	
+
 	protected void emitLines(InputStream is) throws IOException, InterruptedException {
-		HashMap<String, String> map = new HashMap<String, String>();
-		
-		map.put("headerRows", headerRows.intValue()+"");
-		
-		if(splitter.equals("JSON")){
-			JSONSplitter(is,output,map);
-		}
-		else if(splitter.equals("Line")){
-			LineSplitter(is,output,map);
+
+		if (splitter.equals("JSON")) {
+			JSONSplitter(is, output, headerRows.intValue());
+		} else if (splitter.equals("Line")) {
+			LineSplitter(is, output, headerRows.intValue());
 		}
 	}
-	
 
 	public String getBucketName() {
 		return bucketName;

@@ -45,5 +45,15 @@
 			<artifactId>de-framework-data-model</artifactId>
 			<version>0.0.1-SNAPSHOT</version>
 		</dependency>
+		<dependency>
+			<groupId>com.amazonaws</groupId>
+			<artifactId>aws-java-sdk</artifactId>
+			<version>1.11.14</version>
+		</dependency>
+		<dependency>
+			<groupId>com.deleidos</groupId>
+			<artifactId>de-framework-monitoring</artifactId>
+			<version>0.0.1-SNAPSHOT</version>
+		</dependency>
 	</dependencies>
 </project>

@@ -5,30 +5,28 @@ import static org.junit.Assert.assertNull;
 
 import org.junit.Test;
 
-import com.deleidos.analytics.config.AnalyticsConfig;
-
 /**
  * Simple redis client unit test.
  * 
  * @author vernona
  */
-public class RedisClientTest {
+public class RedisClientTest extends RedisClientTestBase {
+
+	private static final String namespace = "RedisClientTest";
+	private static final String key = "foo";
+	private static final String value = "bar";
 
 	/**
 	 * Test set, get and delete.
 	 */
 	@Test
 	public void test() {
-		RedisClient client = new RedisClient(AnalyticsConfig.getInstance().getRedisHostname());
-		String key = "foo";
-		String value = "bar";
-		client.setValue(key, value);
-		String value2 = client.getValue(key);
+		client.setValue(namespace, key, value);
+		String value2 = client.getValue(namespace, key);
 		System.out.println(value2);
 		assertEquals(value, value2);
-		client.delete(key);
-		value2 = client.getValue(key);
+		client.delete(namespace, key);
+		value2 = client.getValue(namespace, key);
 		assertNull(value2);
-		client.close();
 	}
 }

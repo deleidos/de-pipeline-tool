@@ -1,5 +1,6 @@
 package com.deleidos.framework.operators.dimensional_enrichment;
 
+import java.lang.reflect.Type;
 import java.util.Map;
 
 import javax.validation.constraints.NotNull;
@@ -9,8 +10,9 @@ import org.apache.log4j.Logger;
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.common.util.BaseOperator;
-import com.deleidos.analytics.common.util.JsonToMapUtil;
 import com.deleidos.analytics.redis.client.RedisClient;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
 /**
  * Enrich a JSON input record by adding additional data to it. Data is pulled from a Redis cache using the given key
@@ -20,9 +22,9 @@ import com.deleidos.analytics.redis.client.RedisClient;
  * 
  * @author vernona
  */
-public class FutureRedisDimensionalEnrichmentOperator extends BaseOperator {
+public class OldRedisDimensionalEnrichmentOperator extends BaseOperator {
 
-	private static final Logger logger = Logger.getLogger(FutureRedisDimensionalEnrichmentOperator.class);
+	private static final Logger logger = Logger.getLogger(OldRedisDimensionalEnrichmentOperator.class);
 
 	@NotNull
 	protected String keyField;
@@ -31,26 +33,38 @@ public class FutureRedisDimensionalEnrichmentOperator extends BaseOperator {
 	@NotNull
 	protected String cacheHostname;
 
+	private transient Gson gson = new Gson();
+
 	/**
 	 * Empty no-arg constructor for serialization.
 	 */
-	public FutureRedisDimensionalEnrichmentOperator() {}
+	public OldRedisDimensionalEnrichmentOperator() {}
 
 	/** Output port stream for tuple result emission. */
-	public final transient DefaultOutputPort<Map<String, String>> output = new DefaultOutputPort<Map<String, String>>();
+	public final transient DefaultOutputPort<String> output = new DefaultOutputPort<String>();
 
 	/** Input port stream for tuple processing. */
-	public final transient DefaultInputPort<Map<String, String>> input = new DefaultInputPort<Map<String, String>>() {
+	public final transient DefaultInputPort<String> input = new DefaultInputPort<String>() {
 		@Override
-		public void process(Map<String, String> tuple) {
+		public void process(String tuple) {
 
+			Map<String, Object> map = null;
 			try {
-				String keyValue = ((String) tuple.get(keyField)).replace("\"", "");
-				if (keyValue != null) {
+				map = objectToMap(tuple);
+				Object keyValue = map.get(keyField);
+				String key = null;
+				if (keyValue instanceof String) {
+					key = (String) keyValue;
+					key = key.replace("\"", "");
+				}
+
+				if (key != null) {
 					RedisClient client = new RedisClient(cacheHostname);
-					String jsonData = client.getValue(keyValue);
+					String jsonData = client.getValue(null, key);
+					client.close();
 					if (jsonData != null) {
-						JsonToMapUtil.loadJSONFields(tuple, jsonData, dataField);
+						Map<String, Object> dataMap = objectToMap(jsonData);
+						map.put(dataField, dataMap);
 					}
 				}
 			}
@@ -59,6 +73,7 @@ public class FutureRedisDimensionalEnrichmentOperator extends BaseOperator {
 				logger.error(t.getMessage(), t);
 			}
 
+			tuple = map == null ? tuple : gson.toJson(map);
 			output.emit(tuple);
 		}
 	};
@@ -85,5 +100,10 @@ public class FutureRedisDimensionalEnrichmentOperator extends BaseOperator {
 
 	public void setCacheHostname(String cacheHostname) {
 		this.cacheHostname = cacheHostname;
+	}
+	
+	private Map<String, Object> objectToMap(String json) {
+		Type type = new TypeToken<Map<String, Object>>() {}.getType();
+		return gson.fromJson(json, type);
 	}
 }

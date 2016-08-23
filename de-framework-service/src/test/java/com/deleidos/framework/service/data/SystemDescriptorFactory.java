@@ -7,6 +7,7 @@ import java.util.UUID;
 
 import org.apache.commons.io.IOUtils;
 
+import com.deleidos.analytics.common.util.JsonUtil;
 import com.deleidos.framework.model.system.ApplicationDescriptor;
 import com.deleidos.framework.model.system.OperatorDescriptor;
 import com.deleidos.framework.model.system.SystemDescriptor;
@@ -22,29 +23,33 @@ public class SystemDescriptorFactory {
 
 	private static final SystemDescriptorFactory instance = new SystemDescriptorFactory();
 
-	private SystemDescriptorFactory() {}
+	private SystemDescriptorFactory() {
+	}
 
 	public static SystemDescriptorFactory getInstance() {
 		return instance;
 	}
 
 	public SystemDescriptor getExampleSystemDescriptor() throws Exception {
-		String exampleMapping = IOUtils.toString(getClass().getResourceAsStream(mappingJsonFilePath),
-				Charset.defaultCharset());
+		@SuppressWarnings("unchecked")
+		Map<String, String> exampleMapping = (Map<String, String>) JsonUtil.fromJsonString(
+				IOUtils.toString(getClass().getResourceAsStream(mappingJsonFilePath), Charset.defaultCharset()),
+				Map.class);
 
 		ApplicationDescriptor application = ApplicationDescriptorFactory.getInstance()
 				.getExampleApplicationDescriptor();
 
-		Map<String, String> mappingOperatorMap = new HashMap<String, String>();
+		Map<String, Map<String, String>> mappingOperatorMap = new HashMap<String, Map<String, String>>();
 		for (OperatorDescriptor operator : application.getOperators()) {
 			if (operator.getClassName().contains("JSONMappingOperator")) {
 				mappingOperatorMap.put(operator.getName(), exampleMapping);
 			}
 		}
 
-		SystemDescriptor system = new SystemDescriptor(UUID.randomUUID().toString(), "Example System", application, mappingOperatorMap, null);
+		SystemDescriptor system = new SystemDescriptor(UUID.randomUUID().toString(), "Example System", application,
+				mappingOperatorMap, null);
 		system.set_id(UUID.randomUUID().toString());
-		
+
 		return system;
 	}
 }

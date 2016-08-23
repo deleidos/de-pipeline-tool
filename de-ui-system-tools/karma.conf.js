@@ -31,6 +31,11 @@ module.exports = function (config) {
             'app/bower_components/angular-websocket/angular-websocket.min.js',
             'app/bower_components/Chart.js/dist/Chart.js',
             'app/bower_components/angular-chart.js/dist/angular-chart.js',
+            'app/bower_components/angular-hotkeys/build/hotkeys.js',
+            'app/bower_components/ngSmoothScroll/lib/angular-smooth-scroll.js',
+            'app/bower_components/angular-sanitize/angular-sanitize.js',
+            'app/bower_components/ez-ng/dist/ez-ng.js',
+            'app/bower_components/angular-ui-tour/dist/angular-ui-tour.js',
             'app/bower_components/angular-mocks/angular-mocks.js',
             // endbower
 	        'app/bower_components/angular-websocket/angular-websocket-mock.js',

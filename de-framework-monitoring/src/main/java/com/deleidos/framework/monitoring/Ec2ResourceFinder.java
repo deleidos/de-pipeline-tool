@@ -47,4 +47,38 @@ public enum Ec2ResourceFinder {
 
 		return privateIp;
 	}
+
+	public String lookupPublicIp(String tagKey, String tagValue) {
+		String privateIp = "unknown";
+
+		AmazonEC2 client = null;
+		try {
+			client = new AmazonEC2Client(new DefaultAWSCredentialsProviderChain());
+			Filter filters = new Filter(tagKey).withValues(tagValue);
+
+			DescribeInstancesRequest dir = new DescribeInstancesRequest().withFilters(filters);
+
+			DescribeInstancesResult rslt = client.describeInstances(dir);
+
+			outerloop: for (Reservation reservation : rslt.getReservations()) {
+				for (Instance instance : reservation.getInstances()) {
+					for (Tag tag : instance.getTags()) {
+						if (tag.getKey().equals(tagKey.split(":")[1])) {
+							privateIp = instance.getPublicIpAddress();
+							break outerloop;
+						}
+					}
+				}
+			}
+
+		} catch (Exception e) {
+			// TODO add/use a logger
+			e.printStackTrace();
+		} finally {
+			if (client != null)
+				client.shutdown();
+		}
+
+		return privateIp;
+	}
 }

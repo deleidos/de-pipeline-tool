@@ -661,9 +661,9 @@ public abstract class AbstractMapping implements Initializable {
 	/**
 	 * Add a field to the json object, converting it from a string if needed.
 	 */
-	private void addField(Object json, TranslationAction action, String value) {
+	private void addField(Object json, TranslationAction action, Object value) {
 
-		Object valueObj = convertString(DataTypes.string, action.format, value);
+		Object valueObj = value;//convertString(DataTypes.string, action.format, value);
 		if (valueObj == null) {
 			// Cannot convert value to the target type
 			fieldError("Value '" + value + "' for canonical field " + action.path + " does not conform to the type "
@@ -673,10 +673,10 @@ public abstract class AbstractMapping implements Initializable {
 		}
 	}
 
-	private void addArrayField(Object json, TranslationAction action, List<String> values) {
+	private void addArrayField(Object json, TranslationAction action, List<Object> values) {
 		List<Object> valueObjs = new ArrayList<Object>();
-		for (String s : values) {
-			valueObjs.add(convertString(action.dataType, action.format, s));
+		for (Object s : values) {
+			valueObjs.add(s);//convertString(action.dataType, action.format, s));
 		}
 		addArrayValue(json, action, valueObjs);
 	}
@@ -704,7 +704,7 @@ public abstract class AbstractMapping implements Initializable {
 	 *            default string describing the access label for the record
 	 * @return A JSON object ready for further processing
 	 */
-	public JsonObject recordTranslation(Map<String, String> recordMap, String source, String defaultAccessLabel)
+	public JsonObject recordTranslation(Map<String, Object> recordMap, String source, String defaultAccessLabel)
 			throws ParseException {
 		return recordTranslation(recordMap, source, defaultAccessLabel, null);
 	}
@@ -712,13 +712,13 @@ public abstract class AbstractMapping implements Initializable {
 	/**
 	 * Overloaded method to include UUID
 	 */
-	public JsonObject recordTranslation(Map<String, String> recordMap, String source, String defaultAccessLabel, String uuid)
+	public JsonObject recordTranslation(Map<String, Object> recordMap, String source, String defaultAccessLabel, String uuid)
 			throws ParseException {
 
 		Stack<Object> objectStack = new Stack<Object>();
 		JsonObject rootObj = null;
 		Object curObj = null;
-		String value;
+		Object value;
 		String inputFormat;
 		String timeZone;
 
@@ -812,10 +812,10 @@ public abstract class AbstractMapping implements Initializable {
 						// it is not part of the missing fields.
 						//fieldError("Input data did not contain the input field " + (String) action.parameters[0], null);
 					}
-				} else if (value.length() == 0) {
+				} /*else if (value.length() == 0) {
 					value = (String) action.parameters[1]; // Null string - try
 															// default
-				}
+				}*/
 
 				if (value != null) {
 					addField(curObj, action, value);
@@ -823,7 +823,7 @@ public abstract class AbstractMapping implements Initializable {
 				break;
 			case GetArray:
 				String arrVal = (String) action.parameters[0];
-				List<String> values = new ArrayList<String>();
+				List<Object> values = new ArrayList<Object>();
 				int index = 0;
 				boolean foundVal = true;
 				while (foundVal) {
@@ -862,8 +862,8 @@ public abstract class AbstractMapping implements Initializable {
 				} else {
 					timeZone = null;
 				}
-
-				if (value.isEmpty()) {
+				String val = value.toString();
+				if (val.isEmpty()) {
 					// Cannot find the field in the input
 					fieldError(
 							"Input Date String'" + value + "' for canonical field " + action.path + " is not specified",
@@ -873,7 +873,8 @@ public abstract class AbstractMapping implements Initializable {
 						fieldError("Canonical Date format for canonical field " + action.path + " is not specified",
 								null);
 					} else {
-						value = convertDate(action, value, inputFormat, timeZone);
+						
+						value = convertDate(action, val, inputFormat, timeZone);
 					}
 					addField(curObj, action, value);
 				}
@@ -955,7 +956,7 @@ public abstract class AbstractMapping implements Initializable {
 		return convertedDate;
 	}
 
-	private String combineFields(Map<String, String> recordMap, String fields) {
+	private String combineFields(Map<String, Object> recordMap, String fields) {
 		StringBuffer returnValue = new StringBuffer();
 		String[] fieldsToCombine = fields.split(headerSeperator);
 
@@ -975,7 +976,7 @@ public abstract class AbstractMapping implements Initializable {
 	 *            Record Map input data
 	 * @return the access label string
 	 */
-	public String getAccessLabel(Map<String, String> recordMap) {
+	public String getAccessLabel(Map<String, Object> recordMap) {
 		return null;
 	}
 
@@ -992,5 +993,5 @@ public abstract class AbstractMapping implements Initializable {
 	 * @throws UnsupportedOperationException
 	 */
 	public abstract String customFieldTranslator(String outputFieldPath, String outputFieldKey,
-			Map<String, String> recordMap);
+			Map<String, Object> recordMap);
 }

@@ -1,5 +1,5 @@
 <div class="operator-ribbon">
-  <div  class="md-fab-top-right md-scale" style="transform: translate(0, -46%)">
+  <div class="md-fab-top-right md-scale" style="transform: translate(0, -46%)">
     <!--<div>
       <button class="md-fab md-mini" aria-label="Search" ng-click="focusSearch()">
         <i class="fa fa-search fa-lg"></i>
@@ -8,12 +8,13 @@
     <!--<md-fab-actions>-->
       <div id="search" class="pull-right op-search">
         <label for="operator-search"><i class="fa fa-search"></i></label>
-        <input drop-disable id="operator-search" type="text" class="form-control" placeholder="Search Operators..." ng-model="search.display_name"/>
+        <input drop-disable id="operator-search" type="text" class="form-control" placeholder="Search Operators..." ng-model="searchOp.display_name"/>
       </div>
     <!--</md-fab-actions>-->
   </div>
+
     <md-tabs style="z-index: -1" md-whiteframe md-selected:"activeCat.index" class="md-dynamic-height" >
-        <md-tab ng-repeat="opType in displayList" md-on-select="setActiveCat(opType)">
+        <md-tab ng-repeat="opType in displayList" md-on-select="setActiveCat(opType)" ng-if="displayList[0].operators !== null">
             <md-tab-label class="operator-category">
                 <i class="fa fa-lg" ng-class="opType.icon" ng-style="{'color': opType.color}"></i>&nbsp;{{opType.name}}
             </md-tab-label>
@@ -26,11 +27,16 @@
                   <p><i class="fa fa-plus fa-2x" style="transform: translate(0, 25%)"></i></p>
                 </div>
               </li>-->
-              <li ng-repeat="operator in opType.operators | filter:search">
-                <div class="butn butn-operator md-button" ng-style="{'background-color': operator.color}" draggable="true" ondragstart="event.dataTransfer.setData('text/plain', JSON.stringify($(this).scope().operator));"
-                    aria-label="{{operator.display_name}}" title="Drag onto the System Configuration canvas to add a(n) {{ operator.display_type }} operator">
+              <li ng-repeat="operator in opType.operators | filter:searchOp track by $index">
+                <div ng-if="opType.name !== 'Saved Operators'" class="butn butn-operator md-button" ng-style="{'background-color': operator.color}" draggable="true" ondragstart="event.dataTransfer.setData('text/plain', JSON.stringify($(this).scope().operator));"
+                    aria-label="{{operator.display_name}}" title="Drag onto the System Configuration canvas to add a(n) {{ operator.display_name }} operator">
                   <p class="operator-label">{{ operator.display_name }}</p>
                 </div>
+                  <div ng-if="opType.name === 'Saved Operators'" class="butn butn-operator md-button" ng-style="{'background-color': operator.color}" draggable="true" ondragstart="event.dataTransfer.setData('text/plain', JSON.stringify($(this).scope().operator));"
+                       aria-label="{{operator.name}}" title="{{ operator.display_name }} operator" ng-click="setActive(operator)" style="text-transform: none">
+                      <p class="operator-label">{{ operator.name }} <i class="fa fa-times" ng-click="removeOperator($index, opType.operators); event.stopPropagation()"></i></p>
+
+                  </div>
               </li>
             </ul>
           </md-tab-body>
@@ -42,7 +48,13 @@
           </md-tab-label>
         </md-tab>
     </md-tabs>
-    <div ng-if="!displayList.length && !operatorLoading" class="alert alert-warning">
+    <div tour-step
+         tour-step-belongs-to="tour"
+         tour-step-content="Choose an operator type, then click and drag an operator to add it to the canvas. Draw links between operators to connect into a complete system."
+         tour-step-order="30"
+         tour-step-orphan="false"
+         tour-step-placement="bottom"></div>
+    <div ng-if="(!displayList.length || displayList[0].operators === null) && !operatorLoading" class="alert alert-warning">
       <i class="fa fa-warning"></i>
       The data service either returned no operators or is down. Please refresh the page.
     </div>

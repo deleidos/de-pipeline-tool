@@ -16,11 +16,13 @@ public class DeFrameworkDb {
 	private final MongoClient client;
 	private final MongoDatabase db;
 	private final MongoCollection<Document> systemCollection;
-	private final MongoCollection<Document> operatorMetadataCollecti;
+	private final MongoCollection<Document> operatorMetadataCollection;
+	private final MongoCollection<Document> enrichmentNamespaceCollection;
 
 	private static final String databaseName = "de_framework_db";
 	private static final String systemCollectionName = "system";
 	private static final String operatorMetadataCollectionName = "op_metadata";
+	private static final String enrichmentNamespaceCollectionName = "enrichment_namespace";
 
 	/**
 	 * Constructor.
@@ -31,7 +33,8 @@ public class DeFrameworkDb {
 		client = new MongoClient(hostname);
 		db = client.getDatabase(databaseName);
 		systemCollection = db.getCollection(systemCollectionName);
-		operatorMetadataCollecti = db.getCollection(operatorMetadataCollectionName);
+		operatorMetadataCollection = db.getCollection(operatorMetadataCollectionName);
+		enrichmentNamespaceCollection = db.getCollection(enrichmentNamespaceCollectionName);
 	}
 
 	/**
@@ -67,6 +70,15 @@ public class DeFrameworkDb {
 	 * @return
 	 */
 	public MongoCollection<Document> getOperatorMetadataCollection() {
-		return operatorMetadataCollecti;
+		return operatorMetadataCollection;
+	}
+
+	/**
+	 * Get the enrichment namespace collection.
+	 * 
+	 * @return
+	 */
+	public MongoCollection<Document> getEnrichmentNamespaceCollection() {
+		return enrichmentNamespaceCollection;
 	}
 }

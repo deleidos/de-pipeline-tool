@@ -51,6 +51,6 @@ public class KillSystem extends BaseWebSocketMessage {
 		sendResponse("appID: " + appID + " Name: " + system.getName());
 		String out = Application_Creation.killApp(appID);
 		// TODO kill system in apex
-		sendResponse(out); // TODO return value
+		sendResponse(out + " " + system.getName()); // TODO return value
 	}
 }

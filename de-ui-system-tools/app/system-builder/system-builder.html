@@ -1,5 +1,45 @@
-<div ng-controller="SystemBuilderController">
-    <operator-ribbon op-list="operatorList"></operator-ribbon>
+<div ng-controller="SystemBuilderController" tour="TourService.getTourByName('tour')" elem-ready="tourOnLoad()">
+    <operator-ribbon op-list="operatorList" tour="TourService.getTourByName('tour')"></operator-ribbon>
+    <div tour-step
+         tour-step-belongs-to="tour"
+         tour-step-title="Welcome!"
+         tour-step-content="Welcome to the DigitalEdge Pipeline Tool. This tour will guide you through the creation and management of DigitalEdge systems."
+         tour-step-order="0"
+         tour-step-orphan="true">
+    </div>
+    <div tour-step
+         tour-step-belongs-to="tour"
+         tour-step-content="A DigitalEdge system is a series of operators which process data, enrich the data as necessary, and store the data in a repository of your choice.<br><br>A system must contain the following operators in order:<br><br>1. Input Operator (required)<br>
+2. Parser Operator (required)<br>
+3. Mapping Operator (optional)<br>
+4. Enrichment Operator (optional)<br>
+5. Output Operator (required) <br>"
+         tour-step-order="20"
+         tour-step-orphan="true">
+    </div>
+    <div tour-step
+         tour-step-belongs-to="tour"
+         tour-step-content="Each operator has properties that define the system which need to be provided. "
+         tour-step-order="40"
+         tour-step-orphan="true">
+    </div>
+    <div tour-step
+         tour-step-belongs-to="tour"
+         tour-step-content="A completed operator can be saved for reuse by selecting it and pressing Ctrl + C. This operator will then be available for use from the Saved Operators tab."
+         tour-step-order="90"
+         tour-step-orphan="true">
+    </div>
+    <div tour-step
+         tour-step-belongs-to="tour"
+         tour-step-content="Once your system is complete and without errors, it can be saved as either a new system or overwrite an existing system with the same name."
+         tour-step-order="100"
+         tour-step-orphan="true">
+    </div>
+    <div tour-step
+         tour-step-belongs-to="tour"
+         tour-step-content="This concludes the tour of the DigitalEdge Pipeline Tool."
+         tour-step-order="150"
+         tour-step-orphan="true"></div>
     <div id="system-builder-body">
         <div class="col-sm-8 system-builder-canvas">
             <div md-whiteframe class="panel-primary">
@@ -14,18 +54,70 @@
                         <md-button class="butn butn-default butn-sm" ng-click="removeAll()">Clear all</md-button>
                     </div>
                     <div class="pull-right">
-                        <md-button class="butn butn-default butn-sm" ng-click="saveToManager()" ng-disabled="!systemNameRegEx.exec(systemName) || (systemNamesIds.hasOwnProperty(systemName) && systemNamesIds[systemName] !== _id) || buildInvalid">Save</md-button>&nbsp;&nbsp;
+                        <md-button class="butn butn-default butn-sm" ng-click="_id = null; saveToManager()" ng-disabled="!systemNameRegEx.exec(systemName) || systemNamesIds.hasOwnProperty(systemName) || buildInvalid">Save As</md-button>&nbsp;&nbsp;
                     </div>
                     <div class="pull-right">
-                        <md-button class="butn butn-default butn-sm" ng-click="_id = null; saveToManager()" ng-disabled="!systemNameRegEx.exec(systemName) || systemNamesIds.hasOwnProperty(systemName) || buildInvalid">New Save</md-button>&nbsp;&nbsp;
+                        <md-button class="butn butn-default butn-sm" ng-click="saveToManager()" ng-disabled="!systemNameRegEx.exec(systemName) || (systemNamesIds.hasOwnProperty(systemName) && systemNamesIds[systemName] !== _id) || buildInvalid">Save</md-button>&nbsp;&nbsp;
                     </div>
+                    <!--<div class="pull-right">
+                        <md-button ng-blur="showModes = false" class="butn butn-default butn-sm" ng-focus="showModes = true" ng-mouseover = "">Mode</md-button>&nbsp;&nbsp;<br>
+                        <div class="mode-butn-holder" ng-show="showModes">
+                            <md-button class="butn butn-default butn-sm" ng-mouseup="toggleMode('select'); showModes = false" ng-focus="showModes = true" ng-blur="showModes = false">
+                                <span class="mode-check" ng-if="mode === 'select'">&#10003</span>
+                                Select
+                            </md-button><br>
+                            <md-button class="butn butn-default butn-sm" ng-mouseup="toggleMode('move'); showModes = false" ng-focus="showModes = true" ng-blur="showModes = false">
+                                <span class="mode-check" ng-if="mode === 'move'">&#10003</span>
+                                Move
+                            </md-button>
+                        </div>
+                    </div>-->
                 </div>
                 <div class="panel-body plumb-panel">
-                    <md-button class="col-sm-1 md-fab md-mini" aria-label="Return to original location" ng-click="resetPosition()" style="padding: 0; min-width: 0">
+                    <i class="fa fa-times fa-lg error-close" ng-click="flipError()" ng-if="!hideErrors"></i>
+                    <div class="error-holder" ng-if="!hideErrors">
+                        <div class="error-inner" ng-repeat="(key, inv) in invalid_text track by $index">
+                            {{inv}}
+                        </div>
+                    </div>
+                    <md-button class="col-sm-1 md-fab md-mini" aria-label="Return to original location" title="Return to original location" ng-click="resetPosition()" style="padding: 0; min-width: 0"
+                               tour-step
+                               tour-step-belongs-to="tour"
+                               tour-step-content="Within the canvas, press the home button to return the canvas to its neutral state."
+                               tour-step-order="60"
+                               tour-step-placement="right"
+                               tour-step-orphan="false">
                         <i class="fa fa-home fa-2x" style="margin-top: 5px"></i>
                     </md-button>
-                    <md-button class="col-sm-1 md-fab md-mini" aria-label="Bring up a help modal" ng-click="helpModal()" style="padding: 0; min-width: 0; float: right">
+                    <md-button class="col-sm-1 md-fab md-mini" aria-label="Bring up a help modal" title="Bring up a help modal" ng-click="startDetached()" style="padding: 0; min-width: 0; float: right"
+                               tour-step
+                               tour-step-belongs-to="tour"
+                               tour-step-content="The question mark will also relaunch the tour."
+                               tour-step-order="65"
+                               tour-step-placement="left-bottom"
+                               tour-step-orphan="false">
                         <i class="fa fa-question-circle fa-2x" style="margin-top: 7px"></i>
+                    </md-button>
+                    <md-button class="col-sm-1 md-fab md-mini" aria-label="Switch to select mode" title="Switch to select mode" ng-click="toggleMode('select'); $event.stopPropagation()" style="padding: 0; min-width: 0; float: right"
+                               tour-step
+                               tour-step-belongs-to="tour"
+                               tour-step-content="The hand toggles select mode within the canvas, and the arrows toggle move mode, to allow operators or the canvas to be dragged."
+                               tour-step-order="70"
+                               tour-step-placement="bottom"
+                               tour-step-orphan="false">
+                        <i class="fa fa-hand-pointer-o fa-2x" style="margin-top: 7px; color: white"></i>
+                    </md-button>
+                    <md-button class="col-sm-1 md-fab md-mini" aria-label="Switch to move mode" title="Switch to move mode" ng-click="toggleMode('move'); $event.stopPropagation()" style="padding: 0; min-width: 0; float: right">
+                        <i class="fa fa-arrows fa-2x" style="margin-top: 7px"></i>
+                    </md-button>
+                    <md-button class="col-sm-1 md-fab md-mini error-button" ng-class="{'errors': buildInvalid}" aria-label="See error log" title="See error log" ng-click="flipError(); $event.stopPropagation()" style="padding: 0; min-width: 0; float: right"
+                               tour-step
+                               tour-step-belongs-to="tour"
+                               tour-step-content="The warning indicator toggles the error dialog, which lists where problems exist within the system."
+                               tour-step-order="80"
+                               tour-step-placement="bottom"
+                               tour-step-orphan="false">
+                        <i class="fa fa-exclamation-circle fa-2x" style="margin-top: 7px"></i>
                     </md-button>
                     <md-slider-container id="zoom-slider">
                         <!-- <span class="fa fa-search-minus" ng-click="decreaseZoom()"></span>
@@ -34,17 +126,25 @@
                         <md-slider md-discrete ng-model="canvas.zoomlevel" step="5" min="20" max="90" aria-label="Zoom Slider" md-vertical></md-slider>
                     </md-slider-container>
                     <p class="col-sm-2">{{saveText}}</p>
-                    <js-plumb-canvas ng-click="setActiveStateFromEvent($event)" ondragover="event.preventDefault()" ondrop="event.preventDefault(); $(this).scope().drop(event)" on-connection="onConnection"
-                                   x="canvas.x" y="canvas.y" zoom="canvas.zoomlevel"
-                                 ng-style="{left: '-1000px', top: '-1000px'}">
-                        <div ng-if="!refreshing" ng-include="'partials/defaultState.html'"></div>
-                    </js-plumb-canvas>
+                    <div ng-if="!canvasRefresh">
+                        <js-plumb-canvas ng-class="{'move-canvas': mode === 'move'}" ng-click="setActiveStateFromEvent($event)" ondragover="event.preventDefault()" ondrop="event.preventDefault(); $(this).scope().drop(event)" on-connection="onConnection"
+                                       x="canvas.x" y="canvas.y" zoom="canvas.zoomlevel"
+                                     ng-style="{left: '-1000px', top: '-1000px'}">
+                            <div ng-if="!refreshing" ng-include="'partials/defaultState.html'"></div>
+                        </js-plumb-canvas>
+                    </div>
+
                 </div>
             </div>
         </div>
-
-        <div class="col-sm-4 operator-details">
-            <div md-whiteframe ng-include="'system-builder/operator-details.html'"></div>
+        <div class="col-sm-4 operator-details" tour-step
+             tour-step-belongs-to="tour"
+             tour-step-content="For example, the S3InputOperator requires the S3 login information, as well as whether the data is in line or JSON format and how many header rows the data has."
+             tour-step-order="50"
+             tour-step-orphan="false"
+             tour-step-placement="left">
+            <div md-whiteframe ng-include="'system-builder/operator-details.html'"
+            ></div>
         </div>
     </div>
 </div>

@@ -2,7 +2,7 @@
     "use strict";
 
     angular.module('systemManager')
-        .controller('SystemManagerController', ['$scope', '$uibModal', 'MonitorData', '$rootScope', '$websocket', '$timeout', SystemManagerController])
+        .controller('SystemManagerController', ['$scope', '$uibModal', 'MonitorData', '$rootScope', '$websocket', '$timeout', 'uiTourService', 'tourSteps', SystemManagerController])
         .controller('ConfirmDelete', ['$scope', '$uibModalInstance', ConfirmDelete]);
 
     /**
@@ -31,26 +31,33 @@
      * @param $websocket The websocket function used to make sockets
      * @param $timeout Timer function
      */
-    function SystemManagerController($scope, $uibModal, MonitorData, $rootScope, $websocket, $timeout) {
+    function SystemManagerController($scope, $uibModal, MonitorData, $rootScope, $websocket, $timeout, TourService, tourSteps) {
 
         //0 = no info display, 1 = large info display and minimized charts besides the selected ones
         $scope.state = 0;
 
         //Contains the currently active system
         $scope.active = undefined;
+
+        $scope.runningSystem = [];
+        $scope.killingSystem = [];
+
+        $scope.down = true;
         var dataStream = $websocket($rootScope.dataService);
+        var deployService = $websocket($rootScope.dataService);
+        deployService.send({
+            "consume": "deployment_complete_notification"
+        });
+        deployService.onMessage(function(message) {
+            $scope.runningSystem.splice($scope.runningSystem.indexOf(JSON.parse(message.data).id), 1);
+            MonitorData.getAppList($scope.refreshSystems);
+        });
         dataStream.onMessage(function(message) {
             //add launched check and timeout
-            MonitorData.getAppList($scope.refreshSystems);
-            console.log(message.data);
-            if (message.data.indexOf('Launched') > -1) {
-                $timeout(function() {
-                    MonitorData.getAppList($scope.refreshSystems);
-                    $timeout(function() {
-                        MonitorData.getAppList($scope.refreshSystems);
-                    }, 30000);
-                }, 60000);
+            if (message.data.indexOf('System Killed ') > -1) {
+                $scope.killingSystem.splice(message.data.substring(message.data.indexOf('System Killed ') + 14), 1);
             }
+            MonitorData.getAppList($scope.refreshSystems);
         });
 
         $scope.$on('refreshManager', function() {
@@ -59,9 +66,8 @@
 
         // Real System population
         $scope.refreshSystems = function() {
+            $scope.down = false;
             $scope.systems = MonitorData.systems;
-            console.log($scope.systems);
-            console.log(MonitorData.descriptors);
             angular.forEach(MonitorData.descriptors, function(a) {
                 var present = false;
                 for (var i = 0; i < $scope.systems.length; i++) {
@@ -87,7 +93,11 @@
             var names = {};
 
 	        angular.forEach($scope.systems, function(system) {
-		        if (system.properties.state === 'RUNNING' ||
+                if ($scope.runningSystem.indexOf(system.uuid) > -1) {
+                    system.class = 'running';
+                } else if ($scope.killingSystem.indexOf(system.name) > -1) {
+                    system.class = 'killing';
+                } else if (system.properties.state === 'RUNNING' ||
 			        system.properties.state === 'ACCEPTED' ||
 			        system.properties.state === 'SUBMITTED') {
 			        system.class = 'online';
@@ -102,7 +112,6 @@
                 names[system.name] = system.uuid;
 	        });
             $scope.$emit('Unique names', names);
-	        console.log($scope.systems);
         };
         // This requests a list of apps from the web socket, and passes a callback
         MonitorData.getAppList($scope.refreshSystems);
@@ -186,12 +195,16 @@
          */
         $scope.toggleSystem = function(system) {
             console.log(system);
-            if (system.state === 'online') {
+            if (system.state === 'online' && $scope.killingSystem.indexOf(system.name) < 0) {
+                $scope.killingSystem.push(system.name);
+                system.class = 'killing';
                 dataStream.send({
                     "request": "stopSystem",
                     "id": system.uuid
                 });
-            } else {
+            } else if ($scope.runningSystem.indexOf(system.name) < 0) {
+                $scope.runningSystem.push(system.uuid);
+                system.class = 'running';
                 dataStream.send({
                     "request": "deploySystem",
                     "id": system.uuid
@@ -205,10 +218,14 @@
          * @param system The system that's being requested to be killed
          */
         $scope.killSystem = function(system) {
-            dataStream.send({
-                "request": "killSystem",
-                "id": system.uuid
-            });
+            if ($scope.killingSystem.indexOf(system.name) < 0) {
+                $scope.killingSystem.push(system.name);
+                system.class = 'killing';
+                dataStream.send({
+                    "request": "killSystem",
+                    "id": system.uuid
+                });
+            }
         };
 
         $scope.orderManager = function(system) {
@@ -222,6 +239,47 @@
                 return 3;
             }
         };
+
+        $scope.next = function() {
+
+            tourSteps.next();
+            if (TourService.getTourByName('tour').getCurrentStep().order === 120) {
+                $scope.forcedFlip = true;
+                console.log("flip");
+            }
+            if (TourService.getTourByName('tour').getCurrentStep().order === 130) {
+                $scope.forcedFlip = false;
+                console.log("flop");
+                $scope.setActive($scope.systems[0]);
+            }
+            if (TourService.getTourByName('tour').getCurrentStep().order === 140) {
+                console.log("flop");
+                if ($scope.active.state !== 'online') {
+                    $scope.toggleSystem($scope.systems[0]);
+                }
+            }
+            console.log("manager next");
+        };
+
+        $scope.prev = function() {
+            tourSteps.prev();
+            if (TourService.getTourByName('tour').getCurrentStep().order === 140) {
+                $scope.forcedFlip = false;
+                console.log("flop");
+                $scope.setActive($scope.systems[0]);
+            }
+            if (TourService.getTourByName('tour').getCurrentStep().order === 150) {
+                console.log("flop");
+                if ($scope.active.state !== 'online') {
+                    $scope.toggleSystem($scope.systems[0]);
+                }
+            }
+        };
+
+        $scope.end = function() {
+            tourSteps.end();
+        };
+
     }
 
 }());

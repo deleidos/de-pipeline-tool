@@ -24,6 +24,7 @@ import java.util.zip.ZipOutputStream;
 import org.apache.commons.io.FileUtils;
 
 import com.deleidos.analytics.common.ssh.SshClient;
+import com.deleidos.analytics.common.util.JsonUtil;
 import com.deleidos.analytics.config.AnalyticsConfig;
 import com.deleidos.framework.model.system.OperatorDescriptor;
 import com.deleidos.framework.model.system.SystemDescriptor;
@@ -40,7 +41,7 @@ public class Application_Creation {
 
 	private SystemDescriptor sys;
 	private String appBundleName;
-	private Map<String, String> mappingFile;
+	private Map<String, Map<String, String>> mappingFile;
 	
 	public Application_Creation(SystemDescriptor sys, String appBundleName) {
 		this.sys = sys;
@@ -213,7 +214,6 @@ public class Application_Creation {
 	public static void stopApp(String appID) throws IOException, InterruptedException {
 		com.sshtools.j2ssh.SshClient ssh = authenticateSsh();
 		SessionChannelClient session = ssh.openSessionChannel();
-		SessionOutputReader sor = new SessionOutputReader(session);
 		session.requestPseudoTerminal("vt100", 80, 25, 0, 0, "");
 		if (session.startShell()) {
 			OutputStream out = session.getOutputStream();
@@ -238,25 +238,45 @@ public class Application_Creation {
 		SessionChannelClient session = ssh.openSessionChannel();
 		SessionOutputReader sor = new SessionOutputReader(session);
 		session.requestPseudoTerminal("vt100", 80, 25, 0, 0, "");
-		String ret = null;
+		
 		if (session.startShell()) {
 			OutputStream out = session.getOutputStream();
 			out.write("sudo su\n".getBytes());
 			out.write("docker exec -it hadoop-client bash\n".getBytes());
 			out.write(". /etc/profile.d/apex_env.sh\ndtcli \n".getBytes());
 
-			Thread.sleep(1000 * 20);
+			//Thread.sleep(1000 * 20);
+			String read = "";
+			while(!read.contains("dt>")){
+				read = sor.getOutput();
+				Thread.sleep(1000 * 20);
+			}
 			out.write(("kill-app " + appID + "\n").getBytes());
-			Thread.sleep(1000 * 40);
-			Thread.sleep(1000 * 40);
+			read = "";
+			while(!read.contains("Kill app requested")){
+				read = sor.getOutput();
+				Thread.sleep(1000 * 20);
+			}
+			//Thread.sleep(1000 * 40);
+			//Thread.sleep(1000 * 40);
 			out.write("exit\n".getBytes());
-			Thread.sleep(1000*2);
+			read = "";
+			while(!read.contains("exit")){
+				read = sor.getOutput();
+				Thread.sleep(1000 * 20);
+			}
+			//Thread.sleep(1000*2);
 			out.write("exit\n".getBytes());
-			Thread.sleep(1000*2);
+			//Thread.sleep(1000*2);
+			read = "";
+			while(!read.contains("exit")){
+				read = sor.getOutput();
+				Thread.sleep(1000 * 20);
+			}
 			out.close();
 		}
 		session.close();
-		return ret;
+		return "System Killed";
 	}
 
 	public String run() throws Exception {
@@ -275,7 +295,6 @@ public class Application_Creation {
 		for (OperatorDescriptor op : operators) {
 			// copy the jars of the operators used into the lib folder
 			className = op.getClassName();
-			logger.info("className: " + className);
 			jarName = classMap.getMappedVal(className);
 			File jar = new File("/opt/apex-deployment/operators/" + jarName);
 
@@ -285,7 +304,8 @@ public class Application_Creation {
 				// If json operator then copy mapping file into jar
 				File map = new File("/opt/apex-deployment/mappings/" + op.getName() + ".json");
 				FileWriter mapWrite = new FileWriter(map);
-				mapWrite.write(mappingFile.get(op.getName()));
+			
+				mapWrite.write(JsonUtil.toJsonString(mappingFile.get(op.getName())));
 				mapWrite.close();
 
 				String jarFile = "/opt/apex-staging/" + appBundleName + "/lib/de-operator-mapping-0.0.1-SNAPSHOT.jar";
@@ -304,7 +324,6 @@ public class Application_Creation {
 				}
 			}
 		}
-
 		String jsonOut = jObject.toString();
 		FileWriter jsonFile = new FileWriter("/opt/apex-staging/" + appBundleName + "/app/" + appBundleName + ".json");
 		jsonFile.write(jsonOut);
@@ -342,7 +361,6 @@ public class Application_Creation {
 		// Remove file locally now that its on the client node
 		File appFile = new File("/opt/apex-deployment/" + appBundleName + ".apa");
 		appFile.delete();
-
 		launchApp();
 
 		return appBundleName + ".apa";

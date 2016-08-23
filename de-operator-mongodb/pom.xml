@@ -10,7 +10,9 @@
 
 	<artifactId>de-operator-mongodb</artifactId>
 
+
 	<dependencies>
+
 		<dependency>
 			<groupId>org.mongodb</groupId>
 			<artifactId>mongo-java-driver</artifactId>
@@ -20,6 +22,11 @@
 			<groupId>com.google.code.gson</groupId>
 			<artifactId>gson</artifactId>
 			<version>${gson.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.deleidos</groupId>
+			<artifactId>de-operator-common</artifactId>
+			<version>0.0.1-SNAPSHOT</version>
 		</dependency>
 	</dependencies>
 

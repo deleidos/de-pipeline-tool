@@ -1,5 +1,6 @@
 package com.deleidos.framework.operators.elasticsearch;
 
+import java.util.Map;
 import java.util.Queue;
 import java.util.UUID;
 import java.util.concurrent.ArrayBlockingQueue;
@@ -16,6 +17,7 @@ import com.datatorrent.api.Context;
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.common.util.BaseOperator;
 import com.datatorrent.netlet.util.DTThrowable;
+import com.deleidos.framework.operators.common.TupleUtil;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -87,14 +89,14 @@ public class ElasticSearchOutputJsonOperator extends BaseOperator{
 			
 			
 	}
-	public final transient DefaultInputPort<String> input = new DefaultInputPort<String>()
+	public final transient DefaultInputPort<Map<String,Object>> input = new DefaultInputPort<Map<String,Object>>()
 	  {
 
 		@Override
-		public void process(String tuple) {
-	
+		public void process(Map<String,Object> tuple) {
+			  String jsonTup = TupleUtil.tupleMapToJson(tuple);
 			  Gson gson = new Gson();
-			  JsonElement element = gson.fromJson (tuple, JsonElement.class);
+			  JsonElement element = gson.fromJson (jsonTup, JsonElement.class);
 			  JsonObject jsonObj = element.getAsJsonObject();
 		      processTuple(jsonObj);
 		      

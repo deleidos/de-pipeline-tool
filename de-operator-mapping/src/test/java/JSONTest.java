@@ -7,7 +7,7 @@ import com.google.gson.JsonObject;
 
 public class JSONTest {
 	public static void main(String[] args) throws IOException, ParseException{
-		HashMap<String,String> tuple = new HashMap<String,String>();
+		HashMap<String,Object> tuple = new HashMap<String,Object>();
 		tuple.put("clock", "yeah");
 		tuple.put("lat", "55");
 		tuple.put("lon", "77");

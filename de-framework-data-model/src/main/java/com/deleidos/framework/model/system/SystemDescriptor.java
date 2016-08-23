@@ -21,7 +21,7 @@ public class SystemDescriptor implements Serializable {
 	/** The system descriptor, which is intended to be serialized to JSON in the APA file. */
 	private ApplicationDescriptor application;
 	/** The operator mapping JSON, indexed by JsonMappingOperator name (which will be unique within the system). */
-	private Map<String, String> mappings;
+	private Map<String, Map<String, String>> mappings;
 	/** Frontend-specific state data. */
 	private String state;
 
@@ -36,7 +36,7 @@ public class SystemDescriptor implements Serializable {
 	 * @param mappings
 	 */
 	public SystemDescriptor(String id, String appName, ApplicationDescriptor applicationDescriptor,
-			Map<String, String> mappings, String state) {
+			Map<String, Map<String, String>> mappings, String state) {
 		this._id = id;
 		this.name = appName;
 		this.application = applicationDescriptor;
@@ -69,11 +69,11 @@ public class SystemDescriptor implements Serializable {
 		this.application = application;
 	}
 
-	public Map<String, String> getMappings() {
+	public Map<String, Map<String, String>> getMappings() {
 		return mappings;
 	}
 
-	public void setMappings(Map<String, String> mappings) {
+	public void setMappings(Map<String, Map<String, String>> mappings) {
 		this.mappings = mappings;
 	}
 

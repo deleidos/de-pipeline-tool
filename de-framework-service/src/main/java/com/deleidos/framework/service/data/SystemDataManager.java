@@ -53,10 +53,8 @@ public class SystemDataManager {
 	 * @return
 	 */
 	public List<OperatorMetadata> getOperatorMetadata() {
-		FindIterable<Document> documents = db.getSystemCollection().find();
+		FindIterable<Document> documents = db.getOperatorMetadataCollection().find();
 		Document document = documents.first();
-		System.out.println(document.toJson());
-		// OperatorMetadataList metadata = gson.fromJson(document.toJson(), OperatorMetadataList.class);
 		OperatorMetadataList metadata = gson.fromJson(document.toJson(), OperatorMetadataList.class);
 		return metadata.getMetadata();
 	}
@@ -134,6 +132,31 @@ public class SystemDataManager {
 		db.getSystemCollection().deleteOne(getIdFilter(id));
 	}
 
+	/**
+	 * Get all enrichment namespaces from the database.
+	 * 
+	 * @return
+	 */
+	public List<String> getEnrichmentNamespaces() {
+		FindIterable<Document> documents = db.getEnrichmentNamespaceCollection().find();
+		Document document = documents.first();
+		EnrichmentNamespaces namespaces = gson.fromJson(document.toJson(), new TypeToken<EnrichmentNamespaces>() {
+		}.getType());
+		
+		return namespaces.getNamespaces();
+	}
+
+	/**
+	 * Save enrichment namespaces in the database. The old data will be dropped and replaced.
+	 * 
+	 * @param metadata
+	 */
+	public void saveEnrichmentNamespaces(List<String> namespaces) {
+		db.getEnrichmentNamespaceCollection().drop();
+		Document document = new Document(objectToMap(new EnrichmentNamespaces(namespaces)));
+		db.getEnrichmentNamespaceCollection().insertOne(document);
+	}
+	
 	//
 	// Protected methods:
 	//
@@ -145,7 +168,8 @@ public class SystemDataManager {
 	 * @return
 	 */
 	protected Map<String, Object> objectToMap(Object o) {
-		Type type = new TypeToken<Map<String, Object>>() {}.getType();
+		Type type = new TypeToken<Map<String, Object>>() {
+		}.getType();
 		return gson.fromJson(gson.toJson(o), type);
 	}
 

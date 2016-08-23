@@ -3,15 +3,12 @@ package com.deleidos.framework.operators.dimensional_enrichment;
 import static org.junit.Assert.assertEquals;
 
 import java.io.File;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.junit.Test;
 
 import com.datatorrent.lib.testbench.CollectorTestSink;
 import com.deleidos.analytics.common.util.FileUtil;
-import com.deleidos.analytics.common.util.JsonToMapUtil;
 import com.deleidos.analytics.config.AnalyticsConfig;
 import com.google.gson.Gson;
 
@@ -20,7 +17,7 @@ import com.google.gson.Gson;
  * 
  * @author vernona
  */
-public class FutureFlightDataEnrichmentTest {
+public class OldFlightDataEnrichmentTest {
 
 	private static final String filename = "test_flight_position_record.json";
 
@@ -29,10 +26,8 @@ public class FutureFlightDataEnrichmentTest {
 		File file = new File(this.getClass().getClassLoader().getResource(filename).getFile());
 		String record = FileUtil.getFileContentsAsString(file);
 		System.out.println(record);
-		Map<String, String> map = new HashMap<String, String>();
-		JsonToMapUtil.loadJSONFields(map, record, null);
 
-		FutureRedisDimensionalEnrichmentOperator operator = new FutureRedisDimensionalEnrichmentOperator();
+		OldRedisDimensionalEnrichmentOperator operator = new OldRedisDimensionalEnrichmentOperator();
 		operator.setKeyField("reg");
 		operator.setDataField("FAA_Data");
 		operator.setCacheHostname(AnalyticsConfig.getInstance().getRedisHostname());
@@ -41,7 +36,7 @@ public class FutureFlightDataEnrichmentTest {
 		operator.output.setSink(mapSink);
 
 		operator.beginWindow(0);
-		operator.input.process(map);
+		operator.input.process(record);
 		operator.endWindow();
 
 		assertEquals(1, mapSink.collectedTuples.size());
@@ -49,8 +44,7 @@ public class FutureFlightDataEnrichmentTest {
 		List<Object> tuples = mapSink.collectedTuples;
 		Gson gson = new Gson();
 		for (Object o : tuples) {
-			@SuppressWarnings("unchecked")
-			Map<String, String> tuple = (Map<String, String>) o;
+			String tuple = (String) o;
 			System.out.println(gson.toJson(tuple));
 		}
 	}

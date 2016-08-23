@@ -8,4 +8,11 @@
 		<artifactId>de-operator-parent</artifactId>
 		<version>0.0.1-SNAPSHOT</version>
 	</parent>
+	<dependencies>
+		<dependency>
+			<groupId>com.deleidos</groupId>
+			<artifactId>de-operator-common</artifactId>
+			<version>0.0.1-SNAPSHOT</version>
+		</dependency>
+	</dependencies>
 </project>

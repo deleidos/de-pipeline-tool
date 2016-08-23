@@ -10,10 +10,7 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.HttpClientBuilder;
-import org.apache.log4j.ConsoleAppender;
-import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
-import org.apache.log4j.PatternLayout;
 
 import com.deleidos.analytics.common.util.JsonUtil;
 import com.google.common.base.Charsets;
@@ -43,10 +40,6 @@ public class RestClient {
 
 		requestConfig = RequestConfig.custom().setConnectionRequestTimeout(requestTimeoutMillis)
 				.setConnectTimeout(requestTimeoutMillis).setSocketTimeout(requestTimeoutMillis).build();
-
-		// TODO remove
-		logger.setLevel(Level.TRACE);
-		logger.addAppender(new ConsoleAppender(new PatternLayout("[%p] %m%n"), "System.out"));
 	}
 
 	/**

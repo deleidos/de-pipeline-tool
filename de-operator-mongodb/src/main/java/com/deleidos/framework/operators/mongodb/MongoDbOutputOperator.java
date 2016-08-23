@@ -20,7 +20,7 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-
+import com.deleidos.framework.operators.common.TupleUtil;
 /**
  * Operator to write data into MongoDB
  *
@@ -41,7 +41,7 @@ public class MongoDbOutputOperator extends BaseOperator {
 	protected String password;
 	
 	protected String modelToIndexMapping;
-	
+	protected String collection;
 	protected WriteConcern writeConcern = WriteConcern.ACKNOWLEDGED;
 
 	protected transient MongoClient mongoClient;
@@ -83,20 +83,22 @@ public class MongoDbOutputOperator extends BaseOperator {
 		
 		return nestedElement;
 	}
-	public transient final DefaultInputPort<String> input = new DefaultInputPort<String>() {
+	public transient final DefaultInputPort<Map<String,Object>> input = new DefaultInputPort<Map<String,Object>>() {
 		@Override
-		public void process(String tuple) { 
-			Gson gson = new Gson();
-			JsonElement element = gson.fromJson (tuple, JsonElement.class);
-			JsonObject jsonObj = element.getAsJsonObject();
-			String jsonString = tuple.toString();
+		public void process(Map<String,Object> tuple) { 
+			//String jsonTup = TupleUtil.tupleMapToJson(tuple);
+			//Gson gson = new Gson();
+			//JsonElement element = gson.fromJson (jsonTup, JsonElement.class);
+			//JsonObject jsonObj = element.getAsJsonObject();
+			String jsonString = TupleUtil.tupleMapToJson(tuple);
+			//String jsonString = tuple.toString();
 						
-			String dataModelName = getNestedJsonElement(jsonObj, "standardHeader.modelName").getAsString();
-			
-			if(!dataLists.containsKey(dataModelName)) {
-				dataLists.put(dataModelName, new ArrayList<DBObject>());
+			//String dataModelName = getNestedJsonElement(jsonObj, "standardHeader.modelName").getAsString();
+			String collectionName = getCollection();
+			if(!dataLists.containsKey(collectionName)) {
+				dataLists.put(collectionName, new ArrayList<DBObject>());
 			}
-			List<DBObject> dataList = dataLists.get(dataModelName);
+			List<DBObject> dataList = dataLists.get(collectionName);
 			
 			dataList.add((DBObject) JSON.parse(jsonString));
 			
@@ -140,10 +142,10 @@ public class MongoDbOutputOperator extends BaseOperator {
 	@Override
 	public void endWindow() {
 		for(Map.Entry<String, List<DBObject>> entry : dataLists.entrySet()) {
-			String modelName = entry.getKey();
+			String collectionName = entry.getKey();
 			List<DBObject> dataList = entry.getValue();
 			
-			DBCollection dbCollection = getDbCollection(modelName);
+			DBCollection dbCollection = getDbCollection(collectionName);
 		
 			if (dataList.size() > 0) {
 
@@ -161,21 +163,21 @@ public class MongoDbOutputOperator extends BaseOperator {
 		}
 	}
 
-	private DBCollection getDbCollection(String modelName) {
-		DBCollection dbCollection = dbCollections.get(modelName);
+	private DBCollection getDbCollection(String collectionName) {
+		DBCollection dbCollection = dbCollections.get(collectionName);
 		
 		if (dbCollection == null) {
-			dbCollection = db.getCollection(modelName);
+			dbCollection = db.getCollection(collectionName);
 			
 			// Add the user defined indices to the collection
-			List<Map<String, Object>> indices = indexMappings.get(modelName);
+			List<Map<String, Object>> indices = indexMappings.get(collectionName);
 			if(indices != null) {
 				for(Map<String, Object> index : indices) {
 					dbCollection.createIndex(new BasicDBObject(index));
 				}
 			}
 			
-			dbCollections.put(modelName, dbCollection);
+			dbCollections.put(collectionName, dbCollection);
 		}
 		
 		return dbCollection;
@@ -242,7 +244,12 @@ public class MongoDbOutputOperator extends BaseOperator {
 	public void setModelToIndexMapping(String modelToIndexMapping) {
 		this.modelToIndexMapping = modelToIndexMapping;
 	}
-	
+	public void setCollection(String collection){
+		this.collection = collection;
+	}
+	public String getCollection(){
+		return this.collection;
+	}
 	/**
 	 * Create a mapping from data model to fields to be indexed when the MongoDB collection for that 
 	 * data model is created.

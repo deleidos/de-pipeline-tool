@@ -16,10 +16,16 @@
 			<version>2.0</version>
 			<scope>compile</scope>
 		</dependency>
+		
 		<dependency>
 			<groupId>com.google.code.gson</groupId>
 	  		<artifactId>gson</artifactId>
 			<version>${gson.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.deleidos</groupId>
+			<artifactId>de-operator-common</artifactId>
+			<version>0.0.1-SNAPSHOT</version>
 		</dependency>
 	</dependencies>
 </project>

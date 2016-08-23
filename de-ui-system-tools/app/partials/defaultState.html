@@ -1,6 +1,6 @@
 <div ng-repeat="state in stateObjects track by $index">
     <js-plumb-object md-whiteframe state-object="state" ng-style="{ 'left':state.x, 'top':state.y, 'background-color': state.color }" class="state-window circle"
-                     ng-class="{'active-state': activeState && activeState === state, 'md-whiteframe-16dp': activeState && activeState === state}">
+                     ng-class="{'active-state': activeState && activeState === state, 'md-whiteframe-16dp': activeState && activeState === state}" ng-class="{'move-canvas': mode === 'move'}" >
         <i class="delete fa fa-times fa-3x" ng-click="removeState(state)"></i>
         <h3>{{state.name}}</h3>
         <h4>{{state.display_name || 'Operator'}}</h4>

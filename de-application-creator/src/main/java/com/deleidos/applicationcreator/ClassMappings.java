@@ -14,6 +14,8 @@ public class ClassMappings {
 		mappings.put("com.deleidos.framework.operators.mongodb.MongoDbOutputOperator", "de-operator-mongodb-0.0.1-SNAPSHOT.jar");
 		mappings.put("com.deleidos.framework.operators.s3.S3InputOperator", "de-operator-s3-0.0.1-SNAPSHOT.jar");
 		mappings.put("com.deleidos.framework.operators.dimensional_enrichment.RedisDimensionalEnrichmentOperator", "de-operator-dimensional-enrichment-0.0.1-SNAPSHOT.jar");
+		mappings.put("com.deleidos.framework.operators.rest.RESTOutputOperator", "de-operator-rest-0.0.1-SNAPSHOT.jar");
+		mappings.put("com.deleidos.framework.operators.redis.RedisOutputOperator", "de-operator-redis-0.0.1-SNAPSHOT.jar");
 	}
 	
 	public String getMappedVal(String input){

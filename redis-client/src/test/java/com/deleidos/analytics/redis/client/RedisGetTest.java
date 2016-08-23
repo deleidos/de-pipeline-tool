@@ -2,17 +2,24 @@ package com.deleidos.analytics.redis.client;
 
 import org.junit.Test;
 
-import com.deleidos.analytics.config.AnalyticsConfig;
+/**
+ * Test getting a Redis value.
+ * 
+ * @author vernona
+ */
+public class RedisGetTest extends RedisClientTestBase {
 
-public class RedisGetTest {
+//	private static final String namespace = "sales_customer";
+//	private static final String key = "Customer#000098753"; // "N66848";
 
+	private static final String namespace = "orders";
+	private static final String key = "\"10279\"";
+	
 	/**
 	 * Test set, get and delete.
 	 */
 	@Test
 	public void test() {
-		RedisClient client = new RedisClient(AnalyticsConfig.getInstance().getRedisHostname());
-		String key = "N66848";
-		System.out.println(client.getValue(key));
+		System.out.println(client.getValue(namespace, key));
 	}
 }

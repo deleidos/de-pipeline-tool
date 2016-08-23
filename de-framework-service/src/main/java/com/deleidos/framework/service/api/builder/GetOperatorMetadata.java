@@ -5,8 +5,9 @@ import javax.ws.rs.Path;
 
 import org.apache.log4j.Logger;
 
+import com.deleidos.analytics.common.util.JsonUtil;
 import com.deleidos.analytics.websocket.api.BaseWebSocketMessage;
-import com.deleidos.framework.service.tools.OperatorMetadataFactory;
+import com.deleidos.framework.service.data.SystemDataManager;
 
 /**
  * Get operator metadata.
@@ -32,7 +33,6 @@ public class GetOperatorMetadata extends BaseWebSocketMessage {
 	@Path("/getOperatorMetadata")
 	@GET
 	public void processMessage() throws Exception {
-		sendResponse(OperatorMetadataFactory.getInstance().getOperatorMetadata());
-		// TODO query from mongodb
+		sendResponse(SystemDataManager.getInstance().getOperatorMetadata());
 	}
 }

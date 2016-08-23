@@ -22,16 +22,24 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 
 public class MonitoringUtil {
 	
-	// TODO Support a better way to look stuff up, and also not assume running in AWS
-	private static RestClient rc = 
-			new RestClient(String.format("http://%s:8088",
-					Ec2ResourceFinder.instance.lookupPrivateIp("tag:Name","Hadoop (auto test) - Name Node")));
+	private static RestClient rc;
 	private static AppsResponse aResponse;
 	private static InfoResponse iResponse;
 	private static PhysicalPlan_ContainersResponse ppcResponse;
 	private static PhysicalPlan_OperatorsResponse ppoResponse;
 	private static long aTime = 0, iTime = 0, ppcTime = 0, ppoTime = 0, cacheTime = 2000;
 	private static String iAppId = "", ppcAppId = "", ppoAppId = "";
+	
+	static {
+		if (Boolean.getBoolean("LOCAL_TEST")) {
+			rc = new RestClient(String.format("http://%s:8088",
+					Ec2ResourceFinder.instance.lookupPublicIp("tag:Name","Hadoop (auto test) - Name Node")));
+		} else {
+			// TODO Support a better way to look stuff up, and also not assume running in AWS
+			rc = new RestClient(String.format("http://%s:8088",
+							Ec2ResourceFinder.instance.lookupPrivateIp("tag:Name","Hadoop (auto test) - Name Node")));
+		}
+	}
 
 	// Note: These methods will throw exceptions if their GET requests fail.
 	// The requests are expected to fail if the given app ID refers to an

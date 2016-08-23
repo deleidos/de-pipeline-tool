@@ -132,37 +132,43 @@
 			<!-- <exclusions> <exclusion> <groupId>*</groupId> <artifactId>*</artifactId> 
 				</exclusion> </exclusions> -->
 		</dependency>
-		
+
 		<dependency>
 			<groupId>org.apache.apex</groupId>
 			<artifactId>apex-common</artifactId>
 			<version>${apex.version}</version>
 			<scope>provided</scope>
 		</dependency>
-		
+
 		<dependency>
 			<groupId>log4j</groupId>
 			<artifactId>log4j</artifactId>
 			<version>${log4j.version}</version>
 		</dependency>
-		
+
 		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
 			<version>${junit.version}</version>
 			<scope>test</scope>
 		</dependency>
-		
+
 		<dependency>
 			<groupId>org.apache.apex</groupId>
 			<artifactId>apex-engine</artifactId>
 			<version>${apex.version}</version>
 			<scope>test</scope>
 		</dependency>
-		
+
 		<dependency>
 			<groupId>com.deleidos.analytics</groupId>
 			<artifactId>analytics-common</artifactId>
+			<version>0.0.1-SNAPSHOT</version>
+		</dependency>
+
+		<dependency>
+			<groupId>com.deleidos</groupId>
+			<artifactId>de-operator-common</artifactId>
 			<version>0.0.1-SNAPSHOT</version>
 		</dependency>
 	</dependencies>

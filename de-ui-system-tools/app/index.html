@@ -18,6 +18,7 @@
     <link rel="stylesheet" href="bower_components/bootstrap-css-only/css/bootstrap.css" />
     <link rel="stylesheet" href="bower_components/normalize-css/normalize.css" />
     <link rel="stylesheet" href="bower_components/angularjs-slider/dist/rzslider.css" />
+    <link rel="stylesheet" href="bower_components/angular-hotkeys/build/hotkeys.css" />
     <!-- endbower -->
     <!-- node:css -->
     <!-- endnode -->
@@ -40,7 +41,15 @@
         cursor: pointer;
     }
 </style>
-<body ng-cloak>
+<body ng-cloak ui-tour>
+<!--<div ng-controller="TourDemoController" ui-tour ui-tour-on-prev="onPrev(tour)" ui-tour-use-hotkeys="true" ui-tour-append-to-body="true">-->
+<!--
+    <img id="mainBusIconOnBanner" class="btn btn-primary" style="border: none; margin-top: 0px;"
+         src="assets/img/white-tour-bus-22x22.png"
+         uib-tooltip="Take a tour of this page" tooltip-placement="bottom"
+         ng-click="tour.startAt('30')">
+-->
+
 
 <!--[if lt IE 7]>
 <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
@@ -72,6 +81,11 @@
 <script src="bower_components/angular-websocket/angular-websocket.min.js"></script>
 <script src="bower_components/Chart.js/dist/Chart.js"></script>
 <script src="bower_components/angular-chart.js/dist/angular-chart.js"></script>
+<script src="bower_components/angular-hotkeys/build/hotkeys.js"></script>
+<script src="bower_components/ngSmoothScroll/lib/angular-smooth-scroll.js"></script>
+<script src="bower_components/angular-sanitize/angular-sanitize.js"></script>
+<script src="bower_components/ez-ng/dist/ez-ng.js"></script>
+<script src="bower_components/angular-ui-tour/dist/angular-ui-tour.js"></script>
 <!-- endbower -->
 <!-- node:js -->
 <!-- endnode -->
@@ -82,7 +96,6 @@
 
 <!-- add any new scripts below -->
 <!-- build:js js/myApp.js -->
-<script>window.$ = window.jQuery = require('./bower_components/jquery/dist/jquery.js')</script>
 <script src="app.js"></script>
 <script src="app.routes.js"></script>
 <script src="app.Filereader.js"></script>

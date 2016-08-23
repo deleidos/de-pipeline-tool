@@ -1,6 +1,5 @@
 package com.deleidos.framework.operators.json.parser;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -12,6 +11,8 @@ import com.datatorrent.api.AutoMetric;
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.common.util.BaseOperator;
+import com.deleidos.framework.operators.common.InputTuple;
+import com.deleidos.framework.operators.common.TupleUtil;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -21,52 +22,48 @@ public class JsonParserOperator extends BaseOperator {
 
 	private static final Logger log = Logger.getLogger(JsonParserOperator.class);
 
-	
-
 	/** Representative characters used in JSON */
 	private final String OPEN_ARRAY_CHARACTER = "[";
 	private final String CLOSE_ARRAY_CHARACTER = "]";
 	private final String OBJECT_SEPERATOR = ".";
 
-	public transient DefaultInputPort<ArrayList<byte[]>> input = new DefaultInputPort<ArrayList<byte[]>>() {
+	public transient DefaultInputPort<InputTuple> input = new DefaultInputPort<InputTuple>() {
 		@Override
-		public void process(ArrayList<byte[]> inputTuple) {
+		public void process(InputTuple inputTuple) {
 			incomingTuplesCount++;
 			processTuple(inputTuple);
 		}
 	};
-	
+
 	/**
-	 * Metric to keep count of number of tuples coming in on {@link #output} port
+	 * Metric to keep count of number of tuples coming in on {@link #output}
+	 * port
 	 */
 	@AutoMetric
 	protected long incomingTuplesCount;
 
-			  
 	/**
 	 * Output port to emit validate records as JSONObject
 	 */
-	public transient DefaultOutputPort<Map<String, String>> output = new DefaultOutputPort<Map<String, String>>();
-	
+	public transient DefaultOutputPort<Map<String, Object>> output = new DefaultOutputPort<Map<String, Object>>();
+
 	/**
 	 * Metric to keep count of number of tuples emitted on {@link #output} port
 	 */
 	@AutoMetric
 	long parsedOutputCount;
 
-
-	public void processTuple(ArrayList<byte[]> tuple) {
+	public void processTuple(InputTuple tuple) {
 		Gson gson = new Gson();
 		if (tuple != null) {
-			
-			String tupleString = new String(tuple.get(1));
-			
+
+			String tupleString = tuple.getData();
+
 			try {
 				JsonObject asJson = gson.fromJson(tupleString, JsonObject.class);
-				HashMap<String, String> outputMap = new HashMap<String, String>();
-				
-				loadJSONFields(outputMap, asJson, null);
-		
+				Map<String, Object> outputMap = new HashMap<String, Object>();
+				outputMap = TupleUtil.jsonToTupleMap(asJson.toString());
+
 				if (output.isConnected()) {
 					output.emit(outputMap);
 					parsedOutputCount++;
@@ -93,29 +90,26 @@ public class JsonParserOperator extends BaseOperator {
 			} else if (element.isJsonArray()) {
 				JsonArray elementJsonArray = element.getAsJsonArray();
 				loadJSONFields(map, elementJsonArray, keyName);
-			}
-			else {
+			} else {
 				String value = jsonObject.get(key).toString();
-				map.put(keyName, value);	
+				map.put(keyName, value);
 			}
 		}
 	}
-	
+
 	private void loadJSONFields(HashMap<String, String> map, JsonArray jsonArray, String levelName) {
 		for (int index = 0; index < jsonArray.size(); index++) {
 			String keyName = levelName + OPEN_ARRAY_CHARACTER + index + CLOSE_ARRAY_CHARACTER;
-			
+
 			JsonElement arrayElement = jsonArray.get(index);
-			
+
 			if (arrayElement.isJsonObject()) {
 				JsonObject elementJsonObject = arrayElement.getAsJsonObject();
 				loadJSONFields(map, elementJsonObject, keyName);
-			}
-			else if(arrayElement.isJsonArray()) {
+			} else if (arrayElement.isJsonArray()) {
 				JsonArray elementArrayObject = arrayElement.getAsJsonArray();
 				loadJSONFields(map, elementArrayObject, keyName);
-			}
-			else {
+			} else {
 				String value = arrayElement.toString();
 				map.put(keyName, value);
 			}

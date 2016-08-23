@@ -26,12 +26,15 @@ public class OperatorMetadataFactory {
 		metadata.add(getJSONMappingOperatorMetadata());
 		metadata.add(getMongoDbOutputOperatorMetadata());
 		metadata.add(getDimensionalEnrichmentOperatorMetadata());
+		metadata.add(getRestOperatorMetadata());
+		metadata.add(getRedisOperatorMetadata());
 	}
 
 	/**
 	 * Private no-arg constructor enforces the singleton pattern.f
 	 */
-	private OperatorMetadataFactory() {}
+	private OperatorMetadataFactory() {
+	}
 
 	/**
 	 * Get the singleton instance.
@@ -108,6 +111,7 @@ public class OperatorMetadataFactory {
 		properties.add(new OperatorProperty("hostName", "Hostname", OperatorProperty.Type.String, null, true));
 		properties.add(new OperatorProperty("hostPort", "Port", OperatorProperty.Type.String, null, true));
 		properties.add(new OperatorProperty("database", "Database Name", OperatorProperty.Type.String, null, true));
+		properties.add(new OperatorProperty("collection", "Collection Name", OperatorProperty.Type.String, null, true));
 		properties.add(new OperatorProperty("userName", "Username", OperatorProperty.Type.String, null, false));
 		properties.add(new OperatorProperty("password", "Password", OperatorProperty.Type.String, null, false));
 		return new OperatorMetadata("MongoDbOutputOperator",
@@ -116,12 +120,31 @@ public class OperatorMetadataFactory {
 
 	private static OperatorMetadata getDimensionalEnrichmentOperatorMetadata() {
 		List<OperatorProperty> properties = new ArrayList<OperatorProperty>();
-		properties.add(new OperatorProperty("keyField", "Key Field", OperatorProperty.Type.String, null, true));
-		properties.add(new OperatorProperty("dataField", "Data Field", OperatorProperty.Type.String, null, true));
 		properties.add(new OperatorProperty("cacheHostname", "Redis Cache Hostname", OperatorProperty.Type.String, null,
 				true));
+		properties.add(new OperatorProperty("namespace", "Namespace", OperatorProperty.Type.String, null, false));
+		properties.add(new OperatorProperty("keyField", "Key Field", OperatorProperty.Type.String, null, true));
+		properties.add(new OperatorProperty("dataField", "Data Field", OperatorProperty.Type.String, null, true));
+		properties.add(new OperatorProperty("parentDataField", "Parent Data Field", OperatorProperty.Type.String, null,
+				false));
 		return new OperatorMetadata("DimensionalEnrichmentOperator",
 				"com.deleidos.framework.operators.dimensional_enrichment.RedisDimensionalEnrichmentOperator",
 				"Dimensional Enrichment", properties);
+	}
+
+	private static OperatorMetadata getRestOperatorMetadata() {
+		List<OperatorProperty> properties = new ArrayList<OperatorProperty>();
+		properties.add(new OperatorProperty("url", "URL", OperatorProperty.Type.String, null, true));
+		return new OperatorMetadata("RESTOutputOperator", "com.deleidos.framework.operators.rest.RESTOutputOperator",
+				"REST Output", properties);
+	}
+	
+	private static OperatorMetadata getRedisOperatorMetadata() {
+		List<OperatorProperty> properties = new ArrayList<OperatorProperty>();
+		properties.add(new OperatorProperty("hostname", "Redis Hostname", OperatorProperty.Type.String, null, true));
+		properties.add(new OperatorProperty("keyField", "Key Field", OperatorProperty.Type.String, null, true));
+		properties.add(new OperatorProperty("namespace", "Namespace", OperatorProperty.Type.String, null, true));
+		return new OperatorMetadata("RedisOutputOperator", "com.deleidos.framework.operators.redis.RedisOutputOperator",
+				"Redis Output", properties);
 	}
 }

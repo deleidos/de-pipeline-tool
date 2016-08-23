@@ -1,5 +1,4 @@
 /target/
-.settings
-.classpath
-.project
-/deployment_configs/
+/.settings/
+/.project
+/.classpath

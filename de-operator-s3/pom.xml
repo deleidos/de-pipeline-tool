@@ -15,10 +15,16 @@
 			<artifactId>de-operator-abstractsplitter</artifactId>
 			<version>0.0.1-SNAPSHOT</version>
 		</dependency>
+		
 		<dependency>
 			<groupId>com.amazonaws</groupId>
 			<artifactId>aws-java-sdk</artifactId>
 			<version>${aws.sdk.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.deleidos</groupId>
+			<artifactId>de-operator-common</artifactId>
+			<version>0.0.1-SNAPSHOT</version>
 		</dependency>
 	</dependencies>
 </project>

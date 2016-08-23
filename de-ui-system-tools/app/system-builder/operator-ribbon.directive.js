@@ -2,27 +2,40 @@
     "use strict";
 
     angular.module('systemBuilder')
-        .directive('operatorRibbon', ['$timeout', operatorRibbon]);
+        .directive('operatorRibbon', ['$timeout', 'tourSteps', operatorRibbon]);
 
-    function operatorRibbon($timeout) {
+    function operatorRibbon($timeout, tourSteps) {
         return {
             restrict: 'E',
             replace: true,
             templateUrl: 'system-builder/operatorRibbon.html',
             scope: {
-                opList: '=opList'
+                opList: '=opList',
+                tour: '=tour'
             },
             link: function(scope) {
                 scope.operatorLoading = true;
                 $timeout(function() {
-                    scope.operatorLoading = false;
+                    scope.next = function() {
+                        tourSteps.next();
+                    };
+
+                    scope.prev = function() {
+                        tourSteps.prev();
+                    };
+
+                    scope.end = function() {
+                        tourSteps.end();
+                    };
+
                     var typeColors = [
                         '#63a0d4',
                         '#b77033',
                         '#b7b233',
                         '#b73338',
                         '#33b7b2',
-	                    '#855093'
+                        '#855093',
+                        '#FF00AA'
                     ];
 
                     if (scope.opList) {
@@ -34,7 +47,7 @@
                                 icon: icon,
                                 index: index
                             });
-                            if (category.name !== 'All') {
+                            if (category.name !== 'All' && category.name !== 'Saved Operators') {
                                 category.operators.forEach(function(operator) {
                                     angular.extend(operator, {
                                         color: color
@@ -61,8 +74,17 @@
                         console.log('addOperator');
                     };
 
+                    scope.removeOperator = function(index, operators) {
+                        operators.splice(index, 1);
+                    };
+
                     scope.focusSearch = function() {
                         $("#operator-search").focus();
+                    };
+
+                    scope.setActive = function(operator) {
+                        console.log(operator);
+                        scope.$emit('Active saved operator', operator);
                     };
 
                     scope.$watch('search', function(searchStr) {
@@ -80,7 +102,9 @@
 	                        scope.setActiveCat(scope.displayList[0]);
                         }
                     });
-                }, 2000);
+
+                    scope.operatorLoading = false;
+                }, 4000);
             }
         };
     }

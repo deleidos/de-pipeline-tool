@@ -4,13 +4,16 @@
 
     angular.module('systemManager')
         .factory('MonitorData', ['$rootScope', '$websocket', MonitorData])
-        .controller('ChartController', ['$scope', 'MonitorData', ChartController]);
+        .controller('ChartController', ['$scope', 'MonitorData', ChartController])
+        .controller('LogController', ['$scope', 'MonitorData', LogController]);
 
     function MonitorData($rootScope, $websocket) {
         var ws = $websocket($rootScope.dataService);
+        var stramSocket = $websocket($rootScope.dataService);
+        var logSocket = $websocket($rootScope.dataService);
         var descNames = [];
         ws.onMessage(function(message) {
-            var o = JSON.parse(message.data);
+          var o = JSON.parse(message.data);
 	        var d = new Date();
             // Details response
             if (o.stats) {
@@ -42,7 +45,6 @@
             }
 
             // SystemDescriptors response
-
             if (Array.isArray(o) && o.length > 0 && o[0]._id) {
                 ret.descriptors = [];
                 angular.forEach(o, function(a) {
@@ -59,6 +61,13 @@
                     config.refresh = true;
                 }
             }
+
+            // Log List response
+            else if (Array.isArray(o)) {
+              console.log(o);
+              ret.logNames = o;
+            }
+
             // AppList response
             if (o.apps) {
                 ret.systems = [];
@@ -112,6 +121,11 @@
                 }));
             }
         });
+        var logIds = [];
+        logSocket.onMessage(function(mes) {
+            ret.stramEvents[logIds[0]] =  mes.data;
+            logIds.splice(0,1);
+        });
         var config = {
             tupleEntries: 20,
             intervalIds: [],
@@ -119,6 +133,7 @@
             refresh: false
         };
         var ret = {
+            appId: "",
             processedData: new Array(config.tupleEntries),
             emittedData: new Array(config.tupleEntries),
             tupleLabels: new Array(config.tupleEntries),
@@ -126,6 +141,8 @@
             cpuLabels: [],
             systems: [], // At the moment, this is where we transition to calling running applications "Systems"
             descriptors: [],
+            logNames: [],
+            stramEvents: {},
             getDetails: function(appId) {
                 ws.send(JSON.stringify({
                     request: "getAppDetails",
@@ -143,13 +160,38 @@
                 ws.send(JSON.stringify({
                     request: "getSystemDescriptors"
                 }));
-
+            },
+            subStramEvents: function(appId) {
+                stramSocket.send(JSON.stringify({
+                    request: "subStramEvents",
+                    id: appId
+                }));
+            },
+            unsubStramEvents: function(appId) {
+                stramSocket.send(JSON.stringify({
+                    request: "unsubStramEvents",
+                    id: appId
+                }));
+            },
+            getLogList: function(appId) {
+                stramSocket.send(JSON.stringify({
+                    request: "getLogList",
+                    id: appId
+                }));
+            },
+            getLog: function(appId, logName) {
+                logSocket.send(JSON.stringify({
+                    request: "getLog",
+                    id: appId,
+                    log: logName
+                }));
             },
             start: function(appId) {
                 // Stop requesting data from the web socket
                 while (config.intervalIds.length > 0) {
                     clearInterval(config.intervalIds.pop());
                 }
+                ret.unsubStramEvents(ret.appId);
                 // Clear all data
                 angular.forEach(ret, function(val) {
                     if (Array.isArray(val) && val.length > 0) {
@@ -175,9 +217,21 @@
                 if (appId !== "") {
                     ret.getDetails(appId);
                     ret.getCpuUsage(appId);
+                    ret.subStramEvents(appId);
+                    ret.getLogList(appId);
+
+                    stramSocket.onMessage(function(mes) {
+                        var logs = mes.data.substring(1, mes.data.length - 1).replace(/"/g, '').split(',');
+                        angular.forEach(logs, function(log) {
+                            logIds.push(log);
+                            ret.logNames.push(log);
+                            ret.getLog(appId, log);
+                        });
+                    });
                     config.intervalIds.push(setInterval(ret.getDetails, 3000, appId));
                     config.intervalIds.push(setInterval(ret.getCpuUsage, 10000, appId));
                 }
+                ret.appId = appId;
             }
         };
         ret.tupleLabels.fill("");
@@ -207,7 +261,6 @@
                 scales: {
                   yAxes: [{
                     ticks: {
-                      stepSize: 1
                     }
                   }]
                 },
@@ -223,6 +276,8 @@
                 }
             }
         }];
+
+        //TODO Parse through cpuData and limit sig figs
         angular.forEach($scope.charts, function(x) {
             $scope[String(x.id + "Data")] = x.data;
             $scope[String(x.id + "Labels")] = x.labels;
@@ -231,5 +286,22 @@
             $scope[String(x.id + "Colors")] = x.colors;
             $scope[String(x.id + "Options")] = x.options;
         });
+    }
+
+    function LogController($scope, MonitorData) {
+      $scope.activeLog = null;
+      $scope.getStramEvents = function() {
+          return MonitorData.stramEvents;
+      };
+      $scope.getLogNames = function() {
+          return MonitorData.logNames;
+      };
+      $scope.logNames = $scope.getLogNames();
+      $scope.stramEvents = $scope.getStramEvents();
+
+
+        $scope.setActive = function(log) {
+            $scope.activeLog = log;
+        };
     }
 }());

@@ -22,7 +22,7 @@
 			</plugin>
 		</plugins>
 	</build>
-	
+
 	<dependencies>
 		<dependency>
 			<groupId>com.deleidos.analytics</groupId>
@@ -32,6 +32,11 @@
 		<dependency>
 			<groupId>com.deleidos.analytics</groupId>
 			<artifactId>redis-client</artifactId>
+			<version>0.0.1-SNAPSHOT</version>
+		</dependency>
+		<dependency>
+			<groupId>com.deleidos.analytics</groupId>
+			<artifactId>analytics-config</artifactId>
 			<version>0.0.1-SNAPSHOT</version>
 		</dependency>
 		<dependency>

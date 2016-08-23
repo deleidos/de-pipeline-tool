@@ -33,6 +33,7 @@ public class DataServiceApplication {
 
 		// Load every configured ApiPlugin
 		for (String apiPlugin : AnalyticsConfig.getInstance().getApiPlugins()) {
+			System.out.println(apiPlugin);
 			@SuppressWarnings("rawtypes")
 			Class clazz = Class.forName(apiPlugin);
 			WebSocketApiPlugin plugin = (WebSocketApiPlugin) clazz.newInstance();

@@ -14,6 +14,7 @@ import com.google.gson.JsonParser;
  * 
  * @author vernona
  */
+@Deprecated
 public class JsonToMapUtil {
 
 	private static final String OPEN_ARRAY_CHARACTER = "[";

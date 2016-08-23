@@ -43,14 +43,11 @@ public class DeploySystem extends BaseWebSocketMessage {
 	@Path("/deploySystem")
 	@GET
 	public void processMessage() throws Exception {
-		sendResponse("Beginning Launch");
 		SystemDescriptor system = SystemDataManager.getInstance().getSystemDecriptor(id);
-		
-		//sendResponse("test1 " + system.getApplication().getOperators());
-		Application_Creation app = new Application_Creation(system,system.getName());
-		
+
+		Application_Creation app = new Application_Creation(system, system.getName());
+
 		String out = app.run();
-		// TODO deploy the system in apex
-		sendResponse("Launched " + out); // TODO return value
+		sendResponse("Launching " + out);
 	}
 }

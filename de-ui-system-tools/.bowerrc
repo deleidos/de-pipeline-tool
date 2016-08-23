@@ -2,5 +2,8 @@
   "directory": "app/bower_components",
   "scripts" : {
     "postinstall": "grunt wiredep"
-  }
+  },
+  "resolvers": [
+      "bower-npm-resolver"
+  ]
 }

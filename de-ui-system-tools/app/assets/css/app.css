@@ -301,11 +301,11 @@ button.butn-sm.md-button[disabled] {
 }
 
 .operator-details {
-  overflow: scroll;
+  overflow-y: scroll;
   padding-top: 20px;
   padding-bottom: 20px;
   border-radius: 10px;
-  height: calc(100% + 20px);
+  height: calc(100% + 10px);
 }
 
 .panel-heading {
@@ -453,7 +453,6 @@ input::-webkit-inner-spin-button {
     border: 0;
     color: black;
     background-color: white;
-    width: 18em;
 }
 
 .system-builder-nav {
@@ -590,11 +589,17 @@ input#system-search.form-control {
 .system-holder{
     padding-left: 1%;
     perspective: 3300px;
-    overflow-y: auto;
+    overflow-y: scroll;
+    overflow-x: hidden;
     position:absolute;
     height: calc(100% - 100px);
     z-index: 2;
-    padding-top: 51px;
+    padding-top: 5px;
+    top: 105px;
+}
+
+.system-holder::-webkit-scrollbar {
+    display: none;
 }
 
 .system-outer {
@@ -641,11 +646,6 @@ input#system-search.form-control {
 
 .system-button-holder.active{
     bottom: 12px;
-}
-
-::-webkit-scrollbar {
-    width: 0;
-    height: 0;
 }
 
 .confirm-window {
@@ -727,8 +727,7 @@ input#system-search.form-control {
 }
 
 .system-holder.small {
-    width: 16%;
-    min-width: 220px;
+    width: 240px;
 }
 
 .info-spacer {
@@ -747,7 +746,7 @@ input#system-search.form-control {
 
 .info-spacer.large {
     width: 100%;
-    padding-left: 200px;
+    padding-left: 230px;
 }
 
 .info-holder:focus {
@@ -765,18 +764,20 @@ input#system-search.form-control {
     background-color: #CCC;
 }
 
-.info-holder:hover {
+.small > .info-holder:hover {
     background-color: #DDD;
 }
 
-.info-holder:active {
+.small > .info-holder:active {
     background-color: #AAA;
 }
 
-.small > .info-holder > .fa-plus-circle {
+.small > .info-holder > .fa-plus-circle, .large > .info-holder > .fa-minus-circle {
     font-size: 30px;
     padding-top: 30px;
     opacity: .4;
+    position: absolute;
+    right: 10px;
 }
 
 .info-none-text {
@@ -884,4 +885,73 @@ input#system-search.form-control {
 
 .disabled-button, .disabled-button:hover, .disabled-button:active {
     color: #AAA !important;
+}
+
+.error-holder {
+    overflow-y: scroll;
+    background-color: white;
+    border: 1px black solid;
+    position: absolute;
+    bottom: 27px;
+    right: 28px;
+    z-index: 90;
+    width: 300px;
+    height: 30%;
+    color: red;
+    padding: 5px;
+}
+
+.error-inner {
+    padding: 2px 0 5px 0;
+}
+
+.error-close {
+    position: absolute;
+    bottom: calc(30% + 30px);
+    right: 30px;
+    z-index: 99;
+    color: black;
+}
+
+.md-button.md-fab.error-button {
+    z-index: 90;
+    display: inline;
+}
+
+.md-button.md-fab.error-button.errors {
+    background-color: red !important;
+}
+
+.canvas-blocker {
+    height: calc(100% - 50px);
+    width: 100%;
+    position: relative;
+    top: -93%;
+    background-color: white;
+    z-index: 0;
+}
+
+.mode-check {
+    position: absolute;
+    left: 5px;
+    top: 0;
+}
+
+.mode-butn-holder {
+    position: absolute;
+    top: 50px;
+    right: 327px;
+    background-color: #337ab7;
+}
+
+.butn-save {
+    font-size: 9pt;
+}
+
+.move-canvas {
+    cursor: move !important;
+}
+
+.resize-spinner {
+    font-size: 4.5em !important;
 }

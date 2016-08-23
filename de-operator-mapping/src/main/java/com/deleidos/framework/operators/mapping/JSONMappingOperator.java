@@ -6,6 +6,7 @@ import java.util.Map;
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.common.util.BaseOperator;
+import com.deleidos.framework.operators.common.TupleUtil;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 public class JSONMappingOperator extends BaseOperator{
@@ -39,12 +40,12 @@ public class JSONMappingOperator extends BaseOperator{
 	}
 	
 
-	public transient DefaultOutputPort<String> output = new DefaultOutputPort<String>();
+	public transient DefaultOutputPort<Map<String, Object>> output = new DefaultOutputPort<Map<String, Object>>();
 	
-	public transient DefaultInputPort<Map<String, String>> input = new DefaultInputPort<Map<String, String>>() {
+	public transient DefaultInputPort<Map<String, Object>> input = new DefaultInputPort<Map<String, Object>>() {
 	
 	    @Override
-	    public void process(Map<String, String> tuple)
+	    public void process(Map<String, Object> tuple)
 	    {
 	    
 			try {
@@ -56,7 +57,7 @@ public class JSONMappingOperator extends BaseOperator{
 	    }
 	  };
 	  
-	  protected void processTuple(Map<String, String> tuple) throws ParseException, IOException{
+	  protected void processTuple(Map<String, Object> tuple) throws ParseException, IOException{
 		  SimpleConfigurableTranslator translator = new SimpleConfigurableTranslator();
 		  translator.setModelName(modelName);
 		  translator.setInputFormatName(modelName);
@@ -68,8 +69,8 @@ public class JSONMappingOperator extends BaseOperator{
 		  translator.initialize();
 		  JsonObject parsedData = null;
 		  parsedData = translator.recordTranslation(tuple, null, null);
-		  
-		  output.emit(parsedData.toString());
+		  Map<String,Object> out = TupleUtil.jsonToTupleMap(parsedData.toString());
+		  output.emit(out);
 
 	  }
 	  

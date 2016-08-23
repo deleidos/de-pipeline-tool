@@ -35,7 +35,6 @@
 									<arguments>
 										<argument>docker</argument>
 										<argument>tag</argument>
-										<argument>-f</argument>
 										<argument>namenode:cdh5.6.0</argument>
 										<argument>der.deleidos.com/namenode:cdh5.6.0</argument>
 									</arguments>
@@ -53,7 +52,6 @@
 									<arguments>
 										<argument>docker</argument>
 										<argument>tag</argument>
-										<argument>-f</argument>
 										<argument>secondary-namenode:cdh5.6.0</argument>
 										<argument>der.deleidos.com/secondary-namenode:cdh5.6.0</argument>
 									</arguments>
@@ -71,7 +69,6 @@
 									<arguments>
 										<argument>docker</argument>
 										<argument>tag</argument>
-										<argument>-f</argument>
 										<argument>datanode:cdh5.6.0</argument>
 										<argument>der.deleidos.com/datanode:cdh5.6.0</argument>
 									</arguments>
@@ -89,7 +86,6 @@
 									<arguments>
 										<argument>docker</argument>
 										<argument>tag</argument>
-										<argument>-f</argument>
 										<argument>history-server:cdh5.6.0</argument>
 										<argument>der.deleidos.com/history-server:cdh5.6.0</argument>
 									</arguments>
@@ -107,7 +103,6 @@
 									<arguments>
 										<argument>docker</argument>
 										<argument>tag</argument>
-										<argument>-f</argument>
 										<argument>resource-manager:cdh5.6.0</argument>
 										<argument>der.deleidos.com/resource-manager:cdh5.6.0</argument>
 									</arguments>
@@ -125,7 +120,6 @@
 									<arguments>
 										<argument>docker</argument>
 										<argument>tag</argument>
-										<argument>-f</argument>
 										<argument>node-manager:cdh5.6.0</argument>
 										<argument>der.deleidos.com/node-manager:cdh5.6.0</argument>
 									</arguments>
@@ -143,7 +137,6 @@
 									<arguments>
 										<argument>docker</argument>
 										<argument>tag</argument>
-										<argument>-f</argument>
 										<argument>hadoop-client:cdh5.6.0</argument>
 										<argument>der.deleidos.com/hadoop-client:cdh5.6.0</argument>
 									</arguments>
@@ -161,7 +154,6 @@
 									<arguments>
 										<argument>docker</argument>
 										<argument>tag</argument>
-										<argument>-f</argument>
 										<argument>hue:cdh5.6.0</argument>
 										<argument>der.deleidos.com/hue:cdh5.6.0</argument>
 									</arguments>

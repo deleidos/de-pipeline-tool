@@ -27,6 +27,12 @@
 			<groupId>com.deleidos.analytics</groupId>
 			<artifactId>transportation-data-api</artifactId>
 			<version>1.0.0-SNAPSHOT</version>
+			<exclusions>
+				<exclusion>
+					<groupId>org.apache.hadoop</groupId>
+					<artifactId>hadoop-common</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 		<dependency>
 			<groupId>com.deleidos</groupId>
