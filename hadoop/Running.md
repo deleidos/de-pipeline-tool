@@ -1,4 +1,4 @@
-# Test/POC Environment
+# POC Environment
 The Docker images created by this project are intended to run in a mult-instance environment.  We utilize them in our own test environment in AWS on the following EC2 instance types: 
 
 - Client	->	m3.medium
@@ -6,7 +6,7 @@ The Docker images created by this project are intended to run in a mult-instance
 - Master	->	m3.medium
 - Nodes		->	m3.large
 
-Each instance runs one of each type of container image as described below.  While these instances sizes are what we settled on for our test/POC environment, you may choose to increase the instance sizes in your environment for your scenarios.
+Each instance runs one of each type of container image as described below.  While these instances sizes are what we settled on for our POC environment, you may choose to increase the instance sizes in your environment for your scenarios.
 
 
 # How to run
@@ -21,21 +21,21 @@ On each instance in the cluster, make an environment variable accessible which c
 ### Namenode  (only 1 per cluster)
 We run these components on the "Master" instance in our test environment.  Only one of these components can be run in a cluster.  While we run them on a single instance in our environment, they can be run separately on their own instances.  Just adjust the environment reference in each to point to the desired instance hosting that component.
   
-    $ sudo docker run -d --name namenode -m 1524m -e NAMENODE=$MASTER --net host - p 8020:8020 -p 8022:8022 -p 50070:50070 -p 50470:50470 namenode:cdh5.6.0
+    $ sudo docker run -d --name namenode -m 1524m -e NAMENODE=$MASTER --net host - p 8020:8020 -p 8022:8022 -p 50070:50070 -p 50470:50470 deleidos/namenode:cdh5.6.0
 
 
 ### Secondary Namenode (only 1 per cluster)
 
-	$ sudo docker run -d --name secondary-namenode -m 256m -e NAMENODE=$MASTER --net host -p 50090:50090 -p  50495:50495 secondary-namenode:cdh5.6.0
+	$ sudo docker run -d --name secondary-namenode -m 256m -e NAMENODE=$MASTER --net host -p 50090:50090 -p  50495:50495 deleidos/secondary-namenode:cdh5.6.0
 
 
 ### Resource Manager (only 1 per cluster)
-	$ sudo docker run -d --name resource-manager -m 1024m -e NAMENODE=$MASTER -e HISTORYSERVER=$MASTER -e RESOURCEMANAGER=$MASTER --net host -p 8032:8032 -p 8030:8030 -p 8031:8031 -p 8033:8033 -p 8088:8088 -p 8090:8090 resource-manager:cdh5.6.0
+	$ sudo docker run -d --name resource-manager -m 1024m -e NAMENODE=$MASTER -e HISTORYSERVER=$MASTER -e RESOURCEMANAGER=$MASTER --net host -p 8032:8032 -p 8030:8030 -p 8031:8031 -p 8033:8033 -p 8088:8088 -p 8090:8090 deleidos/resource-manager:cdh5.6.0
 
 
 ### History Server (only 1 per cluster)
 
-	$ sudo docker run -d --name history-server -m 1024m -e NAMENODE=$MASTER -e HISTORYSERVER=$MASTER -e RESOURCEMANAGER=$MASTER --net host -p 10020:10020 -p 10033:10033 -p 13562:13562 -p  19888:19888 -p 19890:19890 history-server:cdh5.6.0
+	$ sudo docker run -d --name history-server -m 1024m -e NAMENODE=$MASTER -e HISTORYSERVER=$MASTER -e RESOURCEMANAGER=$MASTER --net host -p 10020:10020 -p 10033:10033 -p 13562:13562 -p  19888:19888 -p 19890:19890 deleidos/history-server:cdh5.6.0
 
 
 
@@ -49,14 +49,12 @@ We run these components on the "Nodes" instances in our test environment.  In yo
 
 ### Datanode  (only 1 per host, but N per cluster)
 
-	$ sudo docker run -d -m 1024m -e NAMENODE=$MASTER --net host -p 50010:50010 -p 1004:1004 -p 50075:50075 -p 50475:50475 -p 1006:1006 -p 50020:50020 datanode:cdh5.6.0
+	$ sudo docker run -d --name datanode -m 1024m -e NAMENODE=$MASTER --net host -p 50010:50010 -p 1004:1004 -p 50075:50075 -p 50475:50475 -p 1006:1006 -p 50020:50020 deleidos/datanode:cdh5.6.0
 
 
 ### Node Manager (only 1 per host, but N per cluster)
 
-	$ sudo docker run -d -e NAMENODE=$MASTER -e HISTORYSERVER=$MASTER -e RESOURCEMANAGER=$MASTER --net host -p 8041:8041 -p 8042:8042 -p 8044:8044 node-manager:cdh5.6.0
-
-
+	$ sudo docker run -d --name node-manager -e NAMENODE=$MASTER -e HISTORYSERVER=$MASTER -e RESOURCEMANAGER=$MASTER --net host -p 8041:8041 -p 8042:8042 -p 8044:8044 deleidos/node-manager:cdh5.6.0
 
 
 
@@ -70,7 +68,7 @@ We run this component on the "Client" instance in our test environment.  This co
 
 ### Hadoop Cluster Client (N per node but external to the cluster hosts)
 
-	$ sudo docker run -d --name hadoop-client -m 1024m -e NAMENODE=$MASTER -e HISTORYSERVER=$MASTER -e RESOURCEMANAGER=$MASTER --net host hadoop-client:cdh5.6.0
+	$ sudo docker run -d --name hadoop-client -m 1024m -e NAMENODE=$MASTER -e HISTORYSERVER=$MASTER -e RESOURCEMANAGER=$MASTER --net host deleidos/hadoop-client:cdh5.6.0
 
 
 
@@ -86,18 +84,7 @@ We run this component on the "Hue" instance in our test environment.
 
 ### Hue
 
-	$ sudo docker run -d --name hue -m 2048m -e NAMENODE=$MASTER -e HISTORYSERVER=$MASTER -e RESOURCEMANAGER=$MASTER -p 80:8888 hadoop-client:cdh5.6.0
+	$ sudo docker run -d --name hue -m 2048m -e NAMENODE=$MASTER -e HISTORYSERVER=$MASTER -e RESOURCEMANAGER=$MASTER -p 80:8888 deleidos/hue:cdh5.6.0
 
 Once running, browse to the UI (http://<IP of Hue instance>) and log in as hdfs:hdfs.
 
-
-
-
-
-
-# Port forwarding notes
-To enable access to the HDFS Web ports locally, use ssh's port forwarding capability.  For example, to access the Namenode's web port (50070), execute the following
-in a linux terminal window, then it will be viewable via http://localhost:50070.
-
-
-	$ ssh -nNT -L 50070:$MASTER:50070 -i key.pem <user>@$MASTER
