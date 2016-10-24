@@ -1,3 +1,3 @@
 {
-    "hostname": "ws://your.service.hostname.here/analytics"
+    "hostname": "your.service.hostname.here"
 }

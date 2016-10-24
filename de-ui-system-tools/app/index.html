@@ -11,6 +11,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css">
+    <link rel="shortcut icon" href="pipeline.ico">
 
     <!-- build:css assets/css/vendor.css -->
     <!-- bower:css -->
@@ -27,7 +28,7 @@
     <!-- build:css assets/css/myApp.css -->
     <link rel="stylesheet" href="assets/css/main.css"/>
     <link rel="stylesheet" href="assets/css/app.css"/>
-    <link rel="stylesheet" href="assets/css/flipper.css"/>
+    <link rel="stylesheet" href="assets/css/manager.css"/>
     <!-- endbuild -->
 </head>
 <style>
@@ -55,7 +56,9 @@
 <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
 <![endif]-->
 
-<div ng-view></div>
+<div ng-view style="height: 100%;"></div>
+
+<div class="footer">Copyright &copy; 2016 Leidos, Inc. All rights reserved.</div>
 
 <!-- In production use:
   <script src="//ajax.googleapis.com/ajax/libs/angularjs/x.x.x/angular.min.js"></script>
@@ -79,19 +82,21 @@
 <script src="bower_components/ng-debounce/angular-debounce.js"></script>
 <script src="bower_components/angularjs-slider/dist/rzslider.js"></script>
 <script src="bower_components/angular-websocket/angular-websocket.min.js"></script>
-<script src="bower_components/Chart.js/dist/Chart.js"></script>
+<script src="bower_components/chart.js/dist/Chart.js"></script>
 <script src="bower_components/angular-chart.js/dist/angular-chart.js"></script>
 <script src="bower_components/angular-hotkeys/build/hotkeys.js"></script>
 <script src="bower_components/ngSmoothScroll/lib/angular-smooth-scroll.js"></script>
 <script src="bower_components/angular-sanitize/angular-sanitize.js"></script>
 <script src="bower_components/ez-ng/dist/ez-ng.js"></script>
 <script src="bower_components/angular-ui-tour/dist/angular-ui-tour.js"></script>
+<script src="bower_components/Chart.js/dist/Chart.js"></script>
+<script src="bower_components/angular-smart-table/dist/smart-table.js"></script>
+<script src="bower_components/Split.js/split.js"></script>
 <!-- endbower -->
 <!-- node:js -->
 <!-- endnode -->
 <script src="assets/lib/directives.js"></script>
 <!-- endbuild -->
-
 
 
 <!-- add any new scripts below -->

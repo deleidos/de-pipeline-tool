@@ -1,6 +1,8 @@
 package com.deleidos.analytics.config;
 
-import com.deleidos.analytics.common.config.BaseConfig;
+import org.apache.log4j.Logger;
+
+import com.deleidos.analytics.common.util.JsonUtil;
 import com.deleidos.analytics.common.util.StringUtil;
 
 /**
@@ -8,26 +10,55 @@ import com.deleidos.analytics.common.util.StringUtil;
  * 
  * @author vernona
  */
-public class AnalyticsConfig extends BaseConfig {
+public class AnalyticsConfig {
 
+	private Logger logger = Logger.getLogger(AnalyticsConfig.class);
 	private static final String defaultConfigFile = "analytics_config.json";
 	private static AnalyticsConfig instance = new AnalyticsConfig();
+	private static Boolean initialized = false;
 
+	/**
+	 * Get the singleton instance.
+	 * 
+	 * @return
+	 */
 	public static synchronized AnalyticsConfig getInstance() {
+		synchronized (initialized) {
+			if (!initialized) {
+				instance.init();
+			}
+		}
 		return instance;
 	}
 
 	/**
 	 * Private no-arg constructor enforces the singleton pattern.
 	 */
-	private AnalyticsConfig() {}
+	private AnalyticsConfig() {
+	}
+
+	/**
+	 * Initialize the config file.
+	 */
+	private void init() {
+		try {
+			JsonUtil.loadFromFile(defaultConfigFile, this);
+			initialized = true;
+		}
+		catch (Throwable t) {
+			logger.error(t);
+			// Wrap the checked exception in a Runtime exception.
+			throw new RuntimeException(t);
+		}
+	}
 
 	private int serverPort;
 	private String[] apiPlugins;
 	private String elasticsearchClusterName;
 	private String[] elasticsearchHostnames;
 	private String mongodbHostname;
-	private String apexHostname;
+	private String apexClientNodeHostname;
+	private String apexNameNodeHostname;
 	private String apexHostUsername;
 	private String apexKeyFilePath;
 	private String redisHostname;
@@ -72,12 +103,20 @@ public class AnalyticsConfig extends BaseConfig {
 		this.mongodbHostname = mongodbHostname;
 	}
 
-	public String getApexHostname() {
-		return apexHostname;
+	public String getApexClientNodeHostname() {
+		return apexClientNodeHostname;
 	}
 
-	public void setApexHostname(String apexHostname) {
-		this.apexHostname = apexHostname;
+	public void setApexClientNodeHostname(String apexClientNodeHostname) {
+		this.apexClientNodeHostname = apexClientNodeHostname;
+	}
+
+	public String getApexNameNodeHostname() {
+		return apexNameNodeHostname;
+	}
+
+	public void setApexNameNodeHostname(String apexNameNodeHostname) {
+		this.apexNameNodeHostname = apexNameNodeHostname;
 	}
 
 	public String getApexHostUsername() {
@@ -107,14 +146,5 @@ public class AnalyticsConfig extends BaseConfig {
 	@Override
 	public String toString() {
 		return StringUtil.objectToString(this);
-	}
-
-	//
-	// BaseConfig abstract implementation:
-	//
-	
-	@Override
-	protected String getConfigFilename() {
-		return defaultConfigFile;
 	}
 }

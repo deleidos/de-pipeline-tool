@@ -29,8 +29,7 @@ public class JsonUtil {
 			jsonObj = mapper.readValue(jsonString, genericType);
 		}
 		catch (Exception e) {
-			logger.error("JSON deserialization failed for: " + jsonString);
-			logger.error(e.toString());
+			logger.debug("JSON deserialization failed for: " + jsonString);
 			throw e;
 		}
 		return jsonObj;
@@ -49,7 +48,7 @@ public class JsonUtil {
 			json = mapper.writeValueAsString(obj);
 		}
 		catch (Exception e) {
-			logger.error("JSON serialization failed for: " + obj, e);
+			logger.debug("JSON serialization failed for: " + obj, e);
 			throw e;
 		}
 		return json;
@@ -61,7 +60,7 @@ public class JsonUtil {
 			rootNode = mapper.readTree(jsonString);
 		}
 		catch (Exception e) {
-			logger.error("JSON deserialization failed for: " + jsonString, e);
+			logger.debug("JSON deserialization failed for: " + jsonString, e);
 			throw e;
 		}
 		return rootNode;

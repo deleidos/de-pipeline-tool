@@ -5,10 +5,9 @@ import java.util.UUID;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 
-import org.apache.log4j.Logger;
-
 import com.deleidos.analytics.websocket.api.BaseWebSocketMessage;
 import com.deleidos.framework.service.data.SystemDataManager;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.deleidos.framework.model.system.SystemDescriptor;
 
 /**
@@ -19,10 +18,8 @@ import com.deleidos.framework.model.system.SystemDescriptor;
  */
 public class SaveSystemDescriptor extends BaseWebSocketMessage {
 
-	@SuppressWarnings("unused")
-	private Logger logger = Logger.getLogger(SaveSystemDescriptor.class);
-
 	private String request;
+	@JsonProperty("system_descriptor")
 	private SystemDescriptor systemDescriptor;
 
 	public String getRequest() {

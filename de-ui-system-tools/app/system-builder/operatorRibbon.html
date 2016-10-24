@@ -13,12 +13,14 @@
     <!--</md-fab-actions>-->
   </div>
 
-    <md-tabs style="z-index: -1" md-whiteframe md-selected:"activeCat.index" class="md-dynamic-height" >
-        <md-tab ng-repeat="opType in displayList" md-on-select="setActiveCat(opType)" ng-if="displayList[0].operators !== null">
+    <md-tabs style="z-index: -1; width: 100%; background-color: white" md-whiteframe md-selected:"activeCat.index" class="md-dynamic-height" >
+        <md-tab ng-repeat="opType in displayList" md-on-select="setActiveCat(opType)" ng-if="displayList[0].operators !== null" >
             <md-tab-label class="operator-category">
                 <i class="fa fa-lg" ng-class="opType.icon" ng-style="{'color': opType.color}"></i>&nbsp;{{opType.name}}
             </md-tab-label>
-            <md-tab-body class="position: 'relative'">
+            <md-tab-body style="
+    border-bottom: 2px solid #4c4c4c;
+    border-top: 2px solid #4c4c4c;" class="position: 'relative'">
               <ul class="operator-list" ng-style="{'border-color': '#DDD'}">
                 <!--<li ng-if="!!displayList.length">
                   <div ng-disabled="true" class="butn butn-operator butn-add-operator md-button" ng-style="{'background-color': opType.color}" ng-click="addOperator()"
@@ -28,11 +30,11 @@
                 </div>
               </li>-->
               <li ng-repeat="operator in opType.operators | filter:searchOp track by $index">
-                <div ng-if="opType.name !== 'Saved Operators'" class="butn butn-operator md-button" ng-style="{'background-color': operator.color}" draggable="true" ondragstart="event.dataTransfer.setData('text/plain', JSON.stringify($(this).scope().operator));"
+                <div ng-if="opType.name !== 'Stored Operators'" class="butn butn-operator md-button" ng-style="{'background-color': operator.color}" draggable="true" ondragstart="event.dataTransfer.setData('text/plain', JSON.stringify($(this).scope().operator));"
                     aria-label="{{operator.display_name}}" title="Drag onto the System Configuration canvas to add a(n) {{ operator.display_name }} operator">
                   <p class="operator-label">{{ operator.display_name }}</p>
                 </div>
-                  <div ng-if="opType.name === 'Saved Operators'" class="butn butn-operator md-button" ng-style="{'background-color': operator.color}" draggable="true" ondragstart="event.dataTransfer.setData('text/plain', JSON.stringify($(this).scope().operator));"
+                  <div ng-if="opType.name === 'Stored Operators'" class="butn butn-operator md-button" ng-style="{'background-color': operator.color}" draggable="true" ondragstart="event.dataTransfer.setData('text/plain', JSON.stringify($(this).scope().operator));"
                        aria-label="{{operator.name}}" title="{{ operator.display_name }} operator" ng-click="setActive(operator)" style="text-transform: none">
                       <p class="operator-label">{{ operator.name }} <i class="fa fa-times" ng-click="removeOperator($index, opType.operators); event.stopPropagation()"></i></p>
 

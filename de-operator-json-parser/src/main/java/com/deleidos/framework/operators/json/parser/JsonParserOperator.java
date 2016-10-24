@@ -10,15 +10,19 @@ import org.apache.log4j.Logger;
 import com.datatorrent.api.AutoMetric;
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
+import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.common.util.BaseOperator;
 import com.deleidos.framework.operators.common.InputTuple;
+import com.deleidos.framework.operators.common.OperatorConfig;
+import com.deleidos.framework.operators.common.OperatorSyslogger;
+import com.deleidos.framework.operators.common.OperatorSystemInfo;
 import com.deleidos.framework.operators.common.TupleUtil;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
-public class JsonParserOperator extends BaseOperator {
+public class JsonParserOperator extends BaseOperator implements OperatorSystemInfo {
 
 	private static final Logger log = Logger.getLogger(JsonParserOperator.class);
 
@@ -27,6 +31,8 @@ public class JsonParserOperator extends BaseOperator {
 	private final String CLOSE_ARRAY_CHARACTER = "]";
 	private final String OBJECT_SEPERATOR = ".";
 
+	private String systemName;
+	private transient OperatorSyslogger syslog;
 	public transient DefaultInputPort<InputTuple> input = new DefaultInputPort<InputTuple>() {
 		@Override
 		public void process(InputTuple inputTuple) {
@@ -41,6 +47,13 @@ public class JsonParserOperator extends BaseOperator {
 	 */
 	@AutoMetric
 	protected long incomingTuplesCount;
+
+	@Override
+	public void setup(OperatorContext context) {
+		syslog = new OperatorSyslogger(systemName, OperatorConfig.getInstance().getSyslogUdpHostname(),
+				OperatorConfig.getInstance().getSyslogUdpPort());
+
+	}
 
 	/**
 	 * Output port to emit validate records as JSONObject
@@ -69,51 +82,72 @@ public class JsonParserOperator extends BaseOperator {
 					parsedOutputCount++;
 				}
 			} catch (Exception e) {
-				log.error(String.format("Failed to parse json tuple [%s].", tupleString), e);
+				log.error("Error in Json Parser: " + e.getMessage() + "[ERROR END]", e);
+				syslog.error("Error in Json Parser: " + e.getMessage() + "[ERROR END]", e);
 			}
 		}
 	}
 
 	private void loadJSONFields(HashMap<String, String> map, JsonObject jsonObject, String levelName) {
-		String keyName = null;
+		try {
+			String keyName = null;
 
-		Iterator<Entry<String, JsonElement>> parsedDataEntryIterator = jsonObject.entrySet().iterator();
-		while (parsedDataEntryIterator.hasNext()) {
-			String key = parsedDataEntryIterator.next().getKey();
-			JsonElement element = jsonObject.get(key);
+			Iterator<Entry<String, JsonElement>> parsedDataEntryIterator = jsonObject.entrySet().iterator();
+			while (parsedDataEntryIterator.hasNext()) {
+				String key = parsedDataEntryIterator.next().getKey();
+				JsonElement element = jsonObject.get(key);
 
-			keyName = (levelName != null) ? (levelName + OBJECT_SEPERATOR + key) : (key);
+				keyName = (levelName != null) ? (levelName + OBJECT_SEPERATOR + key) : (key);
 
-			if (element.isJsonObject()) {
-				JsonObject elementJsonObject = element.getAsJsonObject();
-				loadJSONFields(map, elementJsonObject, keyName);
-			} else if (element.isJsonArray()) {
-				JsonArray elementJsonArray = element.getAsJsonArray();
-				loadJSONFields(map, elementJsonArray, keyName);
-			} else {
-				String value = jsonObject.get(key).toString();
-				map.put(keyName, value);
+				if (element.isJsonObject()) {
+					JsonObject elementJsonObject = element.getAsJsonObject();
+					loadJSONFields(map, elementJsonObject, keyName);
+				} else if (element.isJsonArray()) {
+					JsonArray elementJsonArray = element.getAsJsonArray();
+					loadJSONFields(map, elementJsonArray, keyName);
+				} else {
+					String value = jsonObject.get(key).toString();
+					map.put(keyName, value);
+				}
 			}
+		} catch (Exception e) {
+			syslog.error("Error in Json Parser: " + e.getMessage() + "[ERROR END]", e);
+
 		}
 	}
 
 	private void loadJSONFields(HashMap<String, String> map, JsonArray jsonArray, String levelName) {
-		for (int index = 0; index < jsonArray.size(); index++) {
-			String keyName = levelName + OPEN_ARRAY_CHARACTER + index + CLOSE_ARRAY_CHARACTER;
+		try {
+			for (int index = 0; index < jsonArray.size(); index++) {
+				String keyName = levelName + OPEN_ARRAY_CHARACTER + index + CLOSE_ARRAY_CHARACTER;
 
-			JsonElement arrayElement = jsonArray.get(index);
+				JsonElement arrayElement = jsonArray.get(index);
 
-			if (arrayElement.isJsonObject()) {
-				JsonObject elementJsonObject = arrayElement.getAsJsonObject();
-				loadJSONFields(map, elementJsonObject, keyName);
-			} else if (arrayElement.isJsonArray()) {
-				JsonArray elementArrayObject = arrayElement.getAsJsonArray();
-				loadJSONFields(map, elementArrayObject, keyName);
-			} else {
-				String value = arrayElement.toString();
-				map.put(keyName, value);
+				if (arrayElement.isJsonObject()) {
+					JsonObject elementJsonObject = arrayElement.getAsJsonObject();
+					loadJSONFields(map, elementJsonObject, keyName);
+				} else if (arrayElement.isJsonArray()) {
+					JsonArray elementArrayObject = arrayElement.getAsJsonArray();
+					loadJSONFields(map, elementArrayObject, keyName);
+				} else {
+					String value = arrayElement.toString();
+					map.put(keyName, value);
+				}
 			}
+		} catch (Exception e) {
+			syslog.error("Error in Json Parser: " + e.getMessage() + "[ERROR END]", e);
+
 		}
+	}
+
+	@Override
+	public void setSystemName(String systemName) {
+		this.systemName = systemName;
+	}
+
+	@Override
+	public String getSystemName() {
+		return systemName;
 	}
 
 }

@@ -2,16 +2,16 @@
     "use strict";
 
     angular.module('systemBuilder')
-        .controller('SystemBuilderController', ['$scope', '$window', '$localStorage', '$timeout', '$rootScope', '$websocket', '$uibModal', 'hotkeys', 'uiTourService', 'tourSteps', SystemBuilderController])
-        .controller('ToolTip', ['$scope', '$uibModalInstance', ToolTip]);
+        .controller('SystemBuilderController', ['$scope', '$window', '$localStorage', '$timeout', '$rootScope', '$websocket', '$uibModal', 'hotkeys', 'uiTourService', 'tourSteps', SystemBuilderController]);
+        //.controller('ToolTip', ['$scope', '$uibModalInstance', ToolTip]);
 
 
 
-    function ToolTip($scope, $uibModalInstance) {
+    /*function ToolTip($scope, $uibModalInstance) {
         $scope.ok = function() {
             $uibModalInstance.close();
         };
-    }
+    }*/
 
     function SystemBuilderController($scope, $window, $localStorage, $timeout, $rootScope, $websocket, $uibModal, hotkeys, TourService, tourSteps) {
 
@@ -28,6 +28,7 @@
         $scope.loading = true;
         $scope._id = $localStorage._id;        //add $location parameter to start with id
         $scope.stateConnections = [];
+        $scope.onlineSystems = [];
         if (!$scope.canvas) {
             $scope.canvas = {
                 zoomlevel: 30,
@@ -86,10 +87,6 @@
         $scope.invalid = [];
         $scope.invalid_text = [];
         $scope.hideErrors = true;
-        if (!$rootScope.mode) {
-            $rootScope.mode = 'select';
-        }
-        $scope.mode = $rootScope.mode;
         $scope.searchOp = {display_name: ''};
         $scope.canvasRefresh = false;
         $scope.showModes = false;
@@ -141,12 +138,12 @@
                     }];
                 if ($localStorage.savedOperators) {
                     $scope.operatorList.push({
-                        name: 'Saved Operators',
+                        name: 'Stored Operators',
                         operators: $localStorage.savedOperators
                     });
                 } else {
                     $scope.operatorList.push({
-                        name: 'Saved Operators',
+                        name: 'Stored Operators',
                         operators: []
                     });
                 }
@@ -156,9 +153,11 @@
                 var nsIndex = -1;
                 var opIndex = -1;
                 angular.forEach(data, function (op) {
+                    op.classType = [];
+                    var class_name = op.class_name.substr(op.class_name.lastIndexOf(".") + 1);
                     for (var i = 0; i < $scope.operatorList.length; i++) {
-                        if ($scope.operatorList[i].name !== 'All' && $scope.operatorList[i].name !== 'Saved Operators' && op.class_name.toUpperCase().indexOf($scope.operatorList[i].matchName.toUpperCase()) > -1) {
-                            op.classType = $scope.operatorList[i].matchName;
+                        if ($scope.operatorList[i].name !== 'All' && $scope.operatorList[i].name !== 'Stored Operators' && class_name.toUpperCase().indexOf($scope.operatorList[i].matchName.toUpperCase()) > -1) {
+                            op.classType.push($scope.operatorList[i].matchName);
                             //Checks for StringList and turns their value into an array if so
                             if (op.properties !== undefined && op.properties !== null) {
                                 for (var j = 0; j < op.properties.length; j++) {
@@ -173,8 +172,9 @@
                                     }
                                 }
                             }
-                            $scope.operatorList[i].operators.push(op);
-                            i = $scope.operatorList.length;
+                            if (op.classType.length === 1) {
+                                $scope.operatorList[i].operators.push(op);
+                            }
                         }
                     }
                 });
@@ -193,7 +193,7 @@
             }
         });
 
-        $scope.helpModal = function() {
+        /*$scope.helpModal = function() {
             var modalInstance = $uibModal.open({
                 animation: true,
                 templateUrl: 'system-builder/tool-tip.html',
@@ -205,7 +205,7 @@
             modalInstance.result.then(function() {
             }, function() {
             });
-        };
+        };*/
 
         $scope.resetPosition = function() {
           $timeout(function() {
@@ -253,6 +253,10 @@
                 "request": "getSystemDescriptor",
                 "id": $scope._id
             });
+        });
+
+        $scope.$on('Receiving online systems', function(data, systems) {
+           $scope.onlineSystems = systems;
         });
 
         getStream.onMessage(function(message) {
@@ -326,12 +330,9 @@
 
                 }
             });
-            if (item.classType === 'input') {
+            if (item.classType.indexOf('input') > -1) {
                 obj  =  angular.extend(item, {
                     'sources': [{
-                        uuid: getNextUUID()
-                    }],
-                    'targets': [{
                         uuid: getNextUUID()
                     }],
                     x: e.offsetX,
@@ -339,7 +340,7 @@
                     color: item.color,
                     form: form
                 });
-            } else if (item.classType === 'output') {
+            } else if (item.classType.indexOf('output') > -1) {
                 obj  =  angular.extend(item, {
                     'targets': [{
                         uuid: getNextUUID()
@@ -450,9 +451,16 @@
         };
 
         $scope.removeStateConnection = function(state, epIndex, cntIndex) {
-          console.log("Removing state connection from ", state, epIndex, cntIndex);
+            console.log("Removing state connection from ", state, epIndex, cntIndex);
             state.sources[epIndex].connections.splice(cntIndex, 1);
+            $scope.refreshStates();
         };
+
+        $scope.$on('Sending connection notification', function() {
+            $scope.updateJSON();
+            $scope.updateConnections();
+            $scope.refreshStates();
+        });
 
         $scope.equalizeZoom = function() {
             if ($scope.oldZoom !== $scope.canvas.zoomlevel) {
@@ -468,11 +476,12 @@
             $scope.canvas = $localStorage.canvas;
             $scope.mode = $localStorage.mode;
             $scope.oldZoom = $localStorage.oldZoom;
-            $rootScope.mode = $scope.mode;
+            $scope.onlineSystems = $localStorage.onlineSystems;
+            console.log($scope.onlineSystems);
             $scope.equalizeZoom();
         };
 
-        if (typeof $localStorage.stateObjects !== 'undefined') {
+        if ($localStorage.stateObjects && $localStorage.stateObjects !== 'undefined') {
             $scope.load();
         } else {
             $timeout(function() {
@@ -498,12 +507,6 @@
             $scope.canvasRefresh = true;
             $scope.refreshing = true;
             //$localStorage.stateObjects = $scope.stateObjects;
-            /*var boolean;
-            if ($rootScope.mode === 'move') {
-                boolean = false;
-            } else if ($rootScope.mode === 'select') {
-                boolean = true;
-            }*/
             $timeout(function() {
                 $scope.canvasRefresh = false;
                 $scope.refreshing = false;
@@ -524,10 +527,10 @@
             $localStorage._id = $scope._id;
             $localStorage.mode = $scope.mode;
             $localStorage.oldZoom = $scope.oldZoom;
+            $localStorage.onlineSystems = $scope.onlineSystems;
             if ($scope.operatorList) {
                 $localStorage.savedOperators = $scope.operatorList[$scope.operatorList.length - 1].operators;
             }
-            $rootScope.mode = $scope.mode;
             $scope.updateJSON();
             $scope.updateConnections();
 	        $scope.validateAll();
@@ -565,7 +568,7 @@
 			angular.forEach($scope.stateObjects, function(state) {
 				var operator = {
 					"name": state.name,
-					"class_name": state.class_name,
+					"class": state.class_name,
 					"properties": {
 						"type": state.type
 					}
@@ -650,16 +653,21 @@
         });
 
         $scope.setActiveState = function(state) {
-            if ($rootScope.mode === 'select') {
-                $scope.activeState = state;
-                $scope.update();
-            }
+            $scope.activeState = state;
+            $scope.update();
         };
 
         $scope.setActiveStateFromEvent = function(e) {
             if (e.target.tagName !== "JS-PLUMB-CANVAS") {
                 var scope = angular.element(e.target).scope();
-                $scope.setActiveState(scope ? scope.state : undefined);
+                console.log(scope);
+                if (scope && scope.stateObject) {
+                    $scope.setActiveState(scope.stateObject);
+                } else if (scope) {
+                    $scope.setActiveState(scope.state);
+                } else {
+                    $scope.setActiveState(undefined);
+                }
             } else {
                 $scope.setActiveState(undefined);
             }
@@ -732,6 +740,14 @@
             console.log($scope.jsonConfig);
         };
 
+        var jsonMappingSocket = $websocket($rootScope.dataService);
+        var mappingState = null;
+        var mappingIndex = -1;
+        jsonMappingSocket.onMessage(function(message) {
+            mappingState.properties[mappingIndex].value = JSON.parse(message.data);
+            console.log(message.data);
+        });
+
         $scope.validateForm = function(state, index, type, listIndex) {
             if (state.properties[index].required) {
                 var value = state.properties[index].value;
@@ -746,11 +762,15 @@
 	            if (type === 'integer') {
 		            state.form[name].$invalid = isNaN(value) || state.form[name].$invalid;
 	            } else if (type === 'file' && state.display_name.toLowerCase() === 'json mapping') {
-                    var jsonMappingSocket = $websocket($rootScope.dataService);
-                    jsonMappingSocket.onMessage(function(message) {
+                    /*jsonMappingSocket.onMessage(function(message) {
                         state.properties[index].value = JSON.parse(message.data);
-                    });
-                    jsonMappingSocket.send(JSON.stringify({'request': 'decodeBase64', 'base64': state.properties[index].value.substr(13)}));
+                        console.log('hey');
+                        console.log(message.data);
+                        console.log('bye');
+                    });*/
+                    mappingState = state;
+                    mappingIndex = index;
+                    jsonMappingSocket.send(JSON.stringify({'request': 'decodeBase64', 'base64': state.properties[index].value.substr(state.properties[index].value.indexOf(',') + 1)}));
                 }
 	            if (preValid !== state.form[name].$invalid) {
                     //validate entire thing
@@ -826,18 +846,18 @@
                         $scope.invalid.push('\"' + state.name + '\" is being used as two different operator names');
                     }
 
-                    if (state.classType === 'input') {
+                    if (state.classType.indexOf('input') > -1) {
                         input.push(state.name);
                         noInput = null;
-                    } else if (state.classType === 'output') {
+                    } else if (state.classType.indexOf('output') > -1) {
                         output.push(state.name);
                         noOutput = null;
                     } else {
                         middle.push(state.name);
                         middle.push(state.name);
-                        if (state.classType === 'parser') {
-                            noParser = null;
-                        }
+                    }
+                    if (state.classType.indexOf('parser') > -1) {
+                        noParser = null;
                     }
                     i++;
                 });
@@ -870,11 +890,11 @@
                         }
                         var target = operatorValidateList[sink.operator_name];
                         operatorValidateList[stream.source.operator_name].targets.push({'name': sink.operator_name,'classType': target.classType, 'index': target.index});
-                        if ((source.classType === 'input' && target.classType !== 'parser') ||
-                             (source.classType === 'parser' && target.classType !== 'mapping' && target.classType !== 'enrichment' && target.classType !== 'output') ||
-                             (source.classType === 'mapping' && target.classType !== 'enrichment' && target.classType !== 'output') ||
-                             (source.classType === 'enrichment' && target.classType !== 'mapping' && target.classType !== 'output')) {
-                            $scope.invalid.push(stream.source.operator_name + ' ' + source.classType + ' operator can\'t connect with ' + sink.operator_name + ' ' + target.classType + ' operator');
+                        if (!((source.classType.indexOf('input') > -1 && target.classType.indexOf('parser') > -1) ||
+                             (source.classType.indexOf('parser') > -1 && (target.classType.indexOf('mapping') > -1 || target.classType.indexOf('enrichment') > -1 || target.classType.indexOf('output') > -1)) ||
+                             (source.classType.indexOf('mapping') > -1 && (target.classType.indexOf('enrichment') > -1 || target.classType.indexOf('output') > -1)) ||
+                             (source.classType.indexOf('enrichment') > -1 && (target.classType.indexOf('mapping') > -1 || target.classType.indexOf('output') > -1)))) {
+                            $scope.invalid.push(stream.source.operator_name + ' operator can\'t connect with ' + sink.operator_name + ' operator');
                         }
 
                         /*if (source.classType === 'enrichment' && target.classType === 'mapping'){
@@ -902,20 +922,21 @@
                 });
 
                 angular.forEach(operatorValidateList, function(operator) {
-                    if (operator.classType === 'enrichment') {
-                        //var parentDataFieldIndex = -1;
+                    if (operator.classType.indexOf('enrichment') > -1) {
+                        var parentDataFieldIndex = -1;
                         var keyFieldIndex = -1;
                         angular.forEach($scope.stateObjects[operator.index].properties, function(prop, key) {
-                            //if (prop.name === 'parentDataField') {
-                                //parentDataFieldIndex = key;
-                            /*} else */if (prop.name === 'keyField') {
+                            if (prop.name === 'parentDataField') {
+                                parentDataFieldIndex = key;
+                            } else if (prop.name === 'keyField') {
                                 keyFieldIndex = key;
                             }
                         });
                         if (operator.targets && operator.targets.length > 0) {
                             angular.forEach(operator.targets, function(target) {
-                                if (target.classType === 'mapping') {
+                                if (target.classType.indexOf('mapping') > -1) {
                                     var mapping = null;
+                                    var parents = [];
                                     angular.forEach($scope.stateObjects[target.index].properties, function(Tprop) {
                                         if (Tprop.name === 'mappingFile') {
                                             mapping = Tprop.value;
@@ -924,11 +945,22 @@
                                     console.log(mapping);
                                     if (mapping === undefined) {
                                         mapping = null;
-                                    } if (mapping) {
+                                    }
+                                    if (mapping) {
                                         mapping = Object.keys(mapping);
                                         mapping.sort();
+                                        angular.forEach(mapping, function(v) {
+                                            if (v.indexOf('.') > -1) {
+                                                var reverse = v.split('').reverse().join('');
+                                                reverse = reverse.substr(reverse.indexOf('.') + 1);
+                                                parents.push(reverse.split('').reverse().join(''));
+                                            }
+                                        });
                                     }
-                                    //$scope.stateObjects[operator.index].properties[parentDataFieldIndex].choices = mapping;
+
+                                    if (parents.length > 0) {
+                                        $scope.stateObjects[operator.index].properties[parentDataFieldIndex].choices = parents;
+                                    }
                                     $scope.stateObjects[operator.index].properties[keyFieldIndex].choices = mapping;
                                 }
                             });
@@ -936,8 +968,9 @@
                             //$scope.stateObjects[operator.index].properties[parentDataFieldIndex].choices = null;
                             $scope.stateObjects[operator.index].properties[keyFieldIndex].choices = null;
                         }
-                    } else if (operator.classType === 'mapping') {
+                    } else if (operator.classType.indexOf('mapping') > -1) {
                         var mapping = null;
+                        var parents = [];
                         angular.forEach($scope.stateObjects[operator.index].properties, function(prop) {
                             if (prop.name === 'mappingFile') {
                                 mapping = prop.value;
@@ -949,13 +982,24 @@
                         if (mapping) {
                             mapping = Object.keys(mapping);
                             mapping.sort();
+                                angular.forEach(mapping, function(v) {
+                                if (v.indexOf('.') > -1) {
+                                    var reverse = v.split('').reverse().join('');
+                                    reverse = reverse.substr(reverse.indexOf('.') + 1);
+                                    parents.push(reverse.split('').reverse().join(''));
+                                }
+                            });
                         }
+
                         if (operator.targets && operator.targets.length > 0) {
                             angular.forEach(operator.targets, function(target) {
-                                if (target.classType === 'enrichment') {
+                                if (target.classType.indexOf('enrichment') > -1) {
                                     angular.forEach($scope.stateObjects[target.index].properties, function(Tprop, Tkey) {
-                                        if (/*Tprop.name === 'parentDataField' || */Tprop.name === 'keyField') {
+                                        if (Tprop.name === 'keyField') {
                                             $scope.stateObjects[target.index].properties[Tkey].choices = mapping;
+                                            delete operatorValidateList[target.name];
+                                        } else if (Tprop.name === 'parentDataField' && parents.length > 0) {
+                                            $scope.stateObjects[target.index].properties[Tkey].choices = parents;
                                             delete operatorValidateList[target.name];
                                         }
                                     });
@@ -1087,6 +1131,8 @@
         $rootScope.removeTempOperator = function() {
             $scope.activeState = null;
         };
+
+
 
     }
 })();

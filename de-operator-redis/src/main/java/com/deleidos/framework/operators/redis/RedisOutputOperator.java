@@ -10,6 +10,9 @@ import com.datatorrent.common.util.BaseOperator;
 import com.deleidos.analytics.redis.client.RedisClient;
 import com.deleidos.framework.operators.common.TupleUtil;
 import com.deleidos.framework.operators.common.KeyFieldValueFinder;
+import com.deleidos.framework.operators.common.OperatorConfig;
+import com.deleidos.framework.operators.common.OperatorSyslogger;
+import com.deleidos.framework.operators.common.OperatorSystemInfo;
 
 /**
  * Redis output operator. Key is obtained from the tuple map using the key field parameter. Key field may be
@@ -17,15 +20,16 @@ import com.deleidos.framework.operators.common.KeyFieldValueFinder;
  * 
  * @author vernona
  */
-public class RedisOutputOperator extends BaseOperator {
+public class RedisOutputOperator extends BaseOperator implements OperatorSystemInfo {
 
 	protected String hostname;
 	protected String namespace;
 	protected String keyField;
-	private static final Logger log = Logger.getLogger(RedisOutputOperator.class);
 	private transient KeyFieldValueFinder finder = new KeyFieldValueFinder();
 	private transient RedisClient client;
-
+	
+	private String systemName;
+	private transient OperatorSyslogger syslog;
 	public RedisOutputOperator() {
 	}
 
@@ -54,17 +58,34 @@ public class RedisOutputOperator extends BaseOperator {
 	}
 
 	@Override
+	public void setSystemName(String systemName) {
+		this.systemName = systemName;
+	}
+
+	@Override
+	public String getSystemName() {
+		return systemName;
+	}
+	
+	@Override
 	public void setup(Context.OperatorContext context) {
+		syslog = new OperatorSyslogger(systemName,
+				OperatorConfig.getInstance().getSyslogUdpHostname(), OperatorConfig.getInstance().getSyslogUdpPort());
+
 		client = new RedisClient(hostname);
 	}
 
 	public transient final DefaultInputPort<Map<String, Object>> input = new DefaultInputPort<Map<String, Object>>() {
 		@Override
 		public void process(Map<String, Object> tuple) {
+			try{
 			Object keyValue = finder.findValue(keyField, tuple);
 			if (keyValue != null) {
 				String jsonString = TupleUtil.tupleMapToJson(tuple);
 				client.setValue(namespace, keyValue.toString(), jsonString);
+			}
+			}catch(Exception e){
+				syslog.error("Error in Redis Output: " + e.getMessage() + "[ERROR END]",e);
 			}
 		}
 

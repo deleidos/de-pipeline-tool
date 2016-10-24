@@ -29,13 +29,16 @@ module.exports = function (config) {
             'app/bower_components/ng-debounce/angular-debounce.js',
             'app/bower_components/angularjs-slider/dist/rzslider.js',
             'app/bower_components/angular-websocket/angular-websocket.min.js',
-            'app/bower_components/Chart.js/dist/Chart.js',
+            'app/bower_components/chart.js/dist/Chart.js',
             'app/bower_components/angular-chart.js/dist/angular-chart.js',
             'app/bower_components/angular-hotkeys/build/hotkeys.js',
             'app/bower_components/ngSmoothScroll/lib/angular-smooth-scroll.js',
             'app/bower_components/angular-sanitize/angular-sanitize.js',
             'app/bower_components/ez-ng/dist/ez-ng.js',
             'app/bower_components/angular-ui-tour/dist/angular-ui-tour.js',
+            'app/bower_components/Chart.js/dist/Chart.js',
+            'app/bower_components/angular-smart-table/dist/smart-table.js',
+            'app/bower_components/Split.js/split.js',
             'app/bower_components/angular-mocks/angular-mocks.js',
             // endbower
 	        'app/bower_components/angular-websocket/angular-websocket-mock.js',
@@ -56,7 +59,9 @@ module.exports = function (config) {
 
 
         // list of files to exclude
-        exclude: [],
+        exclude: [
+            'app/tests/*.js'
+        ],
 
 
         // preprocess matching files before serving them to the browser
@@ -112,5 +117,7 @@ module.exports = function (config) {
         // Concurrency level
         // how many browser should be started simultaneous
         concurrency: Infinity
+
+
     });
 };

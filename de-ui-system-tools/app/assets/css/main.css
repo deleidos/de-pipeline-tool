@@ -278,3 +278,20 @@ textarea {
         page-break-after: avoid;
     }
 }
+
+::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+}
+
+::-webkit-scrollbar-track {
+    background-color: #BEBFBD;
+}
+
+::-webkit-scrollbar-thumb {
+    background-color: #850F89;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background-color: #201747;
+}

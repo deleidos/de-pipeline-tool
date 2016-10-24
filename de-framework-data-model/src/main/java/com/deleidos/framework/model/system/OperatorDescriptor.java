@@ -3,9 +3,10 @@ package com.deleidos.framework.model.system;
 import java.io.Serializable;
 import java.util.Map;
 
-import com.google.gson.annotations.SerializedName;
-
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
+//import com.fasterxml.jackson.annotation.JsonInclude;
+import com.google.gson.annotations.SerializedName;
 
 /**
  * Operator decriptor representation for modeling systems.
@@ -18,6 +19,7 @@ public class OperatorDescriptor implements Serializable {
 
 	private String name;
 	@SerializedName("class")
+	@JsonProperty("class")
 	private String className;
 	private Map<String, Object> properties;
 

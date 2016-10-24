@@ -1,26 +1,15 @@
 package com.deleidos.applicationcreator;
 
-import java.io.ByteArrayOutputStream;
 import java.io.OutputStream;
 import java.util.concurrent.LinkedBlockingQueue;
 
 import org.apache.log4j.Logger;
 
 import com.deleidos.analytics.common.rest.RestClient;
-import com.deleidos.analytics.common.util.JsonUtil;
 import com.deleidos.analytics.config.AnalyticsConfig;
 import com.deleidos.framework.model.event.SystemEventBus;
-import com.deleidos.framework.monitoring.Ec2ResourceFinder;
 import com.deleidos.framework.monitoring.response.AppsResponse;
-import com.deleidos.framework.monitoring.response.AppsResponse.AppWrapper.App;
-import com.fasterxml.jackson.core.JsonFactory;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
+import com.deleidos.framework.monitoring.response.App;
 import com.sshtools.j2ssh.session.SessionChannelClient;
 import com.sshtools.j2ssh.session.SessionOutputReader;
 
@@ -37,11 +26,13 @@ public class AppLauncher {
 	private AppLaunchExecutor executor;
 	private Thread executorThread;
 	private LinkedBlockingQueue<AppLaunchConfig> queue;
-
+	private RestClient rc;
+	private int waitTime = 500;
 	/**
 	 * Private no-arg constructor enforces the singleton pattern.
 	 */
 	private AppLauncher() {
+		rc = new RestClient(String.format("http://%s:8088", AnalyticsConfig.getInstance().getApexNameNodeHostname()));
 		queue = new LinkedBlockingQueue<AppLaunchConfig>();
 		executor = new AppLaunchExecutor();
 		executorThread = new Thread(executor);
@@ -75,7 +66,9 @@ public class AppLauncher {
 	private void doLaunch(AppLaunchConfig config) throws Exception {
 
 		AnalyticsConfig analyticsConfig = AnalyticsConfig.getInstance();
-		com.sshtools.j2ssh.SshClient ssh = SshUtil.authenticateSsh(analyticsConfig.getApexHostname(),
+		logger.info("first hostname: " + analyticsConfig.getApexClientNodeHostname() + " path: "
+				+ analyticsConfig.getApexKeyFilePath());
+		com.sshtools.j2ssh.SshClient ssh = SshUtil.authenticateSsh(analyticsConfig.getApexClientNodeHostname(),
 				analyticsConfig.getApexHostUsername(), analyticsConfig.getApexKeyFilePath());
 		SessionChannelClient session = ssh.openSessionChannel();
 		SessionOutputReader sor = new SessionOutputReader(session);
@@ -85,46 +78,49 @@ public class AppLauncher {
 			String appBundleName = config.getAppBundleName();
 			OutputStream out = session.getOutputStream();
 			out.write("sudo su\n".getBytes());
+			out.flush();
 			out.write(("docker cp /tmp/" + appBundleName + ".apa hadoop-client:/tmp/" + appBundleName + ".apa\n")
 					.getBytes());
+			out.flush();
 			out.write("docker exec -it hadoop-client bash\n".getBytes());
+			out.flush();
 			out.write(". /etc/profile.d/apex_env.sh\ndtcli \n".getBytes());
+			out.flush();
 
-			// Thread.sleep(1000 * 20);
 			String read = "";
 			while (!read.contains("dt>")) {
 				read = sor.getOutput();
-				Thread.sleep(1000 * 20);
+				Thread.sleep(waitTime);
 			}
 			out.write(("launch " + appBundleName + ".apa\n").getBytes());
-			// Thread.sleep(1000 * 40);
+			out.flush();
+
 			read = "";
 			while (!read.contains("dt (")) {
 				read = sor.getOutput();
-				Thread.sleep(1000 * 20);
+				Thread.sleep(waitTime);
 			}
 			out.write("exit\n".getBytes());
-			// Thread.sleep(1000*2);
+			out.flush();
+
 			read = "";
 			while (!read.contains("exit")) {
 				read = sor.getOutput();
-				Thread.sleep(1000 * 20);
+				Thread.sleep(waitTime);
 			}
 			out.write("exit\n".getBytes());
-			// Thread.sleep(1000*2);
+			out.flush();
+
 			read = "";
 			while (!read.contains("exit")) {
 				read = sor.getOutput();
-				Thread.sleep(1000 * 20);
+				Thread.sleep(waitTime);
 			}
 
 			out.close();
 		}
 		session.close();
 	}
-
-	private static RestClient rc;
-	private static AppsResponse aResponse;
 
 	/**
 	 * Runnable application launch executor. Blocks on the queue until a launch config is available. Will continue to
@@ -133,38 +129,64 @@ public class AppLauncher {
 	 */
 	private class AppLaunchExecutor implements Runnable {
 
-		public void waitForApp(String appList, String appName) throws InterruptedException {
-			boolean fin = false;
-			while (fin == false) {
-				JsonParser parser = new JsonParser();
-				JsonObject fullObject = parser.parse(appList).getAsJsonObject();
-				JsonArray arr = fullObject.get("apps").getAsJsonArray();
-				int val = 0;
-				JsonObject finObj = new JsonObject();
-				for (int i = 0; i < arr.size(); i++) {
-					JsonObject obj = arr.get(i).getAsJsonObject();
+		private static final long maxWaitTime = 30000; // 30 seconds
 
-					if (obj.get("name").getAsString().equals(appName)) {
-						int check = Integer.parseInt(obj.get("id").getAsString().split("_")[2]);
-
-						if (check > val) {
-							val = check;
-							finObj = obj;
-						}
-					}
-				}
-				if (finObj.entrySet().isEmpty()) {
-					Thread.sleep(60000);
-				}
-				else if (finObj.get("state").getAsString().equals("RUNNING")) {
-
-					logger.info("app is running: " + appName);
-					fin = true;
+		@Deprecated
+		public void waitForApp(String appName) throws Exception {
+			logger.info("Beginning wait for app " + appName);
+			boolean finished = false;
+			long startTime = System.currentTimeMillis();
+			while (!finished) {
+				// Don't wait longer than the max wait time.
+				logger.info("Elapsed time waiting for app: " + (System.currentTimeMillis() - startTime));
+				if (System.currentTimeMillis() - startTime >= maxWaitTime) {
+					logger.info("Timed out waiting for app " + appName);
+					finished = true;
 				}
 				else {
-					Thread.sleep(60000);
+					logger.info("Gettings apps in waitForApp...");
+					long rcStart = System.currentTimeMillis();
+					AppsResponse appsResponse = rc.getObject(AppsResponse.PATH, AppsResponse.class, true);
+					logger.info("Got Apps in waitForApp, took " + (System.currentTimeMillis() - rcStart) + " ms");
+					for (App app : appsResponse.getApps().getApp()) {
+						if (app.getName().equals(appName)) {
+							switch (app.getState()) {
+							case "RUNNING":
+								logger.info("app is running: " + appName);
+								finished = true;
+								break;
+							}
+
+							if (finished) {
+								break; // Exit the loop.
+							}
+						}
+					}
+
+					if (!finished) {
+						logger.info("Sleeping 1 minute waiting for app " + appName);
+						Thread.sleep(60000);
+					}
 				}
 			}
+		}
+
+		/**
+		 * Check to see if the app is already running.
+		 * 
+		 * @param appName
+		 * @return
+		 * @throws Exception
+		 */
+		private boolean isAppRunning(String appName) throws Exception {
+			boolean response = false;
+			AppsResponse appsResponse = rc.getObject(AppsResponse.PATH, AppsResponse.class, true);
+			for (App app : appsResponse.getApps().getApp()) {
+				if (app.getName().equals(appName) && app.getState().equalsIgnoreCase("RUNNING")) {
+					response = true;
+				}
+			}
+			return response;
 		}
 
 		@Override
@@ -172,26 +194,18 @@ public class AppLauncher {
 
 			while (true) {
 				try {
+					logger.info("Taking from queue");
 					AppLaunchConfig app = queue.take();
-					doLaunch(app);
-					String appName = app.getAppBundleName();
+					logger.info("Queue size after take: " + queue.size());
 
-					rc = new RestClient(String.format("http://%s:8088",
-							Ec2ResourceFinder.instance.lookupPrivateIp("tag:Name", "Hadoop (auto test) - Name Node")));
-					aResponse = rc.getObject(AppsResponse.PATH, AppsResponse.class, true);
-					JsonNodeFactory factory = JsonNodeFactory.instance;
-					ObjectNode root = factory.objectNode();
-					ArrayNode data = root.putArray("apps");
-					if (aResponse != null && aResponse.apps != null) {
-						for (App a : aResponse.apps.app) {
-							ObjectNode o = data.addObject();
-							o.setAll((ObjectNode) JsonUtil.parseJson(JsonUtil.toJsonString(a)));
-						}
+					if (isAppRunning(app.getAppBundleName())) {
+						logger.warn("App " + app.getAppBundleName() + " is already running. Aborting launch.");
 					}
-					ByteArrayOutputStream stream = new ByteArrayOutputStream();
-					new ObjectMapper().writeTree(new JsonFactory().createGenerator(stream), root);
-					String appslist = stream.toString(java.nio.charset.StandardCharsets.UTF_8.name());
-					waitForApp(appslist, appName);
+					else {
+						logger.info("Launching app " + app.getAppBundleName());
+						doLaunch(app);
+					}
+					// waitForApp(app.getAppBundleName());
 
 					// Notify that the deployment is complete.
 					SystemEventBus.getInstance().deploymentComplete(app.getSystemDescriptor().get_id());
@@ -201,6 +215,5 @@ public class AppLauncher {
 				}
 			}
 		}
-
 	}
 }

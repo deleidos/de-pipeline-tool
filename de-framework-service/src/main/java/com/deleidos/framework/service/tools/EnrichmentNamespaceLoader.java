@@ -2,8 +2,8 @@ package com.deleidos.framework.service.tools;
 
 import java.util.List;
 
+import com.deleidos.analytics.common.util.GsonFactory;
 import com.deleidos.framework.service.data.SystemDataManager;
-import com.google.gson.Gson;
 
 /**
  * Load enrichment namespace data into MongoDB.
@@ -17,6 +17,6 @@ public class EnrichmentNamespaceLoader {
 		List<String> namespaces = EnrichmentNamespaceFactory.getInstance().getNamespaces();
 		manager.saveEnrichmentNamespaces(namespaces);
 		namespaces = manager.getEnrichmentNamespaces();
-		System.out.println((new Gson()).toJson(namespaces));
+		System.out.println(GsonFactory.getInstance().getGson().toJson(namespaces));
 	}
 }

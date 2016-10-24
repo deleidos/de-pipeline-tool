@@ -6,6 +6,7 @@ import java.util.ArrayList;
 /**
  * Utility class used to parse comma-separated-values data.
  */   
+@Deprecated
 public final class CSVParser {
     
     /**

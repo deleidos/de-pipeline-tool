@@ -21,6 +21,8 @@ import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DefaultOutputPort;
 import com.deleidos.framework.operators.abstractsplitter.AbstractSplitter;
 import com.deleidos.framework.operators.common.InputTuple;
+import com.deleidos.framework.operators.common.OperatorConfig;
+import com.deleidos.framework.operators.common.OperatorSyslogger;
 
 public class S3InputOperator extends AbstractSplitter implements Runnable {
 
@@ -40,6 +42,8 @@ public class S3InputOperator extends AbstractSplitter implements Runnable {
 	private Double headerRows = 0.0;
 	public transient DefaultOutputPort<InputTuple> output = new DefaultOutputPort<InputTuple>();
 
+	private String systemName;
+	private transient OperatorSyslogger syslog;
 	public void setSplitter(String splitter) {
 		this.splitter = splitter;
 	}
@@ -58,6 +62,8 @@ public class S3InputOperator extends AbstractSplitter implements Runnable {
 
 	@Override
 	public void setup(OperatorContext context) {
+		syslog = new OperatorSyslogger(systemName,
+				OperatorConfig.getInstance().getSyslogUdpHostname(), OperatorConfig.getInstance().getSyslogUdpPort());
 
 		try {
 			credentials = new BasicAWSCredentials(accessKey, secretKey);
@@ -65,6 +71,7 @@ public class S3InputOperator extends AbstractSplitter implements Runnable {
 			s3Thread = new Thread(this);
 			s3Thread.start();
 		} catch (Exception ex) {
+			syslog.error("Error in S3 Input: " + ex.getMessage() + "[ERROR END]",ex);
 			throw new RuntimeException(ex);
 		}
 	}
@@ -77,72 +84,80 @@ public class S3InputOperator extends AbstractSplitter implements Runnable {
 				s3Thread.join();
 			}
 		} catch (Exception ex) {
+			syslog.error("Error in S3 Input: " + ex.getMessage() + "[ERROR END]",ex);
 			throw new RuntimeException(ex);
 		}
 		super.teardown();
 	}
 
 	public void run() {
-		while (!shutdown) {
-			shutdown = true;
-			InputStream is = null;
-			TarArchiveInputStream tarIn = null;
-			try {
+		try {
+			while (!shutdown) {
+				shutdown = true;
+				InputStream is = null;
+				TarArchiveInputStream tarIn = null;
+				try {
 
-				List<String> files = getFiles(bucketName, path);
+					
+					List<String> files = getFiles(bucketName, path);
+					if(files.size() == 0 || files == null){
+						syslog.error("Error in S3 Input: No Files found at bucket " +bucketName + " path " + path +  "[ERROR END]");
+					}
+					for (String file : files) {
+						is = getFileStream(bucketName, file);
+						
+						// only tgz for now
+						if (file.endsWith(".tgz") || file.endsWith("tar.gz")) {
+							BufferedInputStream in = new BufferedInputStream(is);
+							GzipCompressorInputStream gzIn = new GzipCompressorInputStream(in);
+							tarIn = new TarArchiveInputStream(gzIn);
 
-				for (String file : files) {
-					is = getFileStream(bucketName, file);
+							ArchiveEntry entry = null;
 
-					// only tgz for now
-					if (file.endsWith(".tgz") || file.endsWith("tar.gz")) {
-						BufferedInputStream in = new BufferedInputStream(is);
-						GzipCompressorInputStream gzIn = new GzipCompressorInputStream(in);
-						tarIn = new TarArchiveInputStream(gzIn);
+							try {
+								while ((entry = tarIn.getNextEntry()) != null) {
+									if (!entry.isDirectory()) {
 
-						ArchiveEntry entry = null;
-
-						try {
-							while ((entry = tarIn.getNextEntry()) != null) {
-								if (!entry.isDirectory()) {
-
-									emitLines(tarIn);
+										emitLines(tarIn);
+									}
+								}
+							} catch (InterruptedException e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
+							} finally {
+								if (gzIn != null) {
+									gzIn.close();
+								}
+								if (in != null) {
+									in.close();
 								}
 							}
-						} catch (InterruptedException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						} finally {
-							if (gzIn != null) {
-								gzIn.close();
-							}
-							if (in != null) {
-								in.close();
-							}
+
+						} else if (file.endsWith("json") || file.endsWith("csv")) {
+							emitLines(is);
 						}
-
-					} else if (file.endsWith("json") || file.endsWith("csv")) {
-						emitLines(is);
 					}
+
+				} catch (IOException | InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} finally {
+					if (tarIn != null) {
+						try {
+							tarIn.close();
+						} catch (IOException e) {
+						}
+					} else if (is != null) {
+						try {
+							is.close();
+						} catch (IOException e) {
+						}
+					}
+
 				}
-
-			} catch (IOException | InterruptedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} finally {
-				if (tarIn != null) {
-					try {
-						tarIn.close();
-					} catch (IOException e) {
-					}
-				} else if (is != null) {
-					try {
-						is.close();
-					} catch (IOException e) {
-					}
-				}
-
 			}
+		} catch (Exception e) {
+			syslog.error("Error in S3 Input: " + e.getMessage() + "[ERROR END]", e);
 		}
 	}
 
@@ -219,6 +234,16 @@ public class S3InputOperator extends AbstractSplitter implements Runnable {
 
 	public void setEndPoint(String endPoint) {
 		this.endPoint = endPoint;
+	}
+
+	@Override
+	public String getSystemName() {
+		return systemName;
+	}
+
+	@Override
+	public void setSystemName(String systemName) {
+		this.systemName = systemName;
 	}
 
 }

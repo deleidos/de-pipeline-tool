@@ -3,7 +3,7 @@ package com.deleidos.framework.service.tools;
 import java.util.List;
 
 import com.deleidos.framework.service.data.SystemDataManager;
-import com.google.gson.Gson;
+import com.deleidos.analytics.common.util.GsonFactory;
 import com.deleidos.framework.model.system.OperatorMetadata;
 
 /**
@@ -18,6 +18,6 @@ public class OperatorMetadataLoader {
 		List<OperatorMetadata> metadata = OperatorMetadataFactory.getInstance().getOperatorMetadata();
 		manager.saveOperatorMetadata(metadata);
 		metadata = manager.getOperatorMetadata();
-		System.out.println((new Gson()).toJson(metadata));
+		System.out.println(GsonFactory.getInstance().getGson().toJson(metadata));
 	}
 }

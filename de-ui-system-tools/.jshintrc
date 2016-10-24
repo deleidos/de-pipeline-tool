@@ -20,6 +20,10 @@
         "inject": true,
         "require": true,
         "console": true,
-        "jsPlumb": true
+        "jsPlumb": true,
+        "browser": true,
+        "element": true,
+        "by": true,
+        "exports": true
     }
 }

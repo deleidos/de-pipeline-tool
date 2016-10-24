@@ -11,7 +11,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
  */
 public abstract class BaseWebSocketMessage implements WebSocketMessage {
 
-	protected static final Logger logger = Logger.getLogger(BaseWebSocketMessage.class);
+	protected static transient final Logger logger = Logger.getLogger(BaseWebSocketMessage.class);
 
 	protected WebSocketServer webSocketServer;
 

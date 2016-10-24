@@ -3,9 +3,6 @@ package com.deleidos.framework.service.api.manager;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 
-import org.apache.log4j.Logger;
-
-import com.deleidos.analytics.common.rest.RestClient;
 import com.deleidos.analytics.websocket.api.BaseWebSocketMessage;
 import com.deleidos.applicationcreator.Application_Creation;
 import com.deleidos.framework.service.data.SystemDataManager;
@@ -18,9 +15,6 @@ import com.deleidos.framework.monitoring.MonitoringUtil;
  * @author vernona
  */
 public class StopSystem extends BaseWebSocketMessage {
-
-	@SuppressWarnings("unused")
-	private Logger logger = Logger.getLogger(StopSystem.class);
 
 	private String request;
 	private String id;

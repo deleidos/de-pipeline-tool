@@ -219,7 +219,7 @@ public class StreamTest {
 	}
 
 	@Test
-	public void testTopicCreationDesctruction() throws Exception {
+	public void testTopicCreationDestruction() throws Exception {
 		// make sure the topic doesn't exist before we start
 		assertTrue(!doesStreamTopicExist(STREAM_TOPIC_1, 2000L));
 

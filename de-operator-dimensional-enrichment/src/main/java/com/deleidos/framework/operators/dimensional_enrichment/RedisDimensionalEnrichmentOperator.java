@@ -2,41 +2,44 @@ package com.deleidos.framework.operators.dimensional_enrichment;
 
 import java.util.Map;
 
-
 import org.apache.log4j.Logger;
 
 import com.datatorrent.api.Context;
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
+import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.common.util.BaseOperator;
 import com.deleidos.analytics.redis.client.RedisClient;
 import com.deleidos.framework.operators.common.KeyFieldValueFinder;
+import com.deleidos.framework.operators.common.OperatorConfig;
+import com.deleidos.framework.operators.common.OperatorSyslogger;
+import com.deleidos.framework.operators.common.OperatorSystemInfo;
 import com.deleidos.framework.operators.common.TupleUtil;
 
 /**
- * Enrich a JSON input record by adding additional data to it. Data is pulled from a Redis cache using the given key
- * field and added to the top level of the tuple as a JSON object.
+ * Enrich a JSON input record by adding additional data to it. Data is pulled
+ * from a Redis cache using the given key field and added to the top level of
+ * the tuple as a JSON object.
  * 
  * If any type of failure occurs, the original tuple is emitted.
  * 
  * @author vernona
  */
-public class RedisDimensionalEnrichmentOperator extends BaseOperator {
+public class RedisDimensionalEnrichmentOperator extends BaseOperator implements OperatorSystemInfo {
 
 	private static final Logger log = Logger.getLogger(RedisDimensionalEnrichmentOperator.class);
 
-	//@NotNull
 	protected String namespace;
-	//@NotNull
 	protected String keyField;
-	//@NotNull
 	protected String dataField;
 	protected String parentDataField;
-	//@NotNull
 	protected String cacheHostname;
+
+	private String systemName;
 
 	private transient KeyFieldValueFinder finder = null;
 	private transient RedisClient client = null;
+	private transient OperatorSyslogger syslog;
 
 	/**
 	 * Empty no-arg constructor for serialization.
@@ -46,8 +49,17 @@ public class RedisDimensionalEnrichmentOperator extends BaseOperator {
 
 	@Override
 	public void setup(Context.OperatorContext context) {
+		syslog = new OperatorSyslogger(systemName, OperatorConfig.getInstance().getSyslogUdpHostname(),
+				OperatorConfig.getInstance().getSyslogUdpPort());
+		try{
 		finder = new KeyFieldValueFinder();
 		client = new RedisClient(cacheHostname);
+		}catch(Exception e){
+			syslog.error("Error in Redis Dimensional Enrichment: " + e.getMessage() + "[ERROR END]", e);
+
+		}
+		
+
 	}
 
 	/** Output port stream for tuple result emission. */
@@ -67,8 +79,7 @@ public class RedisDimensionalEnrichmentOperator extends BaseOperator {
 						Map<String, Object> dataMap = TupleUtil.jsonToTupleMap(jsonData);
 						if (parentDataField == null) {
 							tuple.put(dataField, dataMap);
-						}
-						else {
+						} else {
 							Object parentObject = finder.findValue(parentDataField, tuple);
 							if (parentObject != null && parentObject instanceof Map) {
 								@SuppressWarnings("unchecked")
@@ -78,10 +89,10 @@ public class RedisDimensionalEnrichmentOperator extends BaseOperator {
 						}
 					}
 				}
-			}
-			catch (Throwable t) {
+			} catch (Throwable t) {
 				// Log the message and emit the original tuple unchanged.
 				log.error(t.getMessage(), t);
+				syslog.error("Error in Redis Dimensional Enrichment: " + t.getMessage() + "[ERROR END]", t);
 			}
 
 			output.emit(tuple);
@@ -133,5 +144,15 @@ public class RedisDimensionalEnrichmentOperator extends BaseOperator {
 
 	public void setCacheHostname(String cacheHostname) {
 		this.cacheHostname = cacheHostname;
+	}
+
+	@Override
+	public void setSystemName(String systemName) {
+		this.systemName = systemName;
+	}
+
+	@Override
+	public String getSystemName() {
+		return systemName;
 	}
 }

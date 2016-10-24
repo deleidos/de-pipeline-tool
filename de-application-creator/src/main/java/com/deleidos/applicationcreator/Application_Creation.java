@@ -42,7 +42,7 @@ public class Application_Creation {
 	private SystemDescriptor sys;
 	private String appBundleName;
 	private Map<String, Map<String, String>> mappingFile;
-	
+	private static int waitTime = 500;
 	public Application_Creation(SystemDescriptor sys, String appBundleName) {
 		this.sys = sys;
 		this.appBundleName = appBundleName;
@@ -64,8 +64,7 @@ public class Application_Creation {
 		if (dir.isDirectory()) {
 			if (dir.list().length == 0) {
 				dir.delete();
-			}
-			else {
+			} else {
 				String files[] = dir.list();
 				for (String file : files) {
 					File fDel = new File(dir, file);
@@ -75,8 +74,7 @@ public class Application_Creation {
 					dir.delete();
 				}
 			}
-		}
-		else {
+		} else {
 			dir.delete();
 		}
 	}
@@ -119,8 +117,7 @@ public class Application_Creation {
 		URI uri = null;
 		try {
 			uri = url.toURI();
-		}
-		catch (java.net.URISyntaxException ex) {
+		} catch (java.net.URISyntaxException ex) {
 			IOException ioe = new IOException();
 			ioe.initCause(ex);
 			throw ioe;
@@ -151,8 +148,7 @@ public class Application_Creation {
 						tempJarOutputStream.write(buffer, 0, bytesRead);
 					}
 
-				}
-				finally {
+				} finally {
 					fis.close();
 				}
 
@@ -170,16 +166,13 @@ public class Application_Creation {
 				}
 
 				jarUpdated = true;
-			}
-			catch (Exception ex) {
+			} catch (Exception ex) {
 				ex.printStackTrace();
 				tempJarOutputStream.putNextEntry(new JarEntry("stub"));
-			}
-			finally {
+			} finally {
 				tempJarOutputStream.close();
 			}
-		}
-		finally {
+		} finally {
 			jarFile.close();
 
 			if (!jarUpdated) {
@@ -225,9 +218,9 @@ public class Application_Creation {
 			out.write(("shutdown-app " + appID + "\n").getBytes());
 			Thread.sleep(1000 * 40);
 			out.write("exit\n".getBytes());
-			Thread.sleep(1000*2);
+			Thread.sleep(1000 * 2);
 			out.write("exit\n".getBytes());
-			Thread.sleep(1000*2);
+			Thread.sleep(1000 * 2);
 			out.close();
 		}
 		session.close();
@@ -238,40 +231,35 @@ public class Application_Creation {
 		SessionChannelClient session = ssh.openSessionChannel();
 		SessionOutputReader sor = new SessionOutputReader(session);
 		session.requestPseudoTerminal("vt100", 80, 25, 0, 0, "");
-		
+
 		if (session.startShell()) {
 			OutputStream out = session.getOutputStream();
 			out.write("sudo su\n".getBytes());
 			out.write("docker exec -it hadoop-client bash\n".getBytes());
 			out.write(". /etc/profile.d/apex_env.sh\ndtcli \n".getBytes());
 
-			//Thread.sleep(1000 * 20);
 			String read = "";
-			while(!read.contains("dt>")){
+			while (!read.contains("dt>")) {
 				read = sor.getOutput();
-				Thread.sleep(1000 * 20);
+				Thread.sleep(waitTime);
 			}
 			out.write(("kill-app " + appID + "\n").getBytes());
 			read = "";
-			while(!read.contains("Kill app requested")){
+			while (!read.contains("Kill app requested")) {
 				read = sor.getOutput();
-				Thread.sleep(1000 * 20);
+				Thread.sleep(waitTime);
 			}
-			//Thread.sleep(1000 * 40);
-			//Thread.sleep(1000 * 40);
 			out.write("exit\n".getBytes());
 			read = "";
-			while(!read.contains("exit")){
+			while (!read.contains("exit")) {
 				read = sor.getOutput();
-				Thread.sleep(1000 * 20);
+				Thread.sleep(waitTime);
 			}
-			//Thread.sleep(1000*2);
 			out.write("exit\n".getBytes());
-			//Thread.sleep(1000*2);
 			read = "";
-			while(!read.contains("exit")){
+			while (!read.contains("exit")) {
 				read = sor.getOutput();
-				Thread.sleep(1000 * 20);
+				Thread.sleep(waitTime);
 			}
 			out.close();
 		}
@@ -296,15 +284,16 @@ public class Application_Creation {
 			// copy the jars of the operators used into the lib folder
 			className = op.getClassName();
 			jarName = classMap.getMappedVal(className);
+			logger.info("className: " + className + "jarName: " + jarName);
 			File jar = new File("/opt/apex-deployment/operators/" + jarName);
-
-			FileUtils.copyFileToDirectory(jar, destDir, false);
-
+			if (!(op.getClassName().contains("ConsoleOutputOperator"))) {
+				FileUtils.copyFileToDirectory(jar, destDir, false);
+			}
 			if (op.getClassName().contains("JSONMappingOperator")) {
 				// If json operator then copy mapping file into jar
 				File map = new File("/opt/apex-deployment/mappings/" + op.getName() + ".json");
 				FileWriter mapWrite = new FileWriter(map);
-			
+
 				mapWrite.write(JsonUtil.toJsonString(mappingFile.get(op.getName())));
 				mapWrite.close();
 
@@ -347,12 +336,14 @@ public class Application_Creation {
 		FileUtils.cleanDirectory(mappingDir);
 
 		AnalyticsConfig analyticsConfig = AnalyticsConfig.getInstance();
+		logger.info("first hostname: " + analyticsConfig.getApexClientNodeHostname() + " path: "
+				+ analyticsConfig.getApexKeyFilePath());
 		SshClient client = new SshClient(analyticsConfig.getApexHostUsername(),
 				FileSystems.getDefault().getPath(analyticsConfig.getApexKeyFilePath()));
 
 		// client.setKnownHosts(FileSystems.getDefault().getPath("/root/.ssh/known_hosts"));
 
-		client.connect(analyticsConfig.getApexHostname());
+		client.connect(analyticsConfig.getApexClientNodeHostname());
 		client.upload(FileSystems.getDefault().getPath("/opt/apex-deployment/" + appBundleName + ".apa"),
 				"/tmp/" + appBundleName + ".apa");
 
@@ -374,7 +365,7 @@ public class Application_Creation {
 	 */
 	private static com.sshtools.j2ssh.SshClient authenticateSsh() throws IOException {
 		AnalyticsConfig analyticsConfig = AnalyticsConfig.getInstance();
-		return SshUtil.authenticateSsh(analyticsConfig.getApexHostname(), analyticsConfig.getApexHostUsername(),
-				analyticsConfig.getApexKeyFilePath());
+		return SshUtil.authenticateSsh(analyticsConfig.getApexClientNodeHostname(),
+				analyticsConfig.getApexHostUsername(), analyticsConfig.getApexKeyFilePath());
 	}
 }

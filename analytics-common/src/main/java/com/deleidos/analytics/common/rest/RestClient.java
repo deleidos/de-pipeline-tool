@@ -67,7 +67,8 @@ public class RestClient {
 	 */
 	public <T> T getObject(String uriPath, Class<T> classOfT) throws Exception {
 		String response = get(uriPath);
-		return JsonUtil.fromJsonString(response, classOfT);
+		T t = JsonUtil.fromJsonString(response, classOfT);
+		return t;
 	}
 	
 	/**
@@ -81,7 +82,8 @@ public class RestClient {
 	 */
 	public <T> T getObject(String uriPath, Class<T> classOfT, boolean camelCaseJson) throws Exception {
 		String response = get(uriPath);
-		return JsonUtil.fromJsonString(response, classOfT, camelCaseJson);
+		T t = JsonUtil.fromJsonString(response, classOfT, camelCaseJson);
+		return t;
 	}
 
 	/**

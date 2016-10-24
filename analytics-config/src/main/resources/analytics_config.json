@@ -9,7 +9,8 @@
 		"your.es.hostname2"
 	],
 	"mongodb_hostname": "your.mongodb.hostname",
-	"apex_hostname": "your.apex.name.node.hostname",
+	"apex_client_node_hostname": "your.apex.client.node.hostname",
+  "apex_name_node_hostname": "your.apex.name.node.hostname",
 	"apex_host_username": "your.apex.host.username",
 	"apex_key_file_path": "your/path/to/apex/host/pem/key/file",
 	"redis_hostname" : "your.redis.hostname"

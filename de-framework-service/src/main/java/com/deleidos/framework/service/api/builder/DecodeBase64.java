@@ -3,8 +3,6 @@ package com.deleidos.framework.service.api.builder;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 
-import org.apache.log4j.Logger;
-
 import com.deleidos.analytics.common.util.Base64Util;
 import com.deleidos.analytics.websocket.api.BaseWebSocketMessage;
 
@@ -14,9 +12,6 @@ import com.deleidos.analytics.websocket.api.BaseWebSocketMessage;
  * @author vernona
  */
 public class DecodeBase64 extends BaseWebSocketMessage {
-	@SuppressWarnings("unused")
-	private Logger logger = Logger.getLogger(DecodeBase64.class);
-
 	private String request;
 	private String base64;
 

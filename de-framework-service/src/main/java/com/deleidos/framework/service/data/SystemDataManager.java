@@ -5,12 +5,15 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.log4j.Logger;
 import org.bson.Document;
 
 import com.deleidos.framework.model.system.OperatorMetadata;
 import com.deleidos.framework.model.system.OperatorMetadataList;
 import com.deleidos.framework.model.system.SystemDescriptor;
+import com.google.gson.FieldNamingPolicy;
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 import com.mongodb.client.FindIterable;
 
@@ -26,10 +29,12 @@ import com.mongodb.client.FindIterable;
  */
 public class SystemDataManager {
 
+	private Logger logger = Logger.getLogger(SystemDataManager.class);
+	
 	private static final SystemDataManager instance = new SystemDataManager();
 
 	private DeFrameworkDb db;
-	private Gson gson = new Gson();
+	private Gson gson = (new GsonBuilder()).setFieldNamingPolicy(FieldNamingPolicy.IDENTITY).create();
 
 	/**
 	 * Private constructor enforces the singleton pattern.

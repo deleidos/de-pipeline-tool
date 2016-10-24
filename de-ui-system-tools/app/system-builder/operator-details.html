@@ -7,7 +7,7 @@
         </span>
         <span style="float: right; position: relative; top: -6px">
             <md-button class="butn butn-default butn-save" ng-click="saveOperator(activeState)">
-                Save Operator
+                Store Operator
             </md-button>
         </span>
     </div>
@@ -20,7 +20,7 @@
             <h3>{{ activeState.template }} Operator</h3>
             <div class="form-group">
                 <label for="opName">Operator Name</label>
-                <input drop-disable class="form-control" id="opName" type="text" ng-model="activeState.name" maxlength="13"
+                <input drop-disable class="form-control" id="opName" type="text" ng-model="activeState.name"
                        ng-class="{'has-error' : activeState.form.operatorName.$invalid,
                                   'no-error'  : !activeState.form.operatorName.$invalid}"
                        ng-change="activeState.form.operatorName.$invalid = activeState.name === undefined || activeState.name.length < 1; validateState(activeState)"

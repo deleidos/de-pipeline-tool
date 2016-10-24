@@ -39,23 +39,22 @@ public class Syslogger {
 	private SyslogAppender appender;
 	private Logger logger;
 
-	/** The singleton instance. */
-	private static final Syslogger instance = new Syslogger();
-
 	/**
-	 * Get the singleton instance.
-	 * 
-	 * @return
+	 * Constructor for localhost 514.
 	 */
-	public static Syslogger getInstance() {
-		return instance;
+	public Syslogger() {
+		this("localhost", 514);
 	}
 
 	/**
-	 * Private constructor enforces the singleton pattern.
+	 * Constructor.
+	 * 
+	 * @param hostname
+	 * @param port
 	 */
-	private Syslogger() {
-		appender = new SyslogAppender(new PatternLayout(patternLayout), "localhost:514", SyslogAppender.LOG_SYSLOG);
+	public Syslogger(String hostname, int port) {
+		appender = new SyslogAppender(new PatternLayout(patternLayout), hostname + ":" + port,
+				SyslogAppender.LOG_SYSLOG);
 		appender.setName("syslog");
 
 		logger = Logger.getLogger(Syslogger.class);
@@ -82,6 +81,9 @@ public class Syslogger {
 
 	public void error(String message) {
 		logger.error(message);
+	}
+	public void error(String message, Throwable t){
+		logger.error(message, t);
 	}
 
 	public void fatal(String message) {

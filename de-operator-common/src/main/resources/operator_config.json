@@ -1,0 +1,4 @@
+{
+	"syslog_udp_hostname" : "your.syslog.udp.hostname",
+  "syslog_udp_port" : "your.syslog.udp.port"
+}

@@ -1,0 +1,4 @@
+{
+  "syslog_udp_hostname" : "ip-10-225-207-55.ec2.internal",
+  "syslog_udp_port" : "1514"
+}

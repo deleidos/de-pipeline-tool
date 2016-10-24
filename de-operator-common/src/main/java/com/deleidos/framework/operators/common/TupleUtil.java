@@ -9,7 +9,7 @@ import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
 
-import com.deleidos.analytics.common.util.GsonWithMapDeserializerFactory;
+import com.deleidos.analytics.common.util.GsonFactory;
 import com.deleidos.analytics.common.util.NumberUtil;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -24,7 +24,7 @@ public class TupleUtil {
 	@SuppressWarnings("unused")
 	private static final Logger log = Logger.getLogger(TupleUtil.class);
 
-	private static Gson gson = GsonWithMapDeserializerFactory.getInstance().getGsonWithMapDeserializer();
+	private static Gson gson = GsonFactory.getInstance().getGson();
 
 	/**
 	 * Get a tuple map as a JSON string.
@@ -49,6 +49,27 @@ public class TupleUtil {
 	}
 
 	/**
+	 * Get an object as a tuple map.
+	 * 
+	 * @param object
+	 * @return
+	 */
+	public static Map<String, Object> objectToTupleMap(Object object) {
+		return jsonToTupleMap(gson.toJson(object));
+	}
+
+	/**
+	 * Convert a tuple map back into an object.
+	 * 
+	 * @param map
+	 * @param classOfT
+	 * @return
+	 */
+	public static <T> T tupleMapToObject(Map<String, Object> map, Class<T> classOfT) {
+		return gson.fromJson(tupleMapToJson(map), classOfT);
+	}
+
+	/**
 	 * Get a tuple map for a CSV InputTuple.
 	 * 
 	 * @param inputTuple
@@ -57,8 +78,11 @@ public class TupleUtil {
 	 * @throws IOException
 	 */
 	public static Map<String, Object> csvInputTupleToMap(InputTuple inputTuple, String delimiter) throws IOException {
-	
-		String[] headerFields = inputTuple.getHeader().get(0).split(delimiter);
+		String escapedDelimiter = delimiter;
+		if (delimiter.equals("|")) {
+			escapedDelimiter = "\\" + delimiter;
+		}
+		String[] headerFields = inputTuple.getHeader().get(0).split(escapedDelimiter);
 		for (int i = 0; i < headerFields.length; i++) {
 			String headerField = headerFields[i];
 			if (headerField.length() >= 2 && headerField.charAt(0) == '"'

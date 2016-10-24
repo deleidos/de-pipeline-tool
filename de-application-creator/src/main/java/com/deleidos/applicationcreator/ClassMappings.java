@@ -16,6 +16,11 @@ public class ClassMappings {
 		mappings.put("com.deleidos.framework.operators.dimensional_enrichment.RedisDimensionalEnrichmentOperator", "de-operator-dimensional-enrichment-0.0.1-SNAPSHOT.jar");
 		mappings.put("com.deleidos.framework.operators.rest.RESTOutputOperator", "de-operator-rest-0.0.1-SNAPSHOT.jar");
 		mappings.put("com.deleidos.framework.operators.redis.RedisOutputOperator", "de-operator-redis-0.0.1-SNAPSHOT.jar");
+		mappings.put("com.deleidos.framework.operators.geo.accumulo.GeoAccumuloOutputOperator", "de-operator-geo-accumulo-0.0.1-SNAPSHOT.jar");
+		mappings.put("com.deleidos.framework.operators.geo.catalogmapping.GeoCatalogMappingOperator","de-operator-geo-catalog-mapping-0.0.1-SNAPSHOT.jar");
+		mappings.put("com.deleidos.framework.operators.geodata.GeoInputParserOperator", "de-operator-geo-input-parser-0.0.1-SNAPSHOT.jar");
+		mappings.put("com.deleidos.framework.operators.geo.postgis.GeoPostGisOutputOperator", "de-operator-geo-postgis-0.0.1-SNAPSHOT.jar");
+		
 	}
 	
 	public String getMappedVal(String input){

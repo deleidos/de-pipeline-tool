@@ -3,11 +3,9 @@ package com.deleidos.framework.service.api.manager;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 
-import org.apache.log4j.Logger;
 
 import com.deleidos.analytics.websocket.api.BaseWebSocketMessage;
 import com.deleidos.framework.service.data.SystemDataManager;
-import com.deleidos.framework.model.system.SystemDescriptor;
 
 /**
  * Delete a system from the database (does not currently delete from cluster).
@@ -15,9 +13,6 @@ import com.deleidos.framework.model.system.SystemDescriptor;
  * @author vernona
  */
 public class DeleteSystem extends BaseWebSocketMessage {
-
-	@SuppressWarnings("unused")
-	private Logger logger = Logger.getLogger(DeleteSystem.class);
 
 	private String request;
 	private String id;

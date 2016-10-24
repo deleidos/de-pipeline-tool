@@ -16,10 +16,18 @@ RUN perl -i -pe "s:/cdh/5/:/cdh/${CDH_VERSION}/:g" /etc/yum.repos.d/cloudera-cdh
 
 RUN yum -y install \
 		avro-tools \
+		epel-release \
 		crunch \
 		hadoop \
 		hadoop-yarn-nodemanager \
 		lzo && \
+	yum clean all && \
+	ldconfig
+
+RUN yum -y install \
+		gdal \
+		gdal-java \
+		gdal-libs && \
 	yum clean all
 
 RUN rm -rf /var/lib/hadoop-hdfs

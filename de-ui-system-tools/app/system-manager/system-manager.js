@@ -33,22 +33,148 @@
      */
     function SystemManagerController($scope, $uibModal, MonitorData, $rootScope, $websocket, $timeout, TourService, tourSteps) {
 
-        //0 = no info display, 1 = large info display and minimized charts besides the selected ones
-        $scope.state = 0;
-
         //Contains the currently active system
         $scope.active = undefined;
+        $scope.activeProperties = [];
 
         $scope.runningSystem = [];
         $scope.killingSystem = [];
 
+        $scope.onlineSystems = [];
+
+        $scope.logs = ['log1', 'log2', 'log3', 'log4'];
+        $scope.currLog = null;
+        $scope.errors = {};
+        $scope.prevName = '';
+        $scope.selectedError = '';
+        $scope.selectError = function(error) {
+            $scope.selectedError = error;
+        };
+        $scope.setLog = function(log) {
+            $scope.currLog = log;
+        };
+
+        $scope.view = 'tile';
+
+        $scope.searchTerm = 'name';
+
+        $scope.logService = $websocket($rootScope.dataService);
+
+        $scope.logService.send({
+            "consume": "log_message"
+        });
+        $scope.logService.onMessage(function(message) {
+            //console.log('LOGS GOING HERE');
+            console.log(message.data);
+            var matches = /\[ERROR]\s\S+/g.exec(message.data);
+            if (matches && matches.length > 0) {
+                $scope.prevName = matches[0].substr(8);
+                if (!$scope.errors[$scope.prevName]) {
+                    $scope.errors[$scope.prevName] = [];
+                }
+                $scope.errors[$scope.prevName].push([]);
+            }
+
+            $scope.errors[$scope.prevName][$scope.errors[$scope.prevName].length - 1].push(message.data);
+            console.log($scope.errors);
+
+        });
+
+        $scope.clearLogs = function() {
+            $scope.errors[$scope.active.name] = [];
+        };
+
+        $scope.toggleLogs = function() {
+            if ($scope.logService.readyState === 1) {
+                $scope.logService.close();
+            } else if ($scope.logService.readyState === 3 || $scope.logService.readyState === 0) {
+                $scope.logService = $websocket($rootScope.dataService);
+                $scope.logService.send({
+                    "consume": "log_message"
+                });
+            }
+        };
+
+        angular.element('.log-holder-outer').ready(function() {
+            $(".log-holder-outer").parent().css('height', '100%');
+        });
+
+
+        angular.element('.system-top-row').ready(function() {
+            $(".system-top-row").parent().css('display', 'flex');
+        });
+
+        angular.element(".chart-holder").ready(function() {
+            $(".chart-holder").parent().parent().css('height', '100%');
+        });
+
+        angular.element(".error-table-holder").ready(function() {
+            $(".error-table-holder").parent().css('height', '100%');
+            $(".error-table-holder").parent().parent().css('height', '100%');
+        });
+
+        angular.element(".error-header").ready(function() {
+            $(".error-header").parent().css('padding-right', '10px');
+        });
+
+        var numHolders = 0;
+
+        angular.element('#system-holder').ready(function() {
+            numHolders++;
+            if (numHolders >= 2) {
+                window["Split"](['#system-holder', '#tab-holder'], {
+                    direction: 'vertical',
+                    sizes: [45, 45]
+                });
+                $('#system-holder').height('45%');
+                $('#tab-holder').height('45%');
+            }
+        });
+
+        angular.element('#tab-holder').ready(function() {
+            numHolders++;
+            if (numHolders >= 2) {
+                window["Split"](['#system-holder', '#tab-holder'], {
+                    direction: 'vertical',
+                    sizes: [45, 45]
+                });
+                $('#system-holder').height('45%');
+                $('#tab-holder').height('calc(45% - 10px)');
+            }
+        });
+
+
+        $scope.saveLog = function() {
+            var pom = document.createElement('a');
+            pom.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent($scope.currLog));
+            pom.setAttribute('download', 'Log.txt');
+
+            if (document.createEvent) {
+                var event = document.createEvent('MouseEvents');
+                event.initEvent('click', true, true);
+                pom.dispatchEvent(event);
+            } else {
+                pom.click();
+            }
+        };
+        $scope.moveScrollDown = function() {
+            var textarea = document.getElementById('log-display');
+            textarea.scrollTop = textarea.scrollHeight;
+        };
+        $scope.moveScrollUp = function() {
+            var textarea = document.getElementById('log-display');
+            textarea.scrollTop = 0;
+        };
+
         $scope.down = true;
         var dataStream = $websocket($rootScope.dataService);
         var deployService = $websocket($rootScope.dataService);
+        var deployed = false;
         deployService.send({
             "consume": "deployment_complete_notification"
         });
         deployService.onMessage(function(message) {
+            deployed = true;
             $scope.runningSystem.splice($scope.runningSystem.indexOf(JSON.parse(message.data).id), 1);
             MonitorData.getAppList($scope.refreshSystems);
         });
@@ -56,8 +182,8 @@
             //add launched check and timeout
             if (message.data.indexOf('System Killed ') > -1) {
                 $scope.killingSystem.splice(message.data.substring(message.data.indexOf('System Killed ') + 14), 1);
+                MonitorData.getAppList($scope.refreshSystems);
             }
-            MonitorData.getAppList($scope.refreshSystems);
         });
 
         $scope.$on('refreshManager', function() {
@@ -91,16 +217,20 @@
             });
 
             var names = {};
+            $scope.onlineSystems = [];
 
 	        angular.forEach($scope.systems, function(system) {
                 if ($scope.runningSystem.indexOf(system.uuid) > -1) {
                     system.class = 'running';
+                    $scope.onlineSystems.push(system.uuid);
                 } else if ($scope.killingSystem.indexOf(system.name) > -1) {
                     system.class = 'killing';
+                    $scope.onlineSystems.push(system.uuid);
                 } else if (system.properties.state === 'RUNNING' ||
 			        system.properties.state === 'ACCEPTED' ||
 			        system.properties.state === 'SUBMITTED') {
 			        system.class = 'online';
+                    $scope.onlineSystems.push(system.uuid);
 		        } else if (system.properties.state === 'NEW' ||
 			        system.properties.state === 'NEW_SAVING') {
 			        system.class = 'new';
@@ -110,6 +240,21 @@
 			        system.class = 'offline';
 		        }
                 names[system.name] = system.uuid;
+                $scope.$emit('Sending online systems', $scope.onlineSystems);
+
+                system.startTime = '-';
+                system.endTime = '-';
+                var date = null;
+
+                if (system.properties.startedTime && system.properties.startedTime !== 0) {
+                    date = new Date(system.properties.startedTime * 1);
+                    system.startTime = "" + date.getFullYear() + '-' + ('0' + (date.getMonth() + 1).toString()).slice(-2) + '-' + ('0' + date.getDate().toString()).slice(-2) + ' ' + date.toTimeString().substr(0, 17);
+                }
+
+                if (system.properties.finishedTime && system.properties.finishedTime !== 0) {
+                    date = new Date(system.properties.finishedTime * 1);
+                    system.endTime = "" + date.getFullYear() + '-' + ('0' + (date.getMonth() + 1).toString()).slice(-2) + '-' + ('0' + date.getDate().toString()).slice(-2) + ' ' + date.toTimeString().substr(0, 17);
+                }
 	        });
             $scope.$emit('Unique names', names);
         };
@@ -118,7 +263,23 @@
 
         // Tell the monitor which system to fetch data for when $scope.active is changed
         $scope.$watch("active", function(system) {
-            MonitorData.start(system === undefined ? "" : system._id);
+            if (system) {
+                MonitorData.start(system.class !== 'online' && system.class !== 'running' ? "" : system._id);
+                $scope.selectedError = "";
+                if (system.properties) {
+                    var prevI = 0;
+                    var i = 0;
+                    $scope.activeProperties = [{}];
+                    angular.forEach(system.properties, function (value, key) {
+                        if (Math.floor(i / 8) !== Math.floor(prevI / 8)) {
+                            $scope.activeProperties.push({});
+                        }
+                        $scope.activeProperties[Math.floor(i / 8)][key] = value;
+                        prevI = i;
+                        i++;
+                    });
+                }
+            }
         });
 
         /**
@@ -126,10 +287,7 @@
          * @param system The system being set to active
          */
         $scope.setActive = function(system) {
-            $scope.state = 1;
             $scope.active = system;
-            $(".flip-container").children(".system-inner").css('display', '');
-            $(".flipper").css('display', 'none');
         };
 
         /**
@@ -141,22 +299,6 @@
                 console.log(id);
 		        $scope.$emit('Builder ID', id);
 	        }
-        };
-
-        /**
-         * @desc Toggles the current system-manager state. If it's 1, it goes to 0, otherwise, it goes to 1
-         */
-        $scope.toggleState = function() {
-	        if ($scope.state === 1) {
-		        $scope.state = 0;
-                $(".flip-container").children(".system-inner").css('display', 'none');
-                $(".flipper").css('display', '');
-	        } else {
-		        $scope.state = 1;
-                $(".flip-container").children(".system-inner").css('display', '');
-                $(".flipper").css('display', 'none');
-	        }
-            $scope.active = undefined;
         };
 
         /**
@@ -176,7 +318,6 @@
             modalInstance.result.then(function() {
                 $scope.systems.splice($scope.systems.indexOf(system), 1);
                 if (($scope.active && $scope.active.name === system.name) || !$scope.active) {
-                    $scope.state = 0;
                     $scope.active = undefined;
                     dataStream.send({
                         "request": "deleteSystem",
@@ -194,8 +335,7 @@
          * @param system The system that's being requested to be toggled
          */
         $scope.toggleSystem = function(system) {
-            console.log(system);
-            if (system.state === 'online' && $scope.killingSystem.indexOf(system.name) < 0) {
+            /*if (system.state === 'online' && $scope.killingSystem.indexOf(system.name) < 0) {
                 $scope.killingSystem.push(system.name);
                 system.class = 'killing';
                 dataStream.send({
@@ -203,13 +343,18 @@
                     "id": system.uuid
                 });
             } else if ($scope.runningSystem.indexOf(system.name) < 0) {
-                $scope.runningSystem.push(system.uuid);
+                */$scope.runningSystem.push(system.uuid);
                 system.class = 'running';
                 dataStream.send({
                     "request": "deploySystem",
                     "id": system.uuid
                 });
-            }
+
+                MonitorData.start(system._id);
+            //}
+
+            $scope.onlineSystems.push(system.uuid);
+            $scope.$emit('Sending online systems', $scope.onlineSystems);
         };
 
 
@@ -226,17 +371,29 @@
                     "id": system.uuid
                 });
             }
+
+            if ($scope.active && system.name === $scope.active.name) {
+                MonitorData.start('');
+            }
+
+            $scope.onlineSystems.push(system.uuid);
+            $scope.$emit('Sending online systems', $scope.onlineSystems);
         };
 
         $scope.orderManager = function(system) {
-            if (system.state === 'online') {
-                return 0;
-            } else if (system.state === 'error') {
-                return 1;
-            } else if (system.state === 'new') {
-                return 2;
-            } else {
-                return 3;
+            switch (system.class) {
+                case 'online':
+                    return 0;
+                case 'running':
+                    return 1;
+                case 'killing':
+                    return 2;
+                case 'error':
+                    return 3;
+                case 'new':
+                    return 4;
+                default:
+                    return 5;
             }
         };
 

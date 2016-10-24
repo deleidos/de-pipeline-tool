@@ -2,9 +2,6 @@ package com.deleidos.framework.service.api.monitor;
 
 import com.deleidos.analytics.websocket.api.BaseWebSocketMessage;
 import com.deleidos.framework.monitoring.LogUtil;
-import com.deleidos.framework.monitoring.MonitoringUtil;
-import org.apache.log4j.Logger;
-import org.apache.log4j.Priority;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -13,9 +10,6 @@ import javax.ws.rs.Path;
  * @author mollotb
  */
 public class GetLogList extends BaseWebSocketMessage {
-
-	@SuppressWarnings("unused")
-	private Logger logger = Logger.getLogger(GetLogList.class);
 
 	private String request, id;
 
@@ -31,7 +25,14 @@ public class GetLogList extends BaseWebSocketMessage {
 	@Path("/getLogList")
 	@GET
 	public void processMessage() throws Exception {
-		if (id != null && !id.equals("")) sendResponse(LogUtil.listLogs(id).toArray());
+		try {
+			if (id != null && !id.equals("")) {
+				sendResponse(LogUtil.listLogs(id).toArray());
+			}
+		}
+		catch (Throwable e) {
+			logger.debug(e.getMessage(), e);
+		}
 	}
 
 	public String getId() {

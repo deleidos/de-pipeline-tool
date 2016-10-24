@@ -9,11 +9,15 @@ import org.apache.log4j.Logger;
 import com.datatorrent.api.AutoMetric;
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
+import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.common.util.BaseOperator;
 import com.deleidos.framework.operators.common.InputTuple;
+import com.deleidos.framework.operators.common.OperatorConfig;
+import com.deleidos.framework.operators.common.OperatorSyslogger;
+import com.deleidos.framework.operators.common.OperatorSystemInfo;
 import com.deleidos.framework.operators.common.TupleUtil;
 
-public class CsvParserOperator extends BaseOperator {
+public class CsvParserOperator extends BaseOperator implements OperatorSystemInfo {
 
 	private static final Logger log = Logger.getLogger(CsvParserOperator.class);
 
@@ -21,6 +25,9 @@ public class CsvParserOperator extends BaseOperator {
 	protected String delimiter = ",";
 	private int numHeaders;
 	protected String headerKeys[];
+
+	private String systemName;
+	private transient OperatorSyslogger syslog;
 
 	public int getNumHeaders() {
 		return numHeaders;
@@ -38,24 +45,40 @@ public class CsvParserOperator extends BaseOperator {
 		return this.delimiter;
 	}
 
+	@Override
+	public void setup(OperatorContext context) {
+		syslog = new OperatorSyslogger(systemName, OperatorConfig.getInstance().getSyslogUdpHostname(),
+				OperatorConfig.getInstance().getSyslogUdpPort());
+		// syslog.error("Made it to csv setup");
+		// syslog.debug("yo");
+		// syslog.info("sup");
+
+	}
+
 	public transient DefaultInputPort<InputTuple> input = new DefaultInputPort<InputTuple>() {
 		@Override
 		public void process(InputTuple inputTuple) {
 			incomingTuplesCount++;
+			// syslog.error("made it to input");
+			// syslog.debug("yo1");
+			// syslog.info("sup2");
 			try {
 				processTuple(inputTuple);
-			}
-			catch (ClassNotFoundException e) {
-				e.printStackTrace();
-			}
-			catch (IOException e) {
-				e.printStackTrace();
+			} catch (ClassNotFoundException e) {
+				syslog.error("Error in CSV Parser: " + e.getMessage() + "[ERROR END]", e);
+				// e.printStackTrace();
+
+			} catch (IOException e) {
+				syslog.error("Error in CSV Parser: " + e.getMessage() + "[ERROR END]", e);
+				// e.printStackTrace();
+
 			}
 		}
 	};
 
 	/**
-	 * Metric to keep count of number of tuples coming in on {@link #output} port
+	 * Metric to keep count of number of tuples coming in on {@link #output}
+	 * port
 	 */
 	@AutoMetric
 	protected long incomingTuplesCount;
@@ -72,17 +95,31 @@ public class CsvParserOperator extends BaseOperator {
 	long parsedOutputCount;
 
 	public void processTuple(InputTuple tuple) throws IOException, ClassNotFoundException {
+		try {
+			Map<String, Object> outputMap = new HashMap<String, Object>();
+			outputMap = TupleUtil.csvInputTupleToMap(tuple, delimiter);
 
-		Map<String, Object> outputMap = new HashMap<String, Object>();
-		outputMap = TupleUtil.csvInputTupleToMap(tuple, delimiter);
-
-		if (tuple != null) {
-			if (output.isConnected()) {
-				output.emit(outputMap);
-				parsedOutputCount++;
+			if (tuple != null) {
+				if (output.isConnected()) {
+					output.emit(outputMap);
+					parsedOutputCount++;
+				}
 			}
+		} catch (Exception e) {
+			syslog.error("Error in CSV Parser: " + e.getMessage() + "[ERROR END]", e);
+
 		}
 
+	}
+
+	@Override
+	public void setSystemName(String systemName) {
+		this.systemName = systemName;
+	}
+
+	@Override
+	public String getSystemName() {
+		return systemName;
 	}
 
 }

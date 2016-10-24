@@ -28,6 +28,12 @@ public class OperatorMetadataFactory {
 		metadata.add(getDimensionalEnrichmentOperatorMetadata());
 		metadata.add(getRestOperatorMetadata());
 		metadata.add(getRedisOperatorMetadata());
+
+		metadata.add(getGeoInputParserOperatorMetadata());
+		metadata.add(getGeoAccumuloOperatorMetadata());
+		metadata.add(getGeoPostGisOperatorMetadata());
+		metadata.add(getGeoCatalogMappingOperatorMetadata());
+		metadata.add(getConsoleOutputOperatorMetadata());
 	}
 
 	/**
@@ -138,7 +144,7 @@ public class OperatorMetadataFactory {
 		return new OperatorMetadata("RESTOutputOperator", "com.deleidos.framework.operators.rest.RESTOutputOperator",
 				"REST Output", properties);
 	}
-	
+
 	private static OperatorMetadata getRedisOperatorMetadata() {
 		List<OperatorProperty> properties = new ArrayList<OperatorProperty>();
 		properties.add(new OperatorProperty("hostname", "Redis Hostname", OperatorProperty.Type.String, null, true));
@@ -146,5 +152,53 @@ public class OperatorMetadataFactory {
 		properties.add(new OperatorProperty("namespace", "Namespace", OperatorProperty.Type.String, null, true));
 		return new OperatorMetadata("RedisOutputOperator", "com.deleidos.framework.operators.redis.RedisOutputOperator",
 				"Redis Output", properties);
+	}
+
+	private static OperatorMetadata getGeoInputParserOperatorMetadata() {
+		List<OperatorProperty> properties = new ArrayList<OperatorProperty>();
+		properties.add(
+				new OperatorProperty("shapefilePath", "Shape File Path", OperatorProperty.Type.String, null, true));
+		properties.add(new OperatorProperty("metadataGuideIdPrefix", "Meta Data Guide ID Prefix",
+				OperatorProperty.Type.String, null, true));
+		properties.add(new OperatorProperty("securityProfileResourceName", "Security Profile Resource Name",
+				OperatorProperty.Type.String, null, true));
+		return new OperatorMetadata("GeoInputParserOperator",
+				"com.deleidos.framework.operators.geodata.GeoInputParserOperator", "Geo Input Parser", properties);
+	}
+
+	private static OperatorMetadata getGeoAccumuloOperatorMetadata() {
+		List<OperatorProperty> properties = new ArrayList<OperatorProperty>();
+		properties.add(new OperatorProperty("instanceName", "Instance Name", OperatorProperty.Type.String, null, true));
+		properties.add(
+				new OperatorProperty("masterHostname", "Master Hostname", OperatorProperty.Type.String, null, true));
+		properties.add(new OperatorProperty("zookeeperHostname", "Zookeeper Hostname", OperatorProperty.Type.String,
+				null, true));
+		properties.add(new OperatorProperty("username", "Accumulo Username", OperatorProperty.Type.String, null, true));
+		properties.add(new OperatorProperty("password", "Accumulo Password", OperatorProperty.Type.String, null, true));
+		return new OperatorMetadata("GeoAccumuloOutputOperator",
+				"com.deleidos.framework.operators.geo.accumulo.GeoAccumuloOutputOperator", "Geo Accumulo", properties);
+	}
+
+	private static OperatorMetadata getGeoPostGisOperatorMetadata() {
+		List<OperatorProperty> properties = new ArrayList<OperatorProperty>();
+		properties.add(new OperatorProperty("hostname", "Hostname", OperatorProperty.Type.String, null, true));
+		properties.add(new OperatorProperty("databaseName", "Database Name", OperatorProperty.Type.String, null, true));
+		properties.add(new OperatorProperty("username", "Username", OperatorProperty.Type.String, null, true));
+		properties.add(new OperatorProperty("password", "Password", OperatorProperty.Type.String, null, true));
+		return new OperatorMetadata("GeoPostGisOutputOperator",
+				"com.deleidos.framework.operators.geo.postgis.GeoPostGisOutputOperator", "PostGIS", properties);
+	}
+
+	private static OperatorMetadata getGeoCatalogMappingOperatorMetadata() {
+		List<OperatorProperty> properties = new ArrayList<OperatorProperty>();
+		return new OperatorMetadata("GeoCatalogMappingOperator",
+				"com.deleidos.framework.operators.geo.catalogmapping.GeoCatalogMappingOperator", "Geo Catalog Mapping",
+				properties);
+	}
+
+	private static OperatorMetadata getConsoleOutputOperatorMetadata() {
+		List<OperatorProperty> properties = new ArrayList<OperatorProperty>();
+		return new OperatorMetadata("ConsoleOutputOperator", "com.datatorrent.lib.io.ConsoleOutputOperator",
+				"Console Output", properties);
 	}
 }

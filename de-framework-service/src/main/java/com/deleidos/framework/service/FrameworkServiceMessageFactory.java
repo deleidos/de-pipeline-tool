@@ -15,6 +15,7 @@ import com.deleidos.framework.service.api.builder.GetOperatorMetadata;
 import com.deleidos.framework.service.api.builder.GetSystemDescriptor;
 import com.deleidos.framework.service.api.builder.GetSystemDescriptors;
 import com.deleidos.framework.service.api.builder.SaveSystemDescriptor;
+import com.deleidos.framework.service.api.logging.LogMessageStreamer;
 import com.deleidos.framework.service.api.manager.DeleteSystem;
 import com.deleidos.framework.service.api.manager.DeploySystem;
 import com.deleidos.framework.service.api.manager.DeploymentCompleteNotificationHandler;
@@ -31,7 +32,7 @@ import com.fasterxml.jackson.databind.JsonNode;
  */
 public class FrameworkServiceMessageFactory implements WebSocketMessageFactory {
 
-	private static final Logger logger = Logger.getLogger(FrameworkServiceMessageFactory.class);
+	private static final Logger log = Logger.getLogger(FrameworkServiceMessageFactory.class);
 
 	/** Create a handler for deployment complete notifications to be streamed to consumers. */
 	@SuppressWarnings("unused")
@@ -41,14 +42,23 @@ public class FrameworkServiceMessageFactory implements WebSocketMessageFactory {
 	public static final String deploymentCompleteStreamWebSocketId = UUID.randomUUID().toString();
 	public static final String deploymentCompleteStream = "deployment_complete_notification";
 
+	/** Initialize a web socket stream for log messages. */
+	public static final String logMessageStreamWebSocketId = UUID.randomUUID().toString();
+	public static final String logMessageStream = "log_message";
+
 	static {
 		try {
-			logger.info("initializing stream managers");
+			log.info("initializing stream managers");
 			WebSocketServer.getInstance().processMessage(JsonUtil.toJsonString(new Stream(deploymentCompleteStream)),
 					deploymentCompleteStreamWebSocketId);
+			WebSocketServer.getInstance().processMessage(JsonUtil.toJsonString(new Stream(logMessageStream)),
+					logMessageStreamWebSocketId);
+
+			// Start the UDP log message listener.
+			LogMessageStreamer.getInstance().init(1514);
 		}
 		catch (Throwable e) {
-			logger.info("Error initializing stream managers", e);
+			log.info("Error initializing stream managers", e);
 			throw new RuntimeException(e);
 		}
 	}
@@ -60,6 +70,7 @@ public class FrameworkServiceMessageFactory implements WebSocketMessageFactory {
 		JsonNode node = rootNode.get("request");
 		WebSocketMessage wsMessage = null;
 		if (node != null) {
+			log.info("handling request: " + node.textValue());
 			if ("getOperatorMetadata".equals(node.textValue())) {
 				wsMessage = (BaseWebSocketMessage) JsonUtil.fromJsonString(message, GetOperatorMetadata.class);
 			}
@@ -100,7 +111,7 @@ public class FrameworkServiceMessageFactory implements WebSocketMessageFactory {
 				wsMessage = (BaseWebSocketMessage) JsonUtil.fromJsonString(message, GetAppCpuUsage.class);
 			}
 			else if ("getLogList".equals(node.textValue())) {
-				logger.info("getLogList recieved");
+				log.info("getLogList recieved");
 				wsMessage = (BaseWebSocketMessage) JsonUtil.fromJsonString(message, GetLogList.class);
 			}
 			else if ("getLog".equals(node.textValue())) {
@@ -115,11 +126,13 @@ public class FrameworkServiceMessageFactory implements WebSocketMessageFactory {
 				wsMessage.setWebSocketId(webSocketId);
 			}
 			else if ("getRedisDimensionalEnrichmentNamespaces".equals(node.textValue())) {
-				wsMessage = (BaseWebSocketMessage) JsonUtil.fromJsonString(message, GetRedisDimensionalEnrichmentNamespaces.class);
+				wsMessage = (BaseWebSocketMessage) JsonUtil.fromJsonString(message,
+						GetRedisDimensionalEnrichmentNamespaces.class);
 				wsMessage.setWebSocketId(webSocketId);
 			}
 			else if ("getRedisDimensionalEnrichmentNamespaces".equals(node.textValue())) {
-				wsMessage = (BaseWebSocketMessage) JsonUtil.fromJsonString(message, GetRedisDimensionalEnrichmentNamespaces.class);
+				wsMessage = (BaseWebSocketMessage) JsonUtil.fromJsonString(message,
+						GetRedisDimensionalEnrichmentNamespaces.class);
 				wsMessage.setWebSocketId(webSocketId);
 			}
 			else if ("decodeBase64".equals(node.textValue())) {

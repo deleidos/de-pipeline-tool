@@ -16,6 +16,7 @@ Support input sources:
 Supported input data formats:
 * JSON
 * CSV
+* XML
 
 Supported Dimensional Enrichment caches:
 * Redis
@@ -26,6 +27,9 @@ Supported data mapping formats:
 Supported output data stores:
 * MongoDB
 * Elasticsearch
+* Redis
+* REST services
+
 
 ## Installation
 
@@ -90,5 +94,21 @@ The web app must be configured with the hostname of the backend jetty web socket
 ``` json
 {
     "hostname": "ws://your.app.server.name/analytics"
+}
+```
+### Operator Configuration
+
+Operators are configured to log to syslog using the UDP protocol. This feature enables to logs to be viewed by the user in real time. 
+
+Configuration is controlled by a single file in the de-operator-common project:
+
+* src/main/resources/operator_config.json
+
+Example configuration file:
+
+``` json
+{
+	"syslog_udp_hostname" : "your.syslog.udp.hostname",
+    "syslog_udp_port" : "your.syslog.udp.port"
 }
 ```

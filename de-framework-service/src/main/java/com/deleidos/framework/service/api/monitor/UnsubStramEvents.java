@@ -1,7 +1,6 @@
 package com.deleidos.framework.service.api.monitor;
 
 import com.deleidos.analytics.websocket.api.BaseWebSocketMessage;
-import org.apache.log4j.Logger;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -12,9 +11,6 @@ import javax.ws.rs.Path;
  * @author mollotb
  */
 public class UnsubStramEvents extends BaseWebSocketMessage {
-
-	@SuppressWarnings("unused")
-	private Logger logger = Logger.getLogger(UnsubStramEvents.class);
 
 	private String request, id;
 
@@ -30,8 +26,13 @@ public class UnsubStramEvents extends BaseWebSocketMessage {
 	@Path("/getStramEvents")
 	@GET
 	public void processMessage() throws Exception {
-		if (id != null && !id.equals("")) {
-			StramEventStreamer.stopStream(id, this.getWebSocketId());
+		try {
+			if (id != null && !id.equals("")) {
+				StramEventStreamer.stopStream(id, this.getWebSocketId());
+			}
+		}
+		catch (Throwable e) {
+			logger.debug(e.getMessage(), e);
 		}
 	}
 

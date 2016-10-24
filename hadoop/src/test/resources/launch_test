@@ -1,0 +1,42 @@
+#!/bin/bash
+set -x
+
+# Spin up a cluster on a single host
+
+PREFIX=""
+
+# IP of this host
+IP="192.168.144.196"
+
+if [ "$1" == "true" ]; then
+	PREFIX="deleidos/"
+fi
+
+docker stop hadoop-client node-manager history-server resource-manager secondary-namenode namenode datanode 
+docker rm -v hadoop-client node-manager history-server resource-manager secondary-namenode namenode datanode datanode_data
+
+
+export NN="${IP}"
+export RM="${IP}"
+export HS="${IP}"
+
+docker run -d --name namenode -m 1524m -e NAMENODE=$NN --net host -p 8020:8020 -p 8022:8022 -p 50070:50070 -p 50470:50470  ${PREFIX}namenode:cdh5.6.0
+sleep 1m
+
+docker run -d --name secondary-namenode -m 256m -e NAMENODE=$NN --net host -p 50090:50090 -p 50495:50495  ${PREFIX}secondary-namenode:cdh5.6.0
+sleep 1m
+
+docker create -v /data --name datanode_data centos:7.2.1511 /bin/true
+docker run -d --name datanode --volumes-from datanode_data -m 1024m -e NAMENODE=$NN --net host -p 50010:50010 -p 1004:1004 -p 50075:50075 -p 50475:50475 -p 1006:1006 -p 50020:50020  ${PREFIX}datanode:cdh5.6.0
+sleep 1m
+
+docker run -d --name resource-manager -m 1024m -e NAMENODE=$NN -e HISTORYSERVER=$HS -e RESOURCEMANAGER=$RM --net host -p 8032:8032 -p 8030:8030 -p 8031:8031 -p 8033:8033 -p 8088:8088 -p 8090:8090  ${PREFIX}resource-manager:cdh5.6.0
+sleep 1m
+
+docker run -d --name history-server -m 1024m -e NAMENODE=$NN -e HISTORYSERVER=$HS -e RESOURCEMANAGER=$RM --net host -p 10020:10020 -p 10033:10033 -p 13562:13562 -p 19888:19888 -p 19890:19890  ${PREFIX}history-server:cdh5.6.0
+sleep 1m
+
+docker run -d --name node-manager -e NAMENODE=$NN -e HISTORYSERVER=$HS -e RESOURCEMANAGER=$RM --net host -p 8041:8041 -p 8042:8042 -p 8044:8044  ${PREFIX}node-manager:cdh5.6.0
+sleep 1m
+
+docker run -d --name hadoop-client -m 1024m -e NAMENODE=$NN -e HISTORYSERVER=$HS -e RESOURCEMANAGER=$RM --net host  ${PREFIX}hadoop-client:cdh5.6.0

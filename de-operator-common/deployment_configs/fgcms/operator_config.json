@@ -1,0 +1,4 @@
+{
+  "syslog_udp_hostname" : "172.31.2.144",
+  "syslog_udp_port" : "1514"
+}

@@ -36,11 +36,7 @@ This will kick off the creation of each of the Docker images for the Hadoop clus
 - resource-manager:cdh5.6.0
 - secondary-namenode:cdh5.6.0
 
-
-### Sharing the images
-Now that you have each of the Docker images locally, pushing them to a private registry will help optimize their use in your test/POC environment.  While this is an optional step, doing so will help to speed up their use in your environment.  Please consult the official Docker documentation on how to tag and push these container images to your private registry.
-
-If you choose not to push these Docker images to your private registry, you can still use them on multiple nodes in your test/POC environment by manually copying them to each node in your cluster, or re-running the build process on each node. 
+For convenience, all of the above Docker images are available under the [deleidos](https://hub.docker.com/u/deleidos/) organization.
 
 
 ### Running the Cluster

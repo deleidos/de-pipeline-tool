@@ -3,8 +3,6 @@ package com.deleidos.framework.service.api.builder;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 
-import org.apache.log4j.Logger;
-
 import com.deleidos.analytics.websocket.api.BaseWebSocketMessage;
 import com.deleidos.framework.service.data.SystemDataManager;
 
@@ -14,9 +12,6 @@ import com.deleidos.framework.service.data.SystemDataManager;
  * @author vernona
  */
 public class GetSystemDescriptors extends BaseWebSocketMessage {
-
-	@SuppressWarnings("unused")
-	private Logger logger = Logger.getLogger(GetSystemDescriptors.class);
 
 	private String request;
 

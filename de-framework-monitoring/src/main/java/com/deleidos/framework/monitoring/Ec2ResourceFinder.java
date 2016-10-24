@@ -14,7 +14,7 @@ public enum Ec2ResourceFinder {
 
 	instance;
 
-	public String lookupPrivateIp(String tagKey, String tagValue) {
+	public String lookupPrivateIpx(String tagKey, String tagValue) {
 		String privateIp = "unknown";
 
 		AmazonEC2 client = null;
@@ -48,7 +48,7 @@ public enum Ec2ResourceFinder {
 		return privateIp;
 	}
 
-	public String lookupPublicIp(String tagKey, String tagValue) {
+	public String lookupPublicIpx(String tagKey, String tagValue) {
 		String privateIp = "unknown";
 
 		AmazonEC2 client = null;

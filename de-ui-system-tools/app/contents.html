@@ -6,7 +6,7 @@
 
         <div class="pull-right">
 
-            <img id="mainBusIconOnBanner" class="btn btn-primary" style="float: right; margin-top:14px; margin-right: 5px;"
+            <img id="mainBusIconOnBanner" class="btn btn-primary" style="float: right; margin-top:4px; margin-right: 5px; padding: 4px 6px"
                  src="assets/img/white-tour-bus-22x22.png"
                  uib-tooltip="Take a tour of this page" tooltip-placement="left"
                  ng-click="startDetached()"
@@ -16,23 +16,23 @@
                  tour-step-content="To view the tour again, click on the bus."
                  tour-step-order="10"
                  tour-step-orphan="false"
-                tour-step-placement="left-bottom">
+                tour-step-placement="left-top">
         <md-button class="navbar-header navbar-sub" ng-disabled="inTour === true" ng-click="curr = 'systemBuilder'" ng-class="{'navbar-inactive': curr === 'systemManager'}">
-            <span class="navbar-brand"><i class="fa fa-cubes"></i><span class="large-only">&nbsp;&nbsp;System Builder</span></span>
+            <span class="navbar-brand"><i class="fa fa-cubes"></i><span class="large-only">&nbsp;&nbsp;Pipeline Builder</span></span>
         </md-button>
-            <span tour-step
-                 tour-step-belongs-to="tour"
-                 tour-step-content="Then, click on the System Manager tab to launch and view the system in operation. The tour will now continue with the System Manager."
-                 tour-step-order="110"
-                 tour-step-orphan="false"
-                 tour-step-placement="bottom"></span>
+        <span tour-step
+             tour-step-belongs-to="tour"
+             tour-step-content="Then, click on the Pipeline Manager tab to launch and view the system in operation. The tour will now continue with the Pipeline Manager."
+             tour-step-order="110"
+             tour-step-orphan="false"
+             tour-step-placement="left-top"></span>
         <md-button class="navbar-header navbar-sub" ng-disabled="inTour === true" ng-click="curr = 'systemManager'" ng-class="{'navbar-inactive': curr === 'systemBuilder'}">
-            <span class="navbar-brand"><i class="fa fa-table fa-lg"></i><span class="large-only">&nbsp;&nbsp;System Manager</span></span>
+            <span class="navbar-brand"><i class="fa fa-table fa-lg"></i><span class="large-only">&nbsp;&nbsp;Pipeline Manager</span></span>
         </md-button>
       </div>
     </div>
 </div>
-<div ng-hide="curr !== 'systemManager'">
+<div ng-hide="curr !== 'systemManager'" style="height: 100%;">
     <system-manager ng-app="systemManager"></system-manager>
 </div>
 <div ng-hide="curr !== 'systemBuilder'">

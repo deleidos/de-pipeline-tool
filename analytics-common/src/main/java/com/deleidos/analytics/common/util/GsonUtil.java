@@ -12,6 +12,7 @@ import com.google.gson.JsonObject;
  * 
  * @author vernona
  */
+@Deprecated
 public class GsonUtil<T> {
 
 	private final Gson gson;

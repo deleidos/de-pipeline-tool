@@ -1,6 +1,6 @@
 var myApp = angular.module('plumbApp.directives', []);
 
-myApp.directive('jsPlumbCanvas', ['$rootScope', function($rootScope) {
+myApp.directive('jsPlumbCanvas', [function() {
    var jsPlumbZoomCanvas = function(instance, zoom, el, transformOrigin) {
        transformOrigin = transformOrigin || [0, 0];
        var p = ["webkit", "moz", "ms", "o"],
@@ -35,6 +35,7 @@ myApp.directive('jsPlumbCanvas', ['$rootScope', function($rootScope) {
 
            instance.bind("connection", function(info, origEvent) {
                 if (typeof origEvent !== 'undefined' && origEvent.type === 'mouseup') {
+                    scope.$emit('connection made');
                    console.log("[connection] event in jsPlumbCanvas Directive [DRAG & DROP]", info, origEvent);
                     var targetUUID = $(info.source).attr('uuid');
                     var sourceUUID = $(info.target).attr('uuid');
@@ -53,16 +54,14 @@ myApp.directive('jsPlumbCanvas', ['$rootScope', function($rootScope) {
                display: 'block',
                border: '5px solid grey'
            });
-           if ($rootScope.mode && $rootScope.mode === 'move') {
-               $(element).draggable({
-                   drag: function() {
-                       var position = $(this).position();
-                       scope.x = position.left;
-                       scope.y = position.top;
-                       scope.$parent.$apply();
-                   }
-               });
-           }
+           $(element).draggable({
+               drag: function() {
+                   var position = $(this).position();
+                   scope.x = position.left;
+                   scope.y = position.top;
+                   scope.$parent.$apply();
+               }
+           });
            instance.setContainer($(element));
           //  instance.bind("beforeStartDetach", function(params) {
           //    if (params.endpoint.isTarget) {
@@ -143,7 +142,7 @@ myApp.directive('jsPlumbCanvas', ['$rootScope', function($rootScope) {
    };
 }]);
 
-myApp.directive('jsPlumbObject', ['$rootScope', function($rootScope) {
+myApp.directive('jsPlumbObject', [function() {
     return {
         restrict: 'E',
         require: '^jsPlumbCanvas',
@@ -154,16 +153,14 @@ myApp.directive('jsPlumbObject', ['$rootScope', function($rootScope) {
         template: '<div ng-transclude></div>',
         link: function(scope, element, attrs, jsPlumbCanvas) {
             var instance = jsPlumbCanvas.scope.jsPlumbInstance;
-            if ($rootScope.mode && $rootScope.mode === 'move') {
-                instance.draggable(element, {
-                    drag: function (event) {
-                        scope.stateObject.x = event.pos[0];
-                        scope.stateObject.y = event.pos[1];
-                        console.log(event);
-                        scope.$apply();
-                    }
-                });
-            }
+            instance.draggable(element, {
+                drag: function (event) {
+                    scope.stateObject.x = event.pos[0];
+                    scope.stateObject.y = event.pos[1];
+                    console.log(event);
+                    scope.$apply();
+                }
+            });
             //scope.stateObject.id = element[0].id;
 
             scope.$parent.$parent.$parent.dragWorkaround();

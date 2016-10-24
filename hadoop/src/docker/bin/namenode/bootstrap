@@ -1,6 +1,22 @@
 #!/bin/bash
 set -ex
 
+SHUTDOWN=false
+
+_term() {
+
+  echo "Caught SIGTERM signal!"
+  SHUTDOWN=true
+  
+  echo "Starting graceful shutdown...."
+  cd /etc/init.d/
+  ./hadoop-httpfs stop
+  ./hadoop-hdfs-namenode stop
+  
+}
+
+trap _term 15
+
 perl -i -pe "s:NAMENODE:$NAMENODE:g" /etc/hadoop/conf/core-site.xml
 perl -i -pe "s:NAMENODE:$NAMENODE:g" /etc/hadoop/conf/hdfs-site.xml
 perl -i -pe "s:NAMENODE:$NAMENODE:g" /etc/hadoop/conf/yarn-site.xml
@@ -85,7 +101,9 @@ fi
 cd /etc/init.d/
 ./hadoop-httpfs start &
 
-while true
+while [ "$SHUTDOWN" != "true" ]
 do
-	sleep 1d
+   sleep 1d &
+   wait
+   echo "Sleep over"
 done

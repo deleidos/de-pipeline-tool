@@ -9,7 +9,7 @@ import java.util.Map;
 import org.junit.Test;
 
 import com.deleidos.analytics.common.logging.LogUtil;
-import com.deleidos.analytics.common.util.GsonWithMapDeserializerFactory;
+import com.deleidos.analytics.common.util.GsonFactory;
 import com.deleidos.analytics.redis.client.RedisClient;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -35,7 +35,7 @@ public class GenericCacheLoaderCsvTest {
 		GenericCacheLoader gcl = new GenericCacheLoader(redisHost, path, namespace, keyField);
 		gcl.loadFile();
 
-		Gson gson = GsonWithMapDeserializerFactory.getInstance().getGsonWithMapDeserializer();
+		Gson gson = GsonFactory.getInstance().getGson();
 		RedisClient client = new RedisClient(redisHost);
 		Type type = new TypeToken<Map<String, Object>>() {
 		}.getType();

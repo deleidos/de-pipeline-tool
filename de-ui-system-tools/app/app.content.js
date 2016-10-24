@@ -42,6 +42,14 @@
             $scope.$broadcast('Sending saved operator', operator);
         });
 
+        $scope.$on('connection made', function() {
+            $scope.$broadcast('Sending connection notification');
+        });
+
+        $scope.$on('Sending online systems',function(data, systems) {
+            $scope.$broadcast('Receiving online systems', systems);
+        });
+
         $rootScope.changeView = function() {
             if ($scope.curr === 'systemManager') {
                 $scope.curr = 'systemBuilder';

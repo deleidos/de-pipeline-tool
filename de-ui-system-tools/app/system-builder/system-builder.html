@@ -46,9 +46,11 @@
                 <div md-whiteframe class="panel-heading">
                 <span class="panel-title">
                     System Name&nbsp;&nbsp;
-                    <input drop-disable ng-class="{'has-error' : !systemNameRegEx.exec(systemName) || (systemNamesIds.hasOwnProperty(systemName) && systemNamesIds[systemName] !== _id),
-                                      'no-error'  : systemNameRegEx.exec(systemName) && (!systemNamesIds.hasOwnProperty(systemName) || systemNamesIds[systemName] === _id)}"
-                           class="form-control system-name" style="color: black; max-width: 30%; display: inline" type="text" ng-model="systemName" ng-change="update()" maxlength="16" ng-trim="false">
+                    <span tooltip-trigger="mouseenter" uib-tooltip="Name can't be changed while the system is running" tooltip-enable="{{onlineSystems.indexOf(_id) > -1}}" tooltip-placement="bottom" >
+                        <input drop-disable ng-class="{'has-error' : !systemNameRegEx.exec(systemName) || (systemNamesIds.hasOwnProperty(systemName) && systemNamesIds[systemName] !== _id),
+                                          'no-error'  : systemNameRegEx.exec(systemName) && (!systemNamesIds.hasOwnProperty(systemName) || systemNamesIds[systemName] === _id)}"
+                               class="form-control system-name" style="color: black; max-width: 30%; display: inline" type="text" ng-model="systemName" ng-change="update()" ng-disabled="onlineSystems.indexOf(_id) > -1" maxlength="16" ng-trim="false">
+                    </span>
                 </span>
                     <div class="pull-right">
                         <md-button class="butn butn-default butn-sm" ng-click="removeAll()">Clear all</md-button>
@@ -59,19 +61,6 @@
                     <div class="pull-right">
                         <md-button class="butn butn-default butn-sm" ng-click="saveToManager()" ng-disabled="!systemNameRegEx.exec(systemName) || (systemNamesIds.hasOwnProperty(systemName) && systemNamesIds[systemName] !== _id) || buildInvalid">Save</md-button>&nbsp;&nbsp;
                     </div>
-                    <!--<div class="pull-right">
-                        <md-button ng-blur="showModes = false" class="butn butn-default butn-sm" ng-focus="showModes = true" ng-mouseover = "">Mode</md-button>&nbsp;&nbsp;<br>
-                        <div class="mode-butn-holder" ng-show="showModes">
-                            <md-button class="butn butn-default butn-sm" ng-mouseup="toggleMode('select'); showModes = false" ng-focus="showModes = true" ng-blur="showModes = false">
-                                <span class="mode-check" ng-if="mode === 'select'">&#10003</span>
-                                Select
-                            </md-button><br>
-                            <md-button class="butn butn-default butn-sm" ng-mouseup="toggleMode('move'); showModes = false" ng-focus="showModes = true" ng-blur="showModes = false">
-                                <span class="mode-check" ng-if="mode === 'move'">&#10003</span>
-                                Move
-                            </md-button>
-                        </div>
-                    </div>-->
                 </div>
                 <div class="panel-body plumb-panel">
                     <i class="fa fa-times fa-lg error-close" ng-click="flipError()" ng-if="!hideErrors"></i>
@@ -89,7 +78,7 @@
                                tour-step-orphan="false">
                         <i class="fa fa-home fa-2x" style="margin-top: 5px"></i>
                     </md-button>
-                    <md-button class="col-sm-1 md-fab md-mini" aria-label="Bring up a help modal" title="Bring up a help modal" ng-click="startDetached()" style="padding: 0; min-width: 0; float: right"
+                    <!--<md-button class="col-sm-1 md-fab md-mini" aria-label="Bring up a help modal" title="Bring up a help modal" ng-click="startDetached()" style="padding: 0; min-width: 0; float: right"
                                tour-step
                                tour-step-belongs-to="tour"
                                tour-step-content="The question mark will also relaunch the tour."
@@ -97,25 +86,13 @@
                                tour-step-placement="left-bottom"
                                tour-step-orphan="false">
                         <i class="fa fa-question-circle fa-2x" style="margin-top: 7px"></i>
-                    </md-button>
-                    <md-button class="col-sm-1 md-fab md-mini" aria-label="Switch to select mode" title="Switch to select mode" ng-click="toggleMode('select'); $event.stopPropagation()" style="padding: 0; min-width: 0; float: right"
-                               tour-step
-                               tour-step-belongs-to="tour"
-                               tour-step-content="The hand toggles select mode within the canvas, and the arrows toggle move mode, to allow operators or the canvas to be dragged."
-                               tour-step-order="70"
-                               tour-step-placement="bottom"
-                               tour-step-orphan="false">
-                        <i class="fa fa-hand-pointer-o fa-2x" style="margin-top: 7px; color: white"></i>
-                    </md-button>
-                    <md-button class="col-sm-1 md-fab md-mini" aria-label="Switch to move mode" title="Switch to move mode" ng-click="toggleMode('move'); $event.stopPropagation()" style="padding: 0; min-width: 0; float: right">
-                        <i class="fa fa-arrows fa-2x" style="margin-top: 7px"></i>
-                    </md-button>
+                    </md-button>-->
                     <md-button class="col-sm-1 md-fab md-mini error-button" ng-class="{'errors': buildInvalid}" aria-label="See error log" title="See error log" ng-click="flipError(); $event.stopPropagation()" style="padding: 0; min-width: 0; float: right"
                                tour-step
                                tour-step-belongs-to="tour"
                                tour-step-content="The warning indicator toggles the error dialog, which lists where problems exist within the system."
                                tour-step-order="80"
-                               tour-step-placement="bottom"
+                               tour-step-placement="left-top"
                                tour-step-orphan="false">
                         <i class="fa fa-exclamation-circle fa-2x" style="margin-top: 7px"></i>
                     </md-button>

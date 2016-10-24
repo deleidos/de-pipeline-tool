@@ -10,8 +10,9 @@ import java.util.List;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.lib.io.SimpleSinglePortInputOperator;
 import com.deleidos.framework.operators.common.InputTuple;
+import com.deleidos.framework.operators.common.OperatorSystemInfo;
 
-public abstract class AbstractSplitter extends SimpleSinglePortInputOperator<String> {
+public abstract class AbstractSplitter extends SimpleSinglePortInputOperator<String> implements OperatorSystemInfo {
 
 	protected void LineSplitter(InputStream is, DefaultOutputPort<InputTuple> output, int headerRows)
 			throws IOException, InterruptedException {
@@ -33,13 +34,15 @@ public abstract class AbstractSplitter extends SimpleSinglePortInputOperator<Str
 			count++;
 			if (line.contains("firstrecord")) {
 				System.out.println("first record in: " + System.currentTimeMillis());
-			} else if (line.contains("lastrecord")) {
+			}
+			else if (line.contains("lastrecord")) {
 				System.out.println("last record in: " + System.currentTimeMillis());
 			}
 			if (headRowsLeft > 0) {
 				headers.add(line);
 				headRowsLeft--;
-			} else {
+			}
+			else {
 
 				String data = line;
 
@@ -89,17 +92,20 @@ public abstract class AbstractSplitter extends SimpleSinglePortInputOperator<Str
 					numOpen++;
 					// Decreases the number of open { if the character was }
 					// and wasn't in a quote
-				} else if (temp.charAt(a) == '}' && !inQuote) {
+				}
+				else if (temp.charAt(a) == '}' && !inQuote) {
 					numOpen--;
 					// Changes the status of being inside a quote if the
 					// character was " and didn't have a \ in front of it
-				} else if (temp.charAt(a) == '\"') {
+				}
+				else if (temp.charAt(a) == '\"') {
 					// Looks to the last character in the previous line if
 					// the first character is a "
 					if (a == 0 && record.charAt(record.length() - 1) != '\\') {
 						inQuote = !inQuote;
 						// Looks to left of the " to see if it is a \
-					} else if (a != 0 && temp.charAt(a - 1) != '\\') {
+					}
+					else if (a != 0 && temp.charAt(a - 1) != '\\') {
 						inQuote = !inQuote;
 					}
 				}

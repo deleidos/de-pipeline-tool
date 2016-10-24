@@ -1,6 +1,7 @@
 /*global module:false*/
 module.exports = function (grunt) {
 
+
     require('jit-grunt')(grunt, {
         useminPrepare: 'grunt-usemin',
         docker_io: 'grunt/docker_io.js'
@@ -192,6 +193,28 @@ module.exports = function (grunt) {
             options: {
                 beautify: true
             }
+        },
+
+        protractor: {
+            options: {
+                configFile: "app/tests/conf.js", // Default config file
+                // keepAlive: true, // If false, the grunt process stops when the test fails.
+                noColor: false, // If true, protractor will not use colors in its output.
+                // debug: true,
+                args: {
+
+                }
+            },
+            e2e: {
+                options: {
+                    keepAlive: false
+                }
+            },
+            continuous: {
+                options: {
+                    keepAlive: true
+                }
+            }
         }
     });
 
@@ -208,6 +231,8 @@ module.exports = function (grunt) {
     });
 
     grunt.registerTask('check-code', ['newer:jshint', 'newer:jscs']);
+
+//    grunt.registerTask('itest', ['protractor:continuous']);
 
     grunt.registerTask('build', [
         'clean:dist',
@@ -228,4 +253,20 @@ module.exports = function (grunt) {
         'test:phantomjs',
         'build'
     ]);
+
+    grunt.loadNpmTasks('grunt-contrib-watch');
+    grunt.loadNpmTasks('grunt-contrib-connect');
+    grunt.loadNpmTasks('grunt-karma');
+    grunt.loadNpmTasks('grunt-protractor-runner');
+    grunt.loadNpmTasks('grunt-run');
+
+    grunt.loadNpmTasks('grunt-selenium-webdriver-phantom');
+
+    grunt.registerTask('serve', ['karma:continuous:start', 'run:mock_server', 'connect:livereload', 'watch:karma']);
+
+    grunt.registerTask('unit-test', ['karma:continuous:start', 'watch:karma']);
+
+    grunt.registerTask('e2e-test', ['connect:test',  'protractor:continuous', 'watch:protractor']);
+
+    grunt.registerTask('test2', ['protractor:e2e']);
 };

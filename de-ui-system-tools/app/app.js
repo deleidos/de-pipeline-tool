@@ -161,6 +161,7 @@
         'angular-websocket',
         'ui.bootstrap',
         'chart.js',
-        'bm.uiTour'
+        'bm.uiTour',
+        'smart-table'
     ]).factory('tourSteps', ['$rootScope', 'uiTourService', tourStepsFactory]);
 })();

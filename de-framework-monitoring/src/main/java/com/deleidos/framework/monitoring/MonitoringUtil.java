@@ -6,8 +6,9 @@ import java.util.function.ToDoubleFunction;
 
 import com.deleidos.analytics.common.rest.RestClient;
 import com.deleidos.analytics.common.util.JsonUtil;
+import com.deleidos.analytics.config.AnalyticsConfig;
 import com.deleidos.framework.monitoring.response.AppsResponse;
-import com.deleidos.framework.monitoring.response.AppsResponse.AppWrapper.App;
+import com.deleidos.framework.monitoring.response.App;
 import com.deleidos.framework.monitoring.response.InfoResponse;
 import com.deleidos.framework.monitoring.response.InfoResponse.Stats;
 import com.deleidos.framework.monitoring.response.PhysicalPlan_ContainersResponse;
@@ -21,7 +22,7 @@ import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 public class MonitoringUtil {
-	
+
 	private static RestClient rc;
 	private static AppsResponse aResponse;
 	private static InfoResponse iResponse;
@@ -29,15 +30,16 @@ public class MonitoringUtil {
 	private static PhysicalPlan_OperatorsResponse ppoResponse;
 	private static long aTime = 0, iTime = 0, ppcTime = 0, ppoTime = 0, cacheTime = 2000;
 	private static String iAppId = "", ppcAppId = "", ppoAppId = "";
-	
+
 	static {
 		if (Boolean.getBoolean("LOCAL_TEST")) {
-			rc = new RestClient(String.format("http://%s:8088",
-					Ec2ResourceFinder.instance.lookupPublicIp("tag:Name","Hadoop (auto test) - Name Node")));
-		} else {
+			rc = new RestClient(
+					String.format("http://%s:8088", AnalyticsConfig.getInstance().getApexNameNodeHostname()));
+		}
+		else {
 			// TODO Support a better way to look stuff up, and also not assume running in AWS
-			rc = new RestClient(String.format("http://%s:8088",
-							Ec2ResourceFinder.instance.lookupPrivateIp("tag:Name","Hadoop (auto test) - Name Node")));
+			rc = new RestClient(
+					String.format("http://%s:8088", AnalyticsConfig.getInstance().getApexNameNodeHostname()));
 		}
 	}
 
@@ -81,10 +83,10 @@ public class MonitoringUtil {
 	@SuppressWarnings("rawtypes")
 	private static Object getSummedIField(AppValue v) throws Exception {
 		updateAResponse();
-		if (aResponse.apps != null) {
-			for (App a : aResponse.apps.app) {
-				updateIResponse(a.id);
-				if (a.state.equals("RUNNING"))
+		if (aResponse.getApps() != null) {
+			for (App a : aResponse.getApps().getApp()) {
+				updateIResponse(a.getId());
+				if (a.getState().equals("RUNNING"))
 					v.addValueOf(a);
 			}
 		}
@@ -94,10 +96,10 @@ public class MonitoringUtil {
 	@SuppressWarnings("rawtypes")
 	private static Object getSummedPpoField(AppValue v) throws Exception {
 		updateAResponse();
-		if (aResponse.apps != null) {
-			for (App a : aResponse.apps.app) {
-				updatePpoResponse(a.id);
-				if (a.state.equals("RUNNING"))
+		if (aResponse.getApps() != null) {
+			for (App a : aResponse.getApps().getApp()) {
+				updatePpoResponse(a.getId());
+				if (a.getState().equals("RUNNING"))
 					v.addValueOf(a);
 			}
 		}
@@ -189,7 +191,7 @@ public class MonitoringUtil {
 
 			public void addValueOf(App a) {
 				ObjectNode o = JsonNodeFactory.instance.objectNode();
-				o.put("label", a.name);
+				o.put("label", a.getName());
 				o.put("value", iResponse.stats.totalMemoryAllocated);
 				data.add(o);
 			}
@@ -239,17 +241,17 @@ public class MonitoringUtil {
 	public static String getApplicationCounts() throws Exception {
 		int running = 0, pending = 0, failed = 0, finished = 0, killed = 0, submitted = 0;
 		updateAResponse();
-		if (aResponse.apps != null) {
-			for (App a : aResponse.apps.app) {
-				if (a.state.equals("RUNNING"))
+		if (aResponse.getApps() != null) {
+			for (App a : aResponse.getApps().getApp()) {
+				if (a.getState().equals("RUNNING"))
 					running++;
-				if (a.state.equals("PENDING"))
+				if (a.getState().equals("PENDING"))
 					pending++;
-				if (a.state.equals("FAILED"))
+				if (a.getState().equals("FAILED"))
 					failed++;
-				if (a.state.equals("FINISHED"))
+				if (a.getState().equals("FINISHED"))
 					finished++;
-				if (a.state.equals("KILLED"))
+				if (a.getState().equals("KILLED"))
 					killed++;
 			}
 		}
@@ -393,8 +395,8 @@ public class MonitoringUtil {
 		JsonNodeFactory factory = JsonNodeFactory.instance;
 		ObjectNode root = factory.objectNode();
 		ArrayNode data = root.putArray("apps");
-		if (aResponse != null && aResponse.apps != null) {
-			for (App a : aResponse.apps.app) {
+		if (aResponse != null && aResponse.getApps() != null) {
+			for (App a : aResponse.getApps().getApp()) {
 				ObjectNode o = data.addObject();
 				o.setAll((ObjectNode) JsonUtil.parseJson(JsonUtil.toJsonString(a)));
 			}
@@ -409,12 +411,12 @@ public class MonitoringUtil {
 		App firstOnline = null, firstOffline = null;
 		JsonNodeFactory factory = JsonNodeFactory.instance;
 		ObjectNode root = factory.objectNode();
-		if (aResponse != null && aResponse.apps != null) {
-			for (App a : aResponse.apps.app) {
-				if (a.name.equals(appName)) {
-					if (a.state.equals("RUNNING") && firstOnline == null)
+		if (aResponse != null && aResponse.getApps() != null) {
+			for (App a : aResponse.getApps().getApp()) {
+				if (a.getName().equals(appName)) {
+					if (a.getState().equals("RUNNING") && firstOnline == null)
 						firstOnline = a;
-					if (!a.state.equals("RUNNING") && firstOffline == null)
+					if (!a.getState().equals("RUNNING") && firstOffline == null)
 						firstOffline = a;
 				}
 			}
@@ -426,18 +428,18 @@ public class MonitoringUtil {
 			a = firstOnline;
 		if (a == null)
 			return "{}";
-		updateIResponse(a.id);
-		root.put("name", a.name);
-		root.put("user", a.user);
-		root.put("state", a.state);
-		root.put("startedTime", a.startedTime);
-		root.put("progress", a.progress);
-		root.put("applicationType", a.applicationType);
-		root.put("elapsedTime", a.elapsedTime);
-		root.put("finishedTime", a.finishedTime);
-		root.put("finalStatus", a.finalStatus);
-		root.put("id", a.id);
-		root.put("queue", a.queue);
+		updateIResponse(a.getId());
+		root.put("name", a.getName());
+		root.put("user", a.getUser());
+		root.put("state", a.getState());
+		root.put("startedTime", a.getStartedTime());
+		root.put("progress", a.getProgress());
+		root.put("applicationType", a.getApplicationType());
+		root.put("elapsedTime", a.getElapsedTime());
+		root.put("finishedTime", a.getFinishedTime());
+		root.put("finalStatus", a.getFinalStatus());
+		root.put("id", a.getId());
+		root.put("queue", a.getQueue());
 		ByteArrayOutputStream stream = new ByteArrayOutputStream();
 		new ObjectMapper().writeTree(new JsonFactory().createGenerator(stream), root);
 		return stream.toString(java.nio.charset.StandardCharsets.UTF_8.name());
@@ -451,13 +453,13 @@ public class MonitoringUtil {
 	public static String getAppIdByName(String appName) throws Exception {
 		updateAResponse();
 		String firstOffline = "", firstOnline = "";
-		if (aResponse != null && aResponse.apps != null) {
-			for (App a : aResponse.apps.app) {
-				if (a.name.equals(appName)) {
-					if (a.state.equals("RUNNING") && firstOnline.equals(""))
-						firstOnline = a.id;
-					if (!a.state.equals("RUNNING") && firstOffline.equals(""))
-						firstOffline = a.id;
+		if (aResponse != null && aResponse.getApps() != null) {
+			for (App a : aResponse.getApps().getApp()) {
+				if (a.getName().equals(appName)) {
+					if (a.getState().equals("RUNNING") && firstOnline.equals(""))
+						firstOnline = a.getId();
+					if (!a.getState().equals("RUNNING") && firstOffline.equals(""))
+						firstOffline = a.getId();
 				}
 			}
 		}

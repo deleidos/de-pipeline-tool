@@ -60,6 +60,12 @@
                 } else {
                     config.refresh = true;
                 }
+
+                if (!o.apps) {
+                    ws.send(JSON.stringify({
+                        request: "getAppList"
+                    }));
+                }
             }
 
             // Log List response
@@ -115,11 +121,7 @@
                 }
             }
 
-            if (!o.apps) {
-                ws.send(JSON.stringify({
-                    request: "getAppList"
-                }));
-            }
+
         });
         var logIds = [];
         logSocket.onMessage(function(mes) {
@@ -191,7 +193,7 @@
                 while (config.intervalIds.length > 0) {
                     clearInterval(config.intervalIds.pop());
                 }
-                ret.unsubStramEvents(ret.appId);
+                //ret.unsubStramEvents(ret.appId);
                 // Clear all data
                 angular.forEach(ret, function(val) {
                     if (Array.isArray(val) && val.length > 0) {
@@ -217,8 +219,8 @@
                 if (appId !== "") {
                     ret.getDetails(appId);
                     ret.getCpuUsage(appId);
-                    ret.subStramEvents(appId);
-                    ret.getLogList(appId);
+                    //ret.subStramEvents(appId);
+                    //ret.getLogList(appId);
 
                     stramSocket.onMessage(function(mes) {
                         var logs = mes.data.substring(1, mes.data.length - 1).replace(/"/g, '').split(',');
@@ -254,6 +256,7 @@
             series: ["Processed Tuples PSMA", "Emitted Tuples PSMA"],
             colors: ["#9ebeca", "#666666"],
             options: {
+                maintainAspectRatio: false,
                 animation: false,
                 legend: {
                     display: true
@@ -271,6 +274,7 @@
             data: MonitorData.cpuData,
             labels: MonitorData.cpuLabels,
             options: {
+                maintainAspectRatio: false,
                 legend: {
                     display: true
                 }

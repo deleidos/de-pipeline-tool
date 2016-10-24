@@ -14,7 +14,7 @@ import org.apache.log4j.Logger;
 
 import com.deleidos.analytics.common.logging.LogUtil;
 import com.deleidos.analytics.common.util.FileUtil;
-import com.deleidos.analytics.common.util.GsonWithMapDeserializerFactory;
+import com.deleidos.analytics.common.util.GsonFactory;
 import com.deleidos.analytics.common.util.NumberUtil;
 import com.deleidos.analytics.redis.client.RedisClient;
 import com.google.gson.Gson;
@@ -55,7 +55,7 @@ public class GenericCacheLoader {
 		this.namespace = namespace;
 		this.keyField = keyField;
 
-		gson = GsonWithMapDeserializerFactory.getInstance().getGsonWithMapDeserializer();
+		gson = GsonFactory.getInstance().getGson();
 		redisClient = new RedisClient(redisHost);
 	}
 

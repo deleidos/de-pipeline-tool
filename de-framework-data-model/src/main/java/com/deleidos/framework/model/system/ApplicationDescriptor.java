@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.util.List;
 
 import com.deleidos.analytics.common.util.GsonUtil;
+import com.deleidos.analytics.common.util.GsonFactory;
 //import com.deleidos.analytics.common.util.JsonUtil;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -21,22 +22,12 @@ public class ApplicationDescriptor implements Serializable {
 	private List<OperatorDescriptor> operators;
 	private List<StreamDescriptor> streams;
 
+	private transient static final String systemNameProperty = "systemName";
+
 	/**
 	 * Empty no-arg constructor for serialization.
 	 */
-	public ApplicationDescriptor() {}
-
-	/**
-	 * Constructor.
-	 * 
-	 * @param description
-	 * @param operators
-	 * @param streams
-	 */
-	public ApplicationDescriptor(String description, List<OperatorDescriptor> operators, List<StreamDescriptor> streams) {
-		this.description = description;
-		this.operators = operators;
-		this.streams = streams;
+	public ApplicationDescriptor() {
 	}
 
 	/**
@@ -46,11 +37,17 @@ public class ApplicationDescriptor implements Serializable {
 	 */
 	@JsonIgnore
 	public String getApexAppJson() throws Exception {
-		GsonUtil<ApplicationDescriptor> gson = new GsonUtil<ApplicationDescriptor>();
-		return gson.toJson(this);
-		//return JsonUtil.toJsonString(this);
+		return GsonFactory.getInstance().getGson().toJson(this);
 	}
-	
+
+	public void setOperatorSystemNameProperty(String systemName) {
+		if (operators != null) {
+			for (OperatorDescriptor operator : operators) {
+				operator.getProperties().put(systemNameProperty, systemName);
+			}
+		}
+	}
+
 	public String getDescription() {
 		return description;
 	}
