@@ -4,6 +4,7 @@
     angular.module('main', [
         'systemBuilder',
         'systemManager',
+        'operatorLibrary',
         'ngMaterial',
 	    'plumbApp.directives',
         'bm.uiTour'
@@ -40,13 +41,7 @@
     function tourStepsFactory ($rootScope, TourService) {
         return {
             next: function() {
-                console.log("test");
                 TourService.getTourByName('tour').next();
-                console.log(TourService.getTourByName('tour').getCurrentStep().order);
-                /*if (TourService.getTourByName('tour').getCurrentStep().order == 30) {
-                    console.log("change view")
-                    $rootScope.changeView();
-                }*/
 
                 if (TourService.getTourByName('tour').getCurrentStep().order === 40) {
                     $rootScope.setTempOperator();
@@ -55,19 +50,19 @@
                     $rootScope.removeTempOperator();
                 }
                 if (TourService.getTourByName('tour').getCurrentStep().order === 110) {
-                    $rootScope.changeView();
+                    $rootScope.changeView('systemManager');
                 }
-                if (TourService.getTourByName('tour').getCurrentStep().order === 140) {
-                    $rootScope.changeView();
+                if (TourService.getTourByName('tour').getCurrentStep().order === 160) {
+                    $rootScope.changeView('operatorLibrary');
                 }
+                if (TourService.getTourByName('tour').getCurrentStep().order === 240) {
+                 $rootScope.changeView('systemBuilder');
+                 }
 
-                console.log("next");
             },
 
             prev: function () {
-                console.log("prev");
                 TourService.getTourByName('tour').prev();
-                console.log(TourService.getTourByName('tour').getCurrentStep().order);
 
                 if (TourService.getTourByName('tour').getCurrentStep().order === 50) {
                     $rootScope.removeTempOperator();
@@ -76,15 +71,17 @@
                     $rootScope.setTempOperator();
                 }
                 if (TourService.getTourByName('tour').getCurrentStep().order === 120) {
-                    $rootScope.changeView();
+                    $rootScope.changeView('systemBuilder');
                 }
-                if (TourService.getTourByName('tour').getCurrentStep().order === 150) {
-                    $rootScope.changeView();
+                if (TourService.getTourByName('tour').getCurrentStep().order === 170) {
+                    $rootScope.changeView('systemManager');
+                }
+                if (TourService.getTourByName('tour').getCurrentStep().order === 300) {
+                    $rootScope.changeView('operatorLibrary');
                 }
             },
 
             end: function () {
-                console.log("end");
                 TourService.getTourByName('tour').end();
                 $rootScope.inTour = false;
             },
@@ -93,7 +90,6 @@
                 $rootScope.setStart();
                 $rootScope.removeTempOperator();
                 TourService.getTourByName('tour').start();
-                console.log(TourService.getTourByName('tour'));
             }
         };
     }
@@ -124,21 +120,7 @@
         'ui.bootstrap',
         'cfp.hotkeys',
         'bm.uiTour'
-    ])/*.config(['TourConfigProvider', function (TourConfigProvider) {
-
-            TourConfigProvider.set('scrollOffset', 50);
-
-            TourConfigProvider.set('onStart', function () {
-                console.log('Started Tour');
-            });
-            TourConfigProvider.set('onNext', function () {
-                console.log('Moving on...');
-            });
-        }])
-        .run(['uiTourService', function (TourService) {
-            TourService.createDetachedTour('detachedDemoTour');
-            console.log(TourService.getTourByName('detachedDemoTour'));
-        }])*/
+    ])
     .directive('dropDisable', [dropDisable])
         .factory('tourSteps', ['$rootScope', 'uiTourService', tourStepsFactory])
         .directive('elemReady', ['$parse', function($parse) {
@@ -156,6 +138,16 @@
         }]);
 
     angular.module('systemManager', [
+        'ngRoute',
+        'ngMaterial',
+        'angular-websocket',
+        'ui.bootstrap',
+        'chart.js',
+        'bm.uiTour',
+        'smart-table'
+    ]).factory('tourSteps', ['$rootScope', 'uiTourService', tourStepsFactory]);
+
+    angular.module('operatorLibrary', [
         'ngRoute',
         'ngMaterial',
         'angular-websocket',

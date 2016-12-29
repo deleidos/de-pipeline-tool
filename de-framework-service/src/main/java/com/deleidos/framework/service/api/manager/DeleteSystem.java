@@ -38,7 +38,6 @@ public class DeleteSystem extends BaseWebSocketMessage {
 	@GET
 	public void processMessage() throws Exception {
 		SystemDataManager.getInstance().deleteSystemDescriptor(id);
-		// TODO FUTURE delete system in apex
-		sendResponse(id); // TODO return value
+		sendResponse(id);
 	}
 }

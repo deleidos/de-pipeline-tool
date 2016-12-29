@@ -11,20 +11,18 @@ import java.util.List;
 @SuppressWarnings("serial")
 public class OperatorProperty implements Serializable {
 
-	public enum Type {
-		String, StringList, Integer, FloatingPoint, File
-	};
-
 	private String name;
 	private String displayName;
 	private List<String> choices;
 	private boolean required;
-	private Type type;
+	private String type;
+	private String description;
 
 	/**
 	 * Empty no-arg constructor for serialization.
 	 */
-	public OperatorProperty() {}
+	public OperatorProperty() {
+	}
 
 	/**
 	 * Constructor.
@@ -34,12 +32,14 @@ public class OperatorProperty implements Serializable {
 	 * @param choices
 	 * @param required
 	 */
-	public OperatorProperty(String name, String displayName, Type type, List<String> choices, boolean required) {
+	public OperatorProperty(String name, String displayName, String type, List<String> choices, boolean required,
+			String description) {
 		this.name = name;
 		this.displayName = displayName;
 		this.type = type;
 		this.choices = choices;
 		this.required = required;
+		this.description = description;
 	}
 
 	public String getName() {
@@ -58,11 +58,11 @@ public class OperatorProperty implements Serializable {
 		this.displayName = displayName;
 	}
 
-	public Type getType() {
+	public String getType() {
 		return type;
 	}
 
-	public void setType(Type type) {
+	public void setType(String type) {
 		this.type = type;
 	}
 
@@ -80,5 +80,13 @@ public class OperatorProperty implements Serializable {
 
 	public void setRequired(boolean required) {
 		this.required = required;
+	}
+
+	public String getDescription() {
+		return description;
+	}
+
+	public void setDescription(String description) {
+		this.description = description;
 	}
 }

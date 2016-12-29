@@ -25,7 +25,7 @@ public class RestClient {
 
 	private static final Logger logger = Logger.getLogger(RestClient.class);
 
-	private static final int requestTimeoutMillis = 30 * 1000;
+	private static final int defaultTimeoutMillis = 30 * 1000;
 
 	private String baseUri;
 	private RequestConfig requestConfig;
@@ -38,8 +38,20 @@ public class RestClient {
 	public RestClient(String baseUri) {
 		this.baseUri = baseUri;
 
-		requestConfig = RequestConfig.custom().setConnectionRequestTimeout(requestTimeoutMillis)
-				.setConnectTimeout(requestTimeoutMillis).setSocketTimeout(requestTimeoutMillis).build();
+		requestConfig = RequestConfig.custom().setConnectionRequestTimeout(defaultTimeoutMillis)
+				.setConnectTimeout(defaultTimeoutMillis).setSocketTimeout(defaultTimeoutMillis).build();
+	}
+	
+	/**
+	 * Constructor.
+	 * 
+	 * @param baseUri
+	 */
+	public RestClient(String baseUri, int timeoutMillis) {
+		this.baseUri = baseUri;
+
+		requestConfig = RequestConfig.custom().setConnectionRequestTimeout(timeoutMillis)
+				.setConnectTimeout(timeoutMillis).setSocketTimeout(timeoutMillis).build();
 	}
 
 	/**
@@ -51,6 +63,7 @@ public class RestClient {
 	 */
 	public String get(String uriPath) throws Exception {
 		logger.debug("get, uri=" + baseUri + uriPath);
+		
 		HttpGet request = new HttpGet(baseUri + uriPath);
 		request.setConfig(requestConfig);
 		String response = execute(request);
@@ -68,21 +81,6 @@ public class RestClient {
 	public <T> T getObject(String uriPath, Class<T> classOfT) throws Exception {
 		String response = get(uriPath);
 		T t = JsonUtil.fromJsonString(response, classOfT);
-		return t;
-	}
-	
-	/**
-	 * Execute a GET request, returning the response object.
-	 * 
-	 * @param uriPath
-	 * @param classOfT
-	 * @param camelCaseJson
-	 * @return
-	 * @throws Exception
-	 */
-	public <T> T getObject(String uriPath, Class<T> classOfT, boolean camelCaseJson) throws Exception {
-		String response = get(uriPath);
-		T t = JsonUtil.fromJsonString(response, classOfT, camelCaseJson);
 		return t;
 	}
 
@@ -137,7 +135,7 @@ public class RestClient {
 				parseResponse = false;
 			}
 			else {
-				System.out.println(response.getEntity().toString());
+				logger.debug(response.getEntity().toString());
 				throw new RuntimeException(
 						response.getStatusLine().getStatusCode() + " " + response.getStatusLine().getReasonPhrase());
 			}

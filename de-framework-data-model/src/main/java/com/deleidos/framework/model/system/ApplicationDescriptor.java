@@ -3,7 +3,6 @@ package com.deleidos.framework.model.system;
 import java.io.Serializable;
 import java.util.List;
 
-import com.deleidos.analytics.common.util.GsonUtil;
 import com.deleidos.analytics.common.util.GsonFactory;
 //import com.deleidos.analytics.common.util.JsonUtil;
 import com.fasterxml.jackson.annotation.JsonIgnore;

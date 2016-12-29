@@ -39,6 +39,7 @@ public abstract class BaseWebSocketMessage implements WebSocketMessage {
 	}
 
 	public void sendResponse(String s) throws Exception {
+		logger.info("Response sending to socket: " + webSocketId);
 		webSocketServer.send(s, webSocketId);
 	}
 	

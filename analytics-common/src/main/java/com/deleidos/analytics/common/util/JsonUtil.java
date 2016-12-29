@@ -9,9 +9,9 @@ import java.util.Map;
 
 import org.apache.log4j.Logger;
 
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 
 public class JsonUtil {
 
@@ -20,7 +20,7 @@ public class JsonUtil {
 
 	static {
 		mapper = new ObjectMapper();
-		mapper.setPropertyNamingStrategy(PropertyNamingStrategy.CAMEL_CASE_TO_LOWER_CASE_WITH_UNDERSCORES);
+		mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 	}
 
 	public static <T> T fromJsonString(String jsonString, Class<T> genericType) throws Exception {
@@ -33,13 +33,6 @@ public class JsonUtil {
 			throw e;
 		}
 		return jsonObj;
-	}
-	
-	public static <T> T fromJsonString(String jsonString, Class<T> genericType, boolean camelCaseJson) throws Exception {
-		if (camelCaseJson) mapper.setPropertyNamingStrategy(null);
-		T ret = fromJsonString(jsonString, genericType);
-		if (camelCaseJson) mapper.setPropertyNamingStrategy(PropertyNamingStrategy.CAMEL_CASE_TO_LOWER_CASE_WITH_UNDERSCORES);
-		return ret;
 	}
 
 	public static String toJsonString(Object obj) throws Exception {

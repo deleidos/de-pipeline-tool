@@ -4,7 +4,8 @@ import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 
 import com.deleidos.analytics.websocket.api.BaseWebSocketMessage;
-import com.deleidos.applicationcreator.Application_Creation;
+import com.deleidos.applicationcreator.APAClientNode;
+import com.deleidos.framework.service.config.ServiceConfig;
 import com.deleidos.framework.service.data.SystemDataManager;
 import com.deleidos.framework.model.system.SystemDescriptor;
 import com.deleidos.framework.monitoring.MonitoringUtil;
@@ -41,8 +42,8 @@ public class StopSystem extends BaseWebSocketMessage {
 	public void processMessage() throws Exception {
 		SystemDescriptor system = SystemDataManager.getInstance().getSystemDecriptor(id);
 		String appID = MonitoringUtil.getAppIdByName(system.getName());
-		Application_Creation.stopApp(appID);
-		// TODO stop system in apex
-		sendResponse(id); // TODO return value
+		APAClientNode clientNode = new APAClientNode(ServiceConfig.getInstance().getManagerServiceHostname());
+		clientNode.postStop(appID);
+		sendResponse(appID);
 	}
 }

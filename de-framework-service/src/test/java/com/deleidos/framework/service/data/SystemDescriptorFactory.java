@@ -10,6 +10,7 @@ import org.apache.commons.io.IOUtils;
 import com.deleidos.analytics.common.util.JsonUtil;
 import com.deleidos.framework.model.system.ApplicationDescriptor;
 import com.deleidos.framework.model.system.OperatorDescriptor;
+import com.deleidos.framework.model.system.OperatorFile;
 import com.deleidos.framework.model.system.SystemDescriptor;
 
 /**
@@ -32,14 +33,13 @@ public class SystemDescriptorFactory {
 
 	public SystemDescriptor getExampleSystemDescriptor() throws Exception {
 		@SuppressWarnings("unchecked")
-		Map<String, String> exampleMapping = (Map<String, String>) JsonUtil.fromJsonString(
+		Map<String, OperatorFile> exampleMapping = (Map<String, OperatorFile>) JsonUtil.fromJsonString(
 				IOUtils.toString(getClass().getResourceAsStream(mappingJsonFilePath), Charset.defaultCharset()),
 				Map.class);
 
 		ApplicationDescriptor application = ApplicationDescriptorFactory.getInstance()
 				.getExampleApplicationDescriptor();
-
-		Map<String, Map<String, String>> mappingOperatorMap = new HashMap<String, Map<String, String>>();
+		Map<String, Map<String, OperatorFile>> mappingOperatorMap = new HashMap<String, Map<String, OperatorFile>>();
 		for (OperatorDescriptor operator : application.getOperators()) {
 			if (operator.getClassName().contains("JSONMappingOperator")) {
 				mappingOperatorMap.put(operator.getName(), exampleMapping);

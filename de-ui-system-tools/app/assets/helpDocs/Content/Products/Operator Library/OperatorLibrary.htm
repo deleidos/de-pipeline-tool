@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd" lang="en-us" xml:lang="en-us" data-mc-search-type="Stem" data-mc-help-system-file-name="Default.xml" data-mc-path-to-help-system="../../../" data-mc-target-type="WebHelp2" data-mc-runtime-file-type="Topic" data-mc-preload-images="false" data-mc-in-preview-mode="false" data-mc-toc-path="">
+    <head>
+        <meta charset="utf-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" /><title>Operator Library</title>
+        <link href="../../../Skins/Default/Stylesheets/Slideshow.css" rel="stylesheet" />
+        <link href="../../../Skins/Default/Stylesheets/TextEffects.css" rel="stylesheet" />
+        <link href="../../../Skins/Default/Stylesheets/Topic.css" rel="stylesheet" />
+        <link href="../../Resources/Stylesheets/Styles.css" rel="stylesheet" />
+        <script src="../../../Resources/Scripts/custom.modernizr.js">
+        </script>
+        <script src="../../../Resources/Scripts/jquery.min.js">
+        </script>
+        <script src="../../../Resources/Scripts/foundation.min.js">
+        </script>
+        <script src="../../../Resources/Scripts/plugins.min.js">
+        </script>
+        <script src="../../../Resources/Scripts/require.min.js">
+        </script>
+        <script src="../../../Resources/Scripts/require.config.js">
+        </script>
+        <script src="../../../Resources/Scripts/MadCapAll.js">
+        </script>
+    </head>
+    <body>
+        <div class="TopicContent">
+            <div class="MCBreadcrumbsBox_0"><span class="MCBreadcrumbsPrefix">You are here: </span><span class="MCBreadcrumbs">Operator Library</span>
+            </div>
+            <h1>Operator Library</h1>
+            <p>The operator library stores and lets you control all your operators for use in the System Builder. </p>
+            <p>
+                <img src="../../Resources/Images/operatorList.png" />
+            </p>
+            <ul>
+                <li value="1">New operators can be added using the plus button in the upper right hand corner, and they can be deleted with the trashcan button on each row. Clicking a row selects that operator</li>
+            </ul>
+            <h2 style="font-weight: normal;">Details</h2>
+            <p>Similar to the System Manager, the details pane provides the operator details. Unlike the system manager however, you can customize just about anything regarding that operator here.</p>
+            <p>
+                <img src="../../Resources/Images/operatorDetails.png" />
+            </p>
+            <ul>
+                <li value="1">name - The operator name</li>
+                <li value="2">className - The name and path of the java file within the far</li>
+                <li value="3">displayname - The name the operator displays in the System Builder</li>
+                <li value="4">type - The type of operator</li>
+                <li value="5">jar - This lets you choose which jar to use with this operator. You can use an existing jar if there was already one uploaded or you can upload a new one</li>
+                <li value="6">jarName - The name of the jar uploaded</li>
+                <li value="7">jar_file - This is the option to upload a new jar (it is not visible is "Use Existing Jar" is selected)</li>
+            </ul>
+            <h2 style="font-weight: normal;">Properties</h2>
+            <p style="font-weight: normal;">The second half of the details pane lists all the properties the operator has. Like the operator list, you can add and remove properties using the same kind of controls</p>
+            <p style="font-weight: normal;">
+                <img src="../../Resources/Images/properties.png" />
+            </p>
+            <ul>
+                <li value="1">Property Name - The name of the property</li>
+                <li value="2">Display Name - The name displayed for the property in the System Builder</li>
+                <li value="3">Required - Whether or not the property is required by the operator</li>
+                <li value="4"><a href="OperatorValidation.htm">Validation Rule</a> - What set of guidelines are used to determine if a property is valid or not</li>
+            </ul>
+            <p>Note that if you do change an operator and save it, old operators in a system will not be affected and must be recreated. This is to prevent issues where old properties that are filled out are matched with new validation rules. However, if you have a stored operator, it will be updated with the new validation.</p>
+            <p style="font-size: 6pt;margin-top: 0;margin-bottom: 0;">&#160;</p>
+            <p class="copyright">Copyright © <span class="MyVariablesYear">2016</span>&#160;<span class="MyVariablesCompanyName">Leidos, Inc.</span> All rights reserved.</p>
+        </div>
+    </body>
+</html>

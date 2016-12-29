@@ -2,7 +2,8 @@
     angular.module('main')
         .controller('ContentController', ['$scope', '$rootScope', '$localStorage', 'uiTourService', 'tourSteps', ContentController])
         .directive('systemManager', [SystemManagerDirective])
-        .directive('systemBuilder', [SystemBuilderDirective]);
+        .directive('systemBuilder', [SystemBuilderDirective])
+        .directive('operatorLibrary', [OperatorLibraryDirective]);
 
     function SystemBuilderDirective() {
         return {
@@ -16,6 +17,15 @@
     function SystemManagerDirective() {
         return {
             templateUrl: 'system-manager/system-manager.html',
+            scope: {
+                tour: '=tour'
+            }
+        };
+    }
+
+    function OperatorLibraryDirective() {
+        return {
+            templateUrl: 'operator-library/operator-library.html',
             scope: {
                 tour: '=tour'
             }
@@ -49,14 +59,13 @@
         $scope.$on('Sending online systems',function(data, systems) {
             $scope.$broadcast('Receiving online systems', systems);
         });
+        $scope.$on('About to send operators', function(data, operators) {
+           $scope.$broadcast('Sending operators', operators);
+        });
+        $scope.$on('Update metadata', function() {
+            $scope.$broadcast('Updating metadata');
+        });
 
-        $rootScope.changeView = function() {
-            if ($scope.curr === 'systemManager') {
-                $scope.curr = 'systemBuilder';
-            } else {
-                $scope.curr = 'systemManager';
-            }
-        };
 
         $rootScope.setStart = function() {
             $scope.curr = 'systemBuilder';
@@ -70,6 +79,16 @@
                 $localStorage.toured = true;
             });
             $scope.curr = 'systemBuilder';
+        };
+
+        $scope.launchHelp = function() {
+            var childWindowForHelp = window.open('assets/helpDocs/Default.htm', "", "width=950,height=850");
+            childWindowForHelp.moveTo(300, 50);
+        }; // launchHelp
+
+
+        $rootScope.changeView = function(view) {
+            $scope.curr = view;
         };
 
         $scope.next = function() {

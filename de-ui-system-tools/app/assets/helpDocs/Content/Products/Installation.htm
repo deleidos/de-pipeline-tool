@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd" lang="en-us" xml:lang="en-us" data-mc-search-type="Stem" data-mc-help-system-file-name="Default.xml" data-mc-path-to-help-system="../../" data-mc-target-type="WebHelp2" data-mc-runtime-file-type="Topic" data-mc-preload-images="false" data-mc-in-preview-mode="false" data-mc-toc-path="">
+    <head>
+        <meta charset="utf-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" /><title>Installation</title>
+        <link href="../../Skins/Default/Stylesheets/Slideshow.css" rel="stylesheet" />
+        <link href="../../Skins/Default/Stylesheets/TextEffects.css" rel="stylesheet" />
+        <link href="../../Skins/Default/Stylesheets/Topic.css" rel="stylesheet" />
+        <link href="../Resources/Stylesheets/Styles.css" rel="stylesheet" />
+        <script src="../../Resources/Scripts/custom.modernizr.js">
+        </script>
+        <script src="../../Resources/Scripts/jquery.min.js">
+        </script>
+        <script src="../../Resources/Scripts/foundation.min.js">
+        </script>
+        <script src="../../Resources/Scripts/plugins.min.js">
+        </script>
+        <script src="../../Resources/Scripts/require.min.js">
+        </script>
+        <script src="../../Resources/Scripts/require.config.js">
+        </script>
+        <script src="../../Resources/Scripts/MadCapAll.js">
+        </script>
+    </head>
+    <body>
+        <div class="TopicContent">
+            <div class="MCBreadcrumbsBox_0"><span class="MCBreadcrumbsPrefix">You are here: </span><span class="MCBreadcrumbs">Installation</span>
+            </div>
+            <h1>Installation</h1>
+            <h2><span style="font-weight: normal;">Requirements</span>
+            </h2>
+            <ul>
+                <li value="1">A pre-configured Hadoop cluster with Apex Apex installed including a name node with dtCli installed.</li>
+                <li value="2">A MongoDB instance.</li>
+                <li value="3">An application server instance with Java 8 installed.</li>
+                <li value="4">A web app instance.</li>
+            </ul>
+            <p>The hadoop project contains a Docker-based DevOps process for deploying an Apex-enabled hadoop cluster. <a href="https://github.com/deleidos/de-pipeline-tool/blob/master/hadoop/README.md">See the hadoop README file for instructions</a>.</p>
+            <h2><span style="font-weight: normal;">Security and Firewall Access</span>
+            </h2>
+            <ul>
+                <li value="1">The application server instance must be open to the web app instance on port 8080.</li>
+                <li value="2">The Hadoop cluster must be open to the application server instance on ports 22 and 8088.</li>
+                <li value="3">Data stores must be open to the Hadoop cluster on their ports: 9300 (Elasticsearch), 27017 (MongoDB)</li>
+                <li value="4">If the Redis Dimensional Enrichment operator is being used, the Hadoop cluster must be open to port 6379.</li>
+            </ul>
+            <h2 style="font-weight: normal;">Security and Firewall Access</h2>
+            <p>The DigitalEdge Pipeline Tool runs in an embedded Jetty server. Installation and configured of an application is not required; the build produces a runnable jar.</p>
+            <p>Configuration is controlled by a single file in the analytics-config project. There are two versions, one for normal operation, and one for testing:</p>
+            <ul>
+                <li value="1">src/main/resources/analytics_config.json</li>
+                <li value="2">src/test/resources/analytics_config.json</li>
+            </ul>
+            <p>Example configuration file:</p>
+            <p class="Code">{</p>
+            <p class="Code" style="text-indent: 0.5in;">"server_port": "8080",</p>
+            <p class="Code" style="text-indent: 0.5in;">"api_plugins": [</p>
+            <p class="Code" style="text-indent: 1in;">"com.deleidos.framework.service.FrameworkServiceDataApiPlugin"</p>
+            <p class="Code" style="text-indent: 0.5in;">],</p>
+            <p class="Code" style="text-indent: 0.5in;">"elasticsearch_cluster_name": "YourClusterName",</p>
+            <p class="Code" style="text-indent: 0.5in;">"elasticsearch_hostnames": [</p>
+            <p class="Code" style="text-indent: 1in;">"your.es.hostname1",</p>
+            <p class="Code" style="text-indent: 1in;">"your.es.hostname2"</p>
+            <p class="Code" style="text-indent: 0.5in;">],</p>
+            <p class="Code" style="text-indent: 0.5in;">"mongodb_hostname": "your.mongodb.hostname",</p>
+            <p class="Code" style="text-indent: 0.5in;">"apex_hostname": "your.apex.name.node.hostname",</p>
+            <p class="Code" style="text-indent: 0.5in;">"apex_host_username": "your.apex.host.username",</p>
+            <p class="Code" style="text-indent: 0.5in;">"apex_key_file_path": "your/path/to/apex/host/pem/key/file",</p>
+            <p class="Code" style="text-indent: 0.5in;">"redis_hostname" : "your.redis.hostname"</p>
+            <p class="Code">}</p>
+            <p>At a minimum, you will need to provide:</p>
+            <ul>
+                <li value="1">Your MongoDB hostname where DE metadata and system definitions will be stored.</li>
+                <li value="2">The hostname of a Hadoop node where your Apex cluster is running. Note: Requires Apache Apex dtCli to be installed on the node.</li>
+                <li value="3">The username used to log in to the Hadoop Apache Apex node.</li>
+                <li value="4">The path to the PEM key file used to log in to the Hadoop Apache Apex node. This file must be present on the machine running the application server.</li>
+            </ul>
+            <p>The other configuration values can be set for unit testing purposes but are not used by the server during runtime. In the future, there will be separate configurations for testing and runtime.</p>
+            <h2 style="font-weight: normal;">Web App Configuration</h2>
+            <p>The web app must be configured with the hostname of the backend jetty web socket server in the file app/config.json.</p>
+            <p class="Code">{</p>
+            <p class="Code" style="text-indent: 0.5in;">"hostname": "ws://your.app.server.name/analytics"</p>
+            <p class="Code">}</p>
+            <h2 style="font-weight: normal;">Operator Configuration</h2>
+            <p>Operators are configured to log to syslog using UDP protocol. This feature enables to logs to be viewed by users in real time.</p>
+            <p>Configuration is controlled by a single file in the de-operator-common project:</p>
+            <ul>
+                <li value="1">src/main/resources/operator_config.json</li>
+            </ul>
+            <p>Example configuration file:</p>
+            <p class="Code">{</p>
+            <p class="Code" style="text-indent: 0.5in;">"syslog_udp_hostname" : "your.syslog.udp.hostname",</p>
+            <p class="Code" style="text-indent: 0.5in;">"syslog_udp_port" : "your.syslog.udp.port"</p>
+            <p class="Code">}</p>
+            <p style="font-size: 6pt;margin-top: 0;margin-bottom: 0;">&#160;</p>
+            <p class="copyright">Copyright © <span class="MyVariablesYear">2016</span>&#160;<span class="MyVariablesCompanyName">Leidos, Inc.</span> All rights reserved.</p>
+        </div>
+    </body>
+</html>

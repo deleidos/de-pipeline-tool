@@ -23,7 +23,7 @@ public class StreamDescriptor implements Serializable {
 
 	@JsonIgnore
 	@Expose(serialize = false, deserialize = false)
-	private static final String sourcePortName = "output";
+	private static final String sourcePortName = "outputPort";
 	@JsonIgnore
 	@Expose(serialize = false, deserialize = false)
 	private static final String sinkPortName = "input";

@@ -1,0 +1,180 @@
+/*<meta />*/
+
+body
+{
+	color: #404040;
+	font-family: Arial, Avenir, Myriad;
+	font-size: .9em;
+	line-height: 1.7em;
+}
+
+a:link
+{
+	color: #2D8DCC;
+	font-weight: bold;
+}
+
+a:visited
+{
+	color: #2D8DCC;
+}
+
+a:hover
+{
+	color: #BED230;
+}
+
+a:active
+{
+	color: #2D8DCC;
+}
+
+a.MCBreadcrumbsLink
+{
+	font-style: italic;
+	text-decoration: underline;
+}
+
+a.MCBreadcrumbsLink:hover
+{
+	color: #BED230;
+}
+
+div.TopicContent
+{
+	padding-left: 15px;
+	padding-right: 15px;
+}
+
+h1
+{
+	font-size: 1.5em;
+	font-weight: normal;
+	margin-bottom: 8px;
+	padding-bottom: 10px;
+	margin-top: 30px;
+}
+
+h2
+{
+	border-bottom: none;
+	border-top: none;
+	color: #404040;
+	font-family: Arial;
+	font-size: 1.2em;
+	font-weight: bold;
+	margin-bottom: 4px;
+	margin-top: 20px;
+}
+
+h3
+{
+	font-size: 1.1em;
+	margin-bottom: 4px;
+	margin-top: 16px;
+}
+
+h4
+{
+	margin-bottom: 4px;
+	margin-top: 12px;
+}
+
+li
+{
+	margin-bottom: 6px;
+	margin-top: 6px;
+}
+
+MadCap|breadcrumbsProxy
+{
+	border-bottom: none;
+	font-size: .7em;
+	font-style: italic;
+	mc-breadcrumbs-prefix: 'You are here: ';
+}
+
+MadCap|conceptLink
+{
+	color: #404040;
+	font-size: 0.8em;
+	font-weight: bold;
+	mc-image: url('../Images/ListIcon.png');
+	mc-label: 'SEE ALSO';
+	padding-top: 8px;
+	text-decoration: none;
+}
+
+MadCap|conceptLink:hover
+{
+	color: #BED230;
+	font-weight: bold;
+}
+
+MadCap|xref
+{
+	color: #2D8DCC;
+	font-weight: bold;
+	mc-format: '{para}';
+	text-decoration: underline;
+}
+
+MadCap|xref:hover
+{
+	color: #BED230;
+}
+
+ol,
+ul
+{
+	margin-top: 0;
+	margin-bottom: 0;
+	font-size: 10pt;
+}
+
+p
+{
+	font-family: Arial;
+	font-size: 1em;
+	margin-bottom: 8px;
+	margin-top: 8px;
+}
+
+p.toptable
+{
+	margin-top: 0pt;
+	font-size: 9pt;
+	margin-bottom: 0pt;
+}
+
+td
+{
+	margin: 8px;
+	vertical-align: top;
+}
+
+table
+{
+	border-left-style: solid;
+	border-left-width: 1px;
+	border-left-color: ;
+	border-right-style: solid;
+	border-right-width: 1px;
+	border-right-color: ;
+	border-top-style: solid;
+	border-top-width: 1px;
+	border-top-color: ;
+	border-bottom-style: solid;
+	border-bottom-width: 1px;
+	border-bottom-color: ;
+}
+
+p.Code
+{
+	font-family: Arial;
+	margin-bottom: 8px;
+	margin-top: 8px;
+	font-size: 9pt;
+	color: #4682b4;
+}
+

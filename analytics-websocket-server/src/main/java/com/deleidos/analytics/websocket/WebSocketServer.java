@@ -91,7 +91,7 @@ public class WebSocketServer {
 			try {
 				wsMessage = factory.buildMessage(message, webSocketId);
 			} catch (Exception e) {
-				logger.warn("Message factory buildMessage failed: " + e);
+				logger.warn("Message factory buildMessage failed: ", e);
 			}
 			if (wsMessage != null) {
 				wsMessage.setWebSocketId(webSocketId);

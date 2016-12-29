@@ -54,7 +54,7 @@ public class RESTOutputOperator extends BaseOperator implements OperatorSystemIn
 			}
 			catch (IOException | InterruptedException e) {
 				e.printStackTrace();
-				syslog.error("Error in REST Output: " + e.getMessage()+ "[ERROR END]",e);
+				syslog.error("Error in REST Output: " + e.getMessage(),e);
 			}
 		}
 	};
@@ -70,8 +70,7 @@ public class RESTOutputOperator extends BaseOperator implements OperatorSystemIn
 			uri = new URI(url);
 		}
 		catch (URISyntaxException e) {
-			// TODO Auto-generated catch block
-			syslog.error("Error in REST Output: " + e.getMessage()+ "[ERROR END]",e);
+			syslog.error("Error in REST Output: " + e.getMessage(),e);
 
 			e.printStackTrace();
 		}

@@ -2,9 +2,9 @@
     "use strict";
 
     angular.module('systemBuilder')
-        .directive('operatorRibbon', ['$timeout', 'tourSteps', operatorRibbon]);
+        .directive('operatorRibbon', ['$timeout', 'tourSteps', '$rootScope', operatorRibbon]);
 
-    function operatorRibbon($timeout, tourSteps) {
+    function operatorRibbon($timeout, tourSteps, $rootScope) {
         return {
             restrict: 'E',
             replace: true,
@@ -30,69 +30,52 @@
 
                     var typeColors = [
                         '#ffffff',
+                        '#bb0773',
                         '#9b2743',
                         '#774135',
                         '#8c7732',
                         '#046a38',
-                        '##00778b',
+                        '#00778b',
+                        '#80479b',
                         '#ffffff'
                     ];
 
-                    if (scope.opList) {
-                        scope.opList.forEach(function(category, index) {
-                            if (category.name !== 'All' && category.name !== 'Saved Operators') {
-                                var color = typeColors[index];
-                                var icon = 'fa-circle';
-                                angular.extend(category, {
-                                    color: color,
-                                    icon: icon,
-                                    index: index
-                                });
-                                category.operators.forEach(function (operator) {
-                                    angular.extend(operator, {
-                                        color: color
-                                    });
-                                });
-                            }
-                        });
+                    function sortOps(a, b) {
+                        var aLeast = 99;
+                        var bLeast = 99;
+                        if (a.type === 'input') {
+                            aLeast = 0;
+                        } else if (a.type === 'binaryInput') {
+                            aLeast = 1;
+                        } else if (a.type === 'parser') {
+                            aLeast = 2;
+                        } else if (a.type === 'mapping') {
+                            aLeast = 3;
+                        } else if (a.type === 'enrichment') {
+                            aLeast = 4;
+                        } else if (a.type === 'output') {
+                            aLeast = 5;
+                        } else if (a.type === 'binaryOutput') {
+                            aLeast = 6;
+                        }
 
+                        if (b.type === 'input') {
+                            bLeast = 0;
+                        } else if (b.type === 'binaryInput') {
+                            bLeast = 1;
+                        } else if (b.type === 'parser') {
+                            bLeast = 2;
+                        } else if (b.type === 'mapping') {
+                            bLeast = 3;
+                        } else if (b.type === 'enrichment') {
+                            bLeast = 4;
+                        } else if (b.type === 'output') {
+                            bLeast = 5;
+                        } else if (b.type === 'binaryOutput') {
+                            bLeast = 6;
+                        }
 
-                        scope.opList[0].operators.sort(function(a, b) {
-                            var aLeast = 99;
-                            var bLeast = 99;
-                            angular.forEach(a.classType, function(classType) {
-                                if (classType === 'input' && aLeast > 0) {
-                                    aLeast = 0;
-                                } else if (classType === 'parser' && aLeast > 1) {
-                                    aLeast = 1;
-                                } else if (classType === 'mapping' && aLeast > 2) {
-                                    aLeast = 2;
-                                } else if (classType === 'enrichment' && aLeast > 3) {
-                                    aLeast = 3;
-                                } else if (classType === 'output' && aLeast > 4) {
-                                    aLeast = 4;
-                                }
-                            });
-
-                            angular.forEach(b.classType, function(classType) {
-                                if (classType === 'input' && aLeast > 0) {
-                                    bLeast = 0;
-                                } else if (classType === 'parser' && aLeast > 1) {
-                                    bLeast = 1;
-                                } else if (classType === 'mapping' && aLeast > 2) {
-                                    bLeast = 2;
-                                } else if (classType === 'enrichment' && aLeast > 3) {
-                                    bLeast = 3;
-                                } else if (classType === 'output' && aLeast > 4) {
-                                    bLeast = 4;
-                                }
-                            });
-
-                            return aLeast - bLeast;
-                        });
-
-
-                        console.log(scope.opList[0]);
+                        return aLeast - bLeast;
                     }
 
                     scope.setActiveCat = function(opType) {
@@ -103,18 +86,39 @@
                         }
                     };
 
-                    scope.displayList = scope.opList;
-                    if (scope.displayList) {
-	                    scope.setActiveCat(scope.displayList[0]);
-                    }
+                    $rootScope.refreshOperators = function(opList) {
+                        if (opList) {
+                            opList.forEach(function(category, index) {
+                                if (category.name !== 'All' && category.name !== 'Stored Operators') {
+                                    var color = typeColors[index];
+                                    var icon = 'fa-circle';
+                                    angular.extend(category, {
+                                        color: color,
+                                        icon: icon,
+                                        index: index
+                                    });
+                                    category.operators.forEach(function (operator) {
+                                        angular.extend(operator, {
+                                            color: color
+                                        });
+                                    });
+                                }
+                            });
 
-                    scope.addOperator = function() {
-                        console.log('addOperator');
-                    };
+                            opList[0].operators.sort(sortOps);
 
-                    scope.removeOperator = function(index, operators) {
-                        operators.splice(index, 1);
+                            scope.displayList = opList;
+                            if (scope.displayList) {
+                                scope.setActiveCat(scope.displayList[0]);
+                            }
+
+                            scope.$apply();
+
+                        }
                     };
+                    $rootScope.refreshOperators(scope.opList);
+
+
 
                     scope.focusSearch = function() {
                         $("#operator-search").focus();
@@ -132,7 +136,7 @@
                         } else if (scope.opList) {
                             scope.displayList = scope.opList.filter(function(opCat) {
                                 return opCat.operators.some(function(operator) {
-                                    return operator.display_name.toLowerCase().indexOf(searchStr.display_name.toLowerCase()) > -1;
+                                    return operator.displayName.toLowerCase().indexOf(searchStr.display_name.toLowerCase()) > -1;
                                 });
                             });
                         }

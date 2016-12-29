@@ -15,5 +15,6 @@ public class WebSocketServlet extends org.eclipse.jetty.websocket.servlet.WebSoc
     public void configure(WebSocketServletFactory factory) {
 		factory.getPolicy().setIdleTimeout(1000 * 60 * 30);
         factory.register(WebSocketServerEndpoint.class);
+        factory.getPolicy().setMaxTextMessageSize(Integer.MAX_VALUE);
     }
 }

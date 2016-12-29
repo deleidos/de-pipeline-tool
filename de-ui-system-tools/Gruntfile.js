@@ -15,7 +15,7 @@ module.exports = function (grunt) {
         banner: '/*! <%= pkg.title || pkg.name %> - v<%= pkg.version %> - ' +
         '<%= grunt.template.today("yyyy-mm-dd") %> */\n',
         meta: {
-            app_files: ['app/**/*.js', '!app/bower_components/**/*'],
+            app_files: ['app/**/*.js', '!app/bower_components/**/*', '!app/assets/helpDocs/**'],
             lib_files: ['app/assets/lib/**/*'],
             dist_dir:  'dist',
             temp_dir: '.tmp'
@@ -51,7 +51,9 @@ module.exports = function (grunt) {
                         '**/*',
                         '!**/*.js',
                         '!**/*.css',
-                        '!bower_components/**/*'
+                        '!bower_components/**/*',
+                        'assets/helpDocs/**/*'
+
                     ]
                 }]
             }

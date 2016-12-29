@@ -30,7 +30,6 @@ public class SalesCustomerDataEnrichmentTest {
 
 	@Test
 	public void testFlightDataEnrichment() throws Exception {
-		System.out.println(AnalyticsConfig.getInstance().getRedisHostname());
 		File file = new File(this.getClass().getClassLoader().getResource(filename).getFile());
 		String record = FileUtil.getFileContentsAsString(file);
 		System.out.println(record);
@@ -40,10 +39,10 @@ public class SalesCustomerDataEnrichmentTest {
 		operator.setNamespace("sales_customer");
 		operator.setKeyField("CustomerName");
 		operator.setDataField("customer_data");
-		operator.setCacheHostname(AnalyticsConfig.getInstance().getRedisHostname());
+		operator.setCacheHostname(null); // TODO
 
 		CollectorTestSink<Object> mapSink = new CollectorTestSink<Object>();
-		operator.output.setSink(mapSink);
+		operator.outputPort.setSink(mapSink);
 		
 		Attribute.AttributeMap attributeMap = new Attribute.AttributeMap.DefaultAttributeMap();
 	    attributeMap.put(Context.DAGContext.APPLICATION_NAME, "TestApp");

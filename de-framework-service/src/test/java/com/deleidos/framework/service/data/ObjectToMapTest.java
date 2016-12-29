@@ -18,6 +18,8 @@ public class ObjectToMapTest extends DataTestBase {
 
 	@Test
 	public void testObjectToMap() throws Exception {
+		SystemDescriptor exampleSystem = SystemDescriptorFactory.getInstance().getExampleSystemDescriptor();
+		
 		Map<String, Object> map = manager.objectToMap(exampleSystem);
 
 		System.out.println("system:");

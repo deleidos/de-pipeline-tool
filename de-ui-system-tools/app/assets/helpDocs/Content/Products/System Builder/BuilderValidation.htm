@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd" lang="en-us" xml:lang="en-us" data-mc-search-type="Stem" data-mc-help-system-file-name="Default.xml" data-mc-path-to-help-system="../../../" data-mc-target-type="WebHelp2" data-mc-runtime-file-type="Topic" data-mc-preload-images="false" data-mc-in-preview-mode="false" data-mc-toc-path="System Builder">
+    <head>
+        <meta charset="utf-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" /><title>Builder Validation</title>
+        <link href="../../../Skins/Default/Stylesheets/Slideshow.css" rel="stylesheet" />
+        <link href="../../../Skins/Default/Stylesheets/TextEffects.css" rel="stylesheet" />
+        <link href="../../../Skins/Default/Stylesheets/Topic.css" rel="stylesheet" />
+        <link href="../../Resources/Stylesheets/Styles.css" rel="stylesheet" />
+        <script src="../../../Resources/Scripts/custom.modernizr.js">
+        </script>
+        <script src="../../../Resources/Scripts/jquery.min.js">
+        </script>
+        <script src="../../../Resources/Scripts/foundation.min.js">
+        </script>
+        <script src="../../../Resources/Scripts/plugins.min.js">
+        </script>
+        <script src="../../../Resources/Scripts/require.min.js">
+        </script>
+        <script src="../../../Resources/Scripts/require.config.js">
+        </script>
+        <script src="../../../Resources/Scripts/MadCapAll.js">
+        </script>
+    </head>
+    <body>
+        <div class="TopicContent">
+            <div class="MCBreadcrumbsBox_0"><span class="MCBreadcrumbsPrefix">You are here: </span><a class="MCBreadcrumbsLink" href="SystemBuilder.htm">System Builder</a><span class="MCBreadcrumbsDivider"> &gt; </span><span class="MCBreadcrumbs">Builder Validation</span>
+            </div>
+            <h1>Builder Validation</h1>
+            <p>In order for a system to successfully run, it must meet certain criteria before it's allowed to be saved. There are a few rules a system is required to follow:</p>
+            <ul>
+                <li value="1">An Input must be followed by a Parser</li>
+            </ul>
+            <p>
+                <img src="../../Resources/Images/inputParser.png" />
+            </p>
+            <ul>
+                <li value="1">A Binary Input must be followed by a Binary Output</li>
+            </ul>
+            <p>
+                <img src="../../Resources/Images/binaryInputBinaryOutput.png" />
+            </p>
+            <ul>
+                <li value="1">Mappings and Enrichments are interchangeable with each other in terms of their position, but the first one used must be preceded by a Parser</li>
+            </ul>
+            <p>
+                <img src="../../Resources/Images/missingOutput.png" />
+            </p>
+            <ul>
+                <li value="1">A Mapping, Enrichment, or Parser (whichever is last in the chain) must be followed by an Output</li>
+            </ul>
+            <p>
+                <img src="../../Resources/Images/goodSystems.png" />
+            </p>
+            <ul>
+                <li value="1">Everything must be linked together</li>
+                <li value="2">No circular systems</li>
+                <li value="3">One input cannot accept two outputs, but one output can be split to two inputs</li>
+            </ul>
+            <p>
+                <img src="../../Resources/Images/dualInputs.png" />
+            </p>
+            <p style="font-size: 6pt;margin-top: 0;margin-bottom: 0;">&#160;</p>
+            <p class="copyright">Copyright © <span class="MyVariablesYear">2016</span>&#160;<span class="MyVariablesCompanyName">Leidos, Inc.</span> All rights reserved.</p>
+        </div>
+    </body>
+</html>

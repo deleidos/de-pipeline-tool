@@ -1,6 +1,6 @@
 package com.deleidos.framework.monitoring.response;
 
-public class App {
+public class App implements Comparable<App>{
 
 	private String id;
 	private String user;
@@ -256,4 +256,10 @@ public class App {
 	public void setVcoreSeconds(long vcoreSeconds) {
 		this.vcoreSeconds = vcoreSeconds;
 	}
+	public int compareTo(App o){
+		int compareId = Integer.parseInt(o.getId().split("_")[2]);
+		return  compareId - Integer.parseInt(this.id.split("_")[2]) ;
+	}
+
+	
 }

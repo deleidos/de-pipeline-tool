@@ -48,7 +48,7 @@ public class MonitoringUtil {
 	// application that doesn't support a given call.
 	private static void updateAResponse() throws Exception {
 		if (System.currentTimeMillis() > aTime + cacheTime) {
-			aResponse = rc.getObject(AppsResponse.PATH, AppsResponse.class, true);
+			aResponse = rc.getObject(AppsResponse.PATH, AppsResponse.class);
 			aTime = System.currentTimeMillis();
 		}
 	}
@@ -56,7 +56,7 @@ public class MonitoringUtil {
 	private static void updateIResponse(String appId) throws Exception {
 		System.out.println(appId);
 		if (!iAppId.equals(appId) || System.currentTimeMillis() > iTime + cacheTime) {
-			iResponse = rc.getObject(InfoResponse.PATH.replace("${APP_ID}", appId), InfoResponse.class, true);
+			iResponse = rc.getObject(InfoResponse.PATH.replace("${APP_ID}", appId), InfoResponse.class);
 			iTime = System.currentTimeMillis();
 			iAppId = appId;
 		}
@@ -65,7 +65,7 @@ public class MonitoringUtil {
 	private static void updatePpcResponse(String appId) throws Exception {
 		if (!ppcAppId.equals(appId) || System.currentTimeMillis() > ppcTime + cacheTime) {
 			ppcResponse = rc.getObject(PhysicalPlan_ContainersResponse.PATH.replace("${APP_ID}", appId),
-					PhysicalPlan_ContainersResponse.class, true);
+					PhysicalPlan_ContainersResponse.class);
 			ppcTime = System.currentTimeMillis();
 			ppcAppId = appId;
 		}
@@ -74,7 +74,7 @@ public class MonitoringUtil {
 	private static void updatePpoResponse(String appId) throws Exception {
 		if (!ppoAppId.equals(appId) || System.currentTimeMillis() > ppoTime + cacheTime) {
 			ppoResponse = rc.getObject(PhysicalPlan_OperatorsResponse.PATH.replace("${APP_ID}", appId),
-					PhysicalPlan_OperatorsResponse.class, true);
+					PhysicalPlan_OperatorsResponse.class);
 			ppoTime = System.currentTimeMillis();
 			ppoAppId = appId;
 		}
@@ -390,7 +390,9 @@ public class MonitoringUtil {
 		return JsonUtil.toJsonString(aResponse);
 	}
 
-	public static String getAppList() throws Exception {
+	@Deprecated
+	public static String getAppListDEPRECATED() throws Exception {
+		System.out.println(aResponse);
 		updateAResponse();
 		JsonNodeFactory factory = JsonNodeFactory.instance;
 		ObjectNode root = factory.objectNode();

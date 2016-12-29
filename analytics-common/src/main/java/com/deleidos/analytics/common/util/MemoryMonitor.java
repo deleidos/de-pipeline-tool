@@ -25,16 +25,17 @@ public class MemoryMonitor {
 	private boolean started = false;
 
 	private static final float MB = 1024 * 1024;
-	private static final int intervalMinutes = 2;
+	private static final int intervalMinutes = 5;
 	private static final int intervalMillis = 1000 * 60 * intervalMinutes;
-	private static final int availableMemoryWarningThreshold = 10; // %
-	private static final String availableMemoryWarningMessage = "available memory below threshold of "
+	private static final int availableMemoryWarningThreshold = 90; // %
+	private static final String availableMemoryWarningMessage = "Available memory above threshold of "
 			+ availableMemoryWarningThreshold + "%";
 
 	/**
 	 * Private constructor enforces the singleton pattern.
 	 */
-	private MemoryMonitor() {}
+	private MemoryMonitor() {
+	}
 
 	/**
 	 * Get the singleton instance.
@@ -63,17 +64,22 @@ public class MemoryMonitor {
 
 	public void logMemoryUsage() {
 		System.gc();
-		int heapSizeMB = (int) (((float) (Runtime.getRuntime().maxMemory() - Runtime.getRuntime().freeMemory())) / MB);
+		int heapSizeMB = (int) (((float) (Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory()))
+				/ MB);
 		int heapMaxSizeMB = (int) ((float) Runtime.getRuntime().maxMemory() / MB);
-		int percentAvailable = (int) ((float) Runtime.getRuntime().freeMemory() * 100f
-				/ (float) Runtime.getRuntime().maxMemory());
-		String message = "current heap usage MB = " + heapSizeMB + "MB out of " + heapMaxSizeMB
-				+ "MB, percent available = " + percentAvailable + "%";
-		if (percentAvailable < availableMemoryWarningThreshold) {
+		int heapTotalMB = (int) ((float) Runtime.getRuntime().totalMemory() / MB);
+		// int percentAvailable = (int) ((float) Runtime.getRuntime().freeMemory() * 100f
+		// / (float) Runtime.getRuntime().maxMemory());
+		int percentUsed = (int) (heapSizeMB * 100f / heapMaxSizeMB);
+
+		String message = "Current heap usage MB = " + heapSizeMB + "MB out of " + heapMaxSizeMB
+				+ "MB max, percent used = " + percentUsed + "%. Total currently allocated memory is " + heapTotalMB
+				+ "MB.";
+		if (percentUsed >= availableMemoryWarningThreshold) {
 			logger.warn(availableMemoryWarningMessage + ": " + message);
 		}
 		else {
-			logger.debug(message);
+			logger.info(message);
 		}
 	}
 
@@ -92,7 +98,8 @@ public class MemoryMonitor {
 			oos.close();
 			size = (((float) baos.size()) / (1024f * 1024f));
 		}
-		catch (IOException e) {}
+		catch (IOException e) {
+		}
 		return size;
 	}
 

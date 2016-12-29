@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd" lang="en-us" xml:lang="en-us" data-mc-search-type="Stem" data-mc-help-system-file-name="Default.xml" data-mc-path-to-help-system="../../../" data-mc-target-type="WebHelp2" data-mc-runtime-file-type="Topic" data-mc-preload-images="false" data-mc-in-preview-mode="false" data-mc-toc-path="Operator Library">
+    <head>
+        <meta charset="utf-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" /><title>Operator Validation</title>
+        <link href="../../../Skins/Default/Stylesheets/Slideshow.css" rel="stylesheet" />
+        <link href="../../../Skins/Default/Stylesheets/TextEffects.css" rel="stylesheet" />
+        <link href="../../../Skins/Default/Stylesheets/Topic.css" rel="stylesheet" />
+        <link href="../../Resources/Stylesheets/Styles.css" rel="stylesheet" />
+        <script src="../../../Resources/Scripts/custom.modernizr.js">
+        </script>
+        <script src="../../../Resources/Scripts/jquery.min.js">
+        </script>
+        <script src="../../../Resources/Scripts/foundation.min.js">
+        </script>
+        <script src="../../../Resources/Scripts/plugins.min.js">
+        </script>
+        <script src="../../../Resources/Scripts/require.min.js">
+        </script>
+        <script src="../../../Resources/Scripts/require.config.js">
+        </script>
+        <script src="../../../Resources/Scripts/MadCapAll.js">
+        </script>
+    </head>
+    <body>
+        <div class="TopicContent">
+            <div class="MCBreadcrumbsBox_0"><span class="MCBreadcrumbsPrefix">You are here: </span><a class="MCBreadcrumbsLink" href="OperatorLibrary.htm">Operator Library</a><span class="MCBreadcrumbsDivider"> &gt; </span><span class="MCBreadcrumbs">Validation Rules</span>
+            </div>
+            <h1>Operator Validation</h1>
+            <p>In the Operator Library, you have the option of creating your own validation rules. These rules determine whether a property's input is valid or not. Validation types can be broken up into three categories:</p>
+            <ul>
+                <li value="1">Text Input - This type allows for user input through a text box and validates off of regular expressions. It also allows for multiple inputs on one property if needed</li>
+                <li value="2">File Input - This type has users upload a file. It matches based off the file extension if you list one as a requirement</li>
+                <li value="3">Select Box - This type gives the user options they have to choose from for a property. In Validation Rules, you can either define your own options or you can upload a mapping file to incorporate them for you</li>
+            </ul>
+            <p>We also provide five basic rules to use for your own properties:</p>
+            <ul>
+                <li value="1">String - A text input field that accepts any non empty input<ul><li value="1">Regular Expression: /.+/</li></ul></li>
+                <li value="2">Integer - A text input field that accepts only  integers<ul><li value="1">Regular Expression: /^\-?\d+/</li></ul></li>
+                <li value="3">FloatingPoint - A text input field that accepts any number<ul><li value="1">Regular Expression: /^\-?\d+(\.\d+)?/</li></ul></li>
+                <li value="4">StringList - A text input field that supports multiple entries and accepts any nonempty input<ul><li value="1">Regular Expression: /.+/</li></ul></li>
+                <li value="5">File - A file input field that allows for any type of file to be uploaded</li>
+            </ul>
+            <h2 style="font-weight: normal;">Validation Rules</h2>
+            <p style="font-weight: normal;">Under validation rules, you can create your own property rules like the ones above. Like the previous lists, you can add and remove rules using the provided controls.</p>
+            <p style="font-weight: normal;">
+                <img src="../../Resources/Images/validationRules.png" />
+            </p>
+            <ul>
+                <li value="1">Name - The name of the rule</li>
+                <li value="2">Type - The type of the rule</li>
+                <li value="3">RegEx - The regular expression used to evaluate the property</li>
+                <li value="4">List - Whether or not multiple inputs are allowed</li>
+            </ul>
+            <p>
+                <img src="../../Resources/Images/fileInput.png" />
+            </p>
+            <ul>
+                <li value="1">Extension - The file extension accepted by the rule</li>
+            </ul>
+            <p>
+                <img src="../../Resources/Images/selectBox.png" />
+            </p>
+            <ul>
+                <li value="1">Import Mapping - This allows you to choose a mapping file from Schema Wizard and upload it. The contents are then used for select box entries</li>
+                <li value="2">Options -The current options the user has for that property</li>
+            </ul>
+            <p style="font-size: 6pt;margin-top: 0;margin-bottom: 0;">&#160;</p>
+            <p class="copyright">Copyright © <span class="MyVariablesYear">2016</span>&#160;<span class="MyVariablesCompanyName">Leidos, Inc.</span> All rights reserved.</p>
+        </div>
+    </body>
+</html>

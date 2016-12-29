@@ -99,10 +99,10 @@ public class MongoDbOutputOperator extends BaseOperator implements OperatorSyste
 					dataLists.put(collectionName, new ArrayList<DBObject>());
 				}
 				List<DBObject> dataList = dataLists.get(collectionName);
-
+			
 				dataList.add((DBObject) JSON.parse(jsonString));
 			} catch (Exception e) {
-				syslog.error("Error in Mongo Output: " + e.getMessage() + "[ERROR END]", e);
+				syslog.error("Error in Mongo Output: " + e.getMessage(), e);
 			}
 
 		}
@@ -131,8 +131,8 @@ public class MongoDbOutputOperator extends BaseOperator implements OperatorSyste
 				indexMappings = new HashMap<String, List<Map<String, Object>>>();
 			}
 		} catch (UnknownHostException e) {
-			syslog.error("Error in Mongo Output: " + e.getMessage() + "[ERROR END]", e);
-			log.error("Error in Mongo Output: " + e.getMessage() + "[ERROR END]", e);
+			syslog.error("Error in Mongo Output: " + e.getMessage(), e);
+			log.error("Error in Mongo Output: " + e.getMessage(), e);
 		}
 	}
 
@@ -157,7 +157,7 @@ public class MongoDbOutputOperator extends BaseOperator implements OperatorSyste
 			}
 		}
 		}catch(Exception e){
-			syslog.error("Error in Mongo Output: " + e.getMessage() + "[ERROR END]", e);
+			syslog.error("Error in Mongo Output: " + e.getMessage() , e);
 
 		}
 	}
@@ -209,15 +209,15 @@ public class MongoDbOutputOperator extends BaseOperator implements OperatorSyste
 		try {
 			this.hostPort = hostPort;
 		} catch (NumberFormatException e) {
-			syslog.error("Error in Mongo Output: " + e.getMessage() + "[ERROR END]", e);
+			syslog.error("Error in Mongo Output: " + e.getMessage() , e);
 
 			log.error(String.format("Failed to parse host port value [%s].", hostPort), e);
 		}
 
 		if (this.hostPort < 0 || this.hostPort > 65535) {
-			syslog.error("Error in Mongo Output: " + String.format("Invalid port value [%d]. Port must be in the range of 0-65535."+"[ERROR END]", this.hostPort) + "[ERROR END]");
+			syslog.error("Error in Mongo Output: " + String.format("Invalid port value [%d]. Port must be in the range of 0-65535.", this.hostPort) );
 
-			log.error(String.format("Invalid port value [%d]. Port must be in the range of 0-65535.", this.hostPort)+"[ERROR END]");
+			log.error(String.format("Invalid port value [%d]. Port must be in the range of 0-65535.", this.hostPort));
 		}
 
 		if (invalidPort) {

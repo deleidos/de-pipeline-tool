@@ -2,6 +2,7 @@ package com.deleidos.analytics.common.udp;
 
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
+import java.util.Arrays;
 
 import org.apache.log4j.Logger;
 
@@ -38,7 +39,7 @@ public class UdpListener extends Thread {
 			while (running) {
 				DatagramPacket packet = new DatagramPacket(bytes, bytes.length);
 				serverSocket.receive(packet);
-				handler.handleMessage(packet.getData());
+				handler.handleMessage(Arrays.copyOf(packet.getData(), packet.getLength()));
 				log.debug("message: " + new String(packet.getData()));
 			}
 		}

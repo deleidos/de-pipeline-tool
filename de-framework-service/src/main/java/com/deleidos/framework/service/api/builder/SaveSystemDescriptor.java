@@ -7,7 +7,6 @@ import javax.ws.rs.Path;
 
 import com.deleidos.analytics.websocket.api.BaseWebSocketMessage;
 import com.deleidos.framework.service.data.SystemDataManager;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.deleidos.framework.model.system.SystemDescriptor;
 
 /**
@@ -19,7 +18,6 @@ import com.deleidos.framework.model.system.SystemDescriptor;
 public class SaveSystemDescriptor extends BaseWebSocketMessage {
 
 	private String request;
-	@JsonProperty("system_descriptor")
 	private SystemDescriptor systemDescriptor;
 
 	public String getRequest() {

@@ -49,7 +49,7 @@ public class OperatorSyslogger {
 
 	public void error(String message, Throwable t) {
 		if (!throttleErrorLogging()) {
-			syslogger.error(buildMessage(message), t);
+			syslogger.error(buildMessage(message) + " " + t.getStackTrace()[0].toString());
 		}
 	}
 

@@ -1,7 +1,5 @@
 package com.deleidos.analytics.elasticsearch.client.config;
 
-import com.deleidos.analytics.config.AnalyticsConfig;
-
 /**
  * Factory for getting client config instances for testing.
  * 
@@ -11,9 +9,9 @@ public class ElasticsearchClientConfigFactory {
 
 	private static final ElasticsearchClientConfigFactory instance = new ElasticsearchClientConfigFactory();
 
-	private ElasticsearchClientConfig defaultConfig = new ElasticsearchClientConfig(
-			AnalyticsConfig.getInstance().getElasticsearchClusterName(),
-			AnalyticsConfig.getInstance().getElasticsearchHostnames());
+	// TODO - remove config dependency, this is broken for now, but it's not being used. will need a general solution.
+	private ElasticsearchClientConfig defaultConfig = new ElasticsearchClientConfig(null, null);
+			
 
 	/**
 	 * Get the singleton instance.

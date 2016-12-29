@@ -116,7 +116,7 @@ public class ElasticSearchOutputJsonOperator extends BaseOperator implements Ope
 			bulkRequest = client.prepareBulk();
 			tupleBatch = new ArrayBlockingQueue<JsonObject>(batchSize);
 		} catch (Exception e) {
-			syslog.error("Error in ElasticSearch Output: " + e.getMessage() + "[ERROR END]", e);
+			syslog.error("Error in ElasticSearch Output: " + e.getMessage(), e);
 		}
 
 	}
@@ -132,7 +132,7 @@ public class ElasticSearchOutputJsonOperator extends BaseOperator implements Ope
 				JsonObject jsonObj = element.getAsJsonObject();
 				processTuple(jsonObj);
 			} catch (Exception e) {
-				syslog.error("Error in ElasticSearch Output: " + e.getMessage() + "[ERROR END]", e);
+				syslog.error("Error in ElasticSearch Output: " + e.getMessage(), e);
 			}
 
 		}
@@ -150,7 +150,7 @@ public class ElasticSearchOutputJsonOperator extends BaseOperator implements Ope
 				processBatch();
 			}
 		} catch (Exception e) {
-			syslog.error("Error in ElasticSearch Output: " + e.getMessage() + "[ERROR END]", e);
+			syslog.error("Error in ElasticSearch Output: " + e.getMessage(), e);
 
 		}
 
@@ -172,7 +172,7 @@ public class ElasticSearchOutputJsonOperator extends BaseOperator implements Ope
 				bulkRequest = client.prepareBulk();
 			}
 		} catch (Exception e) {
-			syslog.error("Error in ElasticSearch Output: " + e.getMessage() + "[ERROR END]", e);
+			syslog.error("Error in ElasticSearch Output: " + e.getMessage(), e);
 
 		}
 	}

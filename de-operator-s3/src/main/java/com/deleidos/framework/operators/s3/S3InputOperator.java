@@ -9,6 +9,7 @@ import java.util.List;
 import org.apache.commons.compress.archivers.ArchiveEntry;
 import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
 import org.apache.commons.compress.compressors.gzip.GzipCompressorInputStream;
+import org.apache.log4j.Logger;
 
 import com.amazonaws.auth.AWSCredentials;
 import com.amazonaws.auth.BasicAWSCredentials;
@@ -18,14 +19,12 @@ import com.amazonaws.services.s3.model.ListObjectsRequest;
 import com.amazonaws.services.s3.model.ObjectListing;
 import com.amazonaws.services.s3.model.S3ObjectSummary;
 import com.datatorrent.api.Context.OperatorContext;
-import com.datatorrent.api.DefaultOutputPort;
 import com.deleidos.framework.operators.abstractsplitter.AbstractSplitter;
-import com.deleidos.framework.operators.common.InputTuple;
 import com.deleidos.framework.operators.common.OperatorConfig;
 import com.deleidos.framework.operators.common.OperatorSyslogger;
 
 public class S3InputOperator extends AbstractSplitter implements Runnable {
-
+	private static final Logger log = Logger.getLogger(S3InputOperator.class);
 	// @NotNull
 	protected String bucketName;
 	protected String path;
@@ -40,10 +39,10 @@ public class S3InputOperator extends AbstractSplitter implements Runnable {
 	private transient Thread s3Thread;
 	private transient AWSCredentials credentials;
 	private Double headerRows = 0.0;
-	public transient DefaultOutputPort<InputTuple> output = new DefaultOutputPort<InputTuple>();
 
 	private String systemName;
 	private transient OperatorSyslogger syslog;
+
 	public void setSplitter(String splitter) {
 		this.splitter = splitter;
 	}
@@ -62,16 +61,18 @@ public class S3InputOperator extends AbstractSplitter implements Runnable {
 
 	@Override
 	public void setup(OperatorContext context) {
-		syslog = new OperatorSyslogger(systemName,
-				OperatorConfig.getInstance().getSyslogUdpHostname(), OperatorConfig.getInstance().getSyslogUdpPort());
+		syslog = new OperatorSyslogger(systemName, OperatorConfig.getInstance().getSyslogUdpHostname(),
+				OperatorConfig.getInstance().getSyslogUdpPort());
 
 		try {
 			credentials = new BasicAWSCredentials(accessKey, secretKey);
 			s3Client = new AmazonS3Client(credentials);
 			s3Thread = new Thread(this);
 			s3Thread.start();
-		} catch (Exception ex) {
-			syslog.error("Error in S3 Input: " + ex.getMessage() + "[ERROR END]",ex);
+		}
+		catch (Exception ex) {
+			syslog.error("Error in S3 Input: " + ex.getMessage(), ex);
+			log.error("Error in S3 Input: " + ex.getMessage(), ex);
 			throw new RuntimeException(ex);
 		}
 	}
@@ -83,8 +84,11 @@ public class S3InputOperator extends AbstractSplitter implements Runnable {
 			if (s3Thread != null) {
 				s3Thread.join();
 			}
-		} catch (Exception ex) {
-			syslog.error("Error in S3 Input: " + ex.getMessage() + "[ERROR END]",ex);
+		}
+		catch (Exception ex) {
+			syslog.error("Error in S3 Input: " + ex.getMessage(), ex);
+			log.error("Error in S3 Input: " + ex.getMessage(), ex);
+
 			throw new RuntimeException(ex);
 		}
 		super.teardown();
@@ -98,14 +102,13 @@ public class S3InputOperator extends AbstractSplitter implements Runnable {
 				TarArchiveInputStream tarIn = null;
 				try {
 
-					
 					List<String> files = getFiles(bucketName, path);
-					if(files.size() == 0 || files == null){
-						syslog.error("Error in S3 Input: No Files found at bucket " +bucketName + " path " + path +  "[ERROR END]");
+					if (files.size() == 0 || files == null) {
+						syslog.error("Error in S3 Input: No Files found at bucket " + bucketName + " path " + path);
 					}
 					for (String file : files) {
 						is = getFileStream(bucketName, file);
-						
+
 						// only tgz for now
 						if (file.endsWith(".tgz") || file.endsWith("tar.gz")) {
 							BufferedInputStream in = new BufferedInputStream(is);
@@ -121,10 +124,8 @@ public class S3InputOperator extends AbstractSplitter implements Runnable {
 										emitLines(tarIn);
 									}
 								}
-							} catch (InterruptedException e) {
-								// TODO Auto-generated catch block
-								e.printStackTrace();
-							} finally {
+							}
+							finally {
 								if (gzIn != null) {
 									gzIn.close();
 								}
@@ -133,31 +134,45 @@ public class S3InputOperator extends AbstractSplitter implements Runnable {
 								}
 							}
 
-						} else if (file.endsWith("json") || file.endsWith("csv")) {
+						}
+						else if (file.endsWith("json") || file.endsWith("csv")) {
 							emitLines(is);
 						}
 					}
 
-				} catch (IOException | InterruptedException e) {
-					// TODO Auto-generated catch block
+				}
+				catch (IOException e) {
+					log.error("Error in S3 Input: " + e.getMessage(), e);
+
 					e.printStackTrace();
-				} finally {
+				}
+				finally {
 					if (tarIn != null) {
 						try {
 							tarIn.close();
-						} catch (IOException e) {
 						}
-					} else if (is != null) {
+						catch (IOException e) {
+							log.error("Error in S3 Input: " + e.getMessage(), e);
+
+						}
+					}
+					else if (is != null) {
 						try {
 							is.close();
-						} catch (IOException e) {
+						}
+						catch (IOException e) {
+							log.error("Error in S3 Input: " + e.getMessage(), e);
+
 						}
 					}
 
 				}
 			}
-		} catch (Exception e) {
-			syslog.error("Error in S3 Input: " + e.getMessage() + "[ERROR END]", e);
+		}
+		catch (Exception e) {
+			syslog.error("Error in S3 Input: " + e.getMessage(), e);
+			log.error("Error in S3 Input: " + e.getMessage(), e);
+
 		}
 	}
 
@@ -187,12 +202,17 @@ public class S3InputOperator extends AbstractSplitter implements Runnable {
 		return s3Client.getObject(bucketName, key).getObjectContent();
 	}
 
-	protected void emitLines(InputStream is) throws IOException, InterruptedException {
-
+	protected void emitLines(InputStream is) {
+		try{
 		if (splitter.equals("JSON")) {
-			JSONSplitter(is, output, headerRows.intValue());
-		} else if (splitter.equals("Line")) {
-			LineSplitter(is, output, headerRows.intValue());
+			JSONSplitter(is, headerRows.intValue());
+		}
+		else if (splitter.equals("Line")) {
+			LineSplitter(is, headerRows.intValue());
+		}
+		}catch(Exception e){
+			log.error("Error in S3 Input: " + e.getMessage(), e);
+
 		}
 	}
 

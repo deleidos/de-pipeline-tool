@@ -1,4 +1,4 @@
 {
-	"syslog_udp_hostname" : "your.syslog.udp.hostname",
-  "syslog_udp_port" : "your.syslog.udp.port"
+  "syslogUdpHostname" : "ec2-54-226-195-61.compute-1.amazonaws.com",
+  "syslogUdpPort" : "1514"
 }

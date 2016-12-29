@@ -1,7 +1,7 @@
 {
   "name": "template",
   "authors": [
-    "Kevin Schmincke <schminckek@leidos.com>"
+    "Kevin Klein <kevin.e.klein@leidos.com"
   ],
   "description": "",
   "main": "",
@@ -45,6 +45,6 @@
     "angular-mocks": "^1.4.7"
   },
   "resolutions": {
-    "angular": "^1.4.7"
+    "angular": "^1.6.0"
   }
 }

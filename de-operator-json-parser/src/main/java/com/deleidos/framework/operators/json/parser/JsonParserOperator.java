@@ -36,6 +36,7 @@ public class JsonParserOperator extends BaseOperator implements OperatorSystemIn
 	public transient DefaultInputPort<InputTuple> input = new DefaultInputPort<InputTuple>() {
 		@Override
 		public void process(InputTuple inputTuple) {
+
 			incomingTuplesCount++;
 			processTuple(inputTuple);
 		}
@@ -58,7 +59,7 @@ public class JsonParserOperator extends BaseOperator implements OperatorSystemIn
 	/**
 	 * Output port to emit validate records as JSONObject
 	 */
-	public transient DefaultOutputPort<Map<String, Object>> output = new DefaultOutputPort<Map<String, Object>>();
+	public transient DefaultOutputPort<Map<String, Object>> outputPort = new DefaultOutputPort<Map<String, Object>>();
 
 	/**
 	 * Metric to keep count of number of tuples emitted on {@link #output} port
@@ -71,19 +72,18 @@ public class JsonParserOperator extends BaseOperator implements OperatorSystemIn
 		if (tuple != null) {
 
 			String tupleString = tuple.getData();
-
 			try {
 				JsonObject asJson = gson.fromJson(tupleString, JsonObject.class);
 				Map<String, Object> outputMap = new HashMap<String, Object>();
 				outputMap = TupleUtil.jsonToTupleMap(asJson.toString());
 
-				if (output.isConnected()) {
-					output.emit(outputMap);
+				if (outputPort.isConnected()) {
+					outputPort.emit(outputMap);
 					parsedOutputCount++;
 				}
 			} catch (Exception e) {
-				log.error("Error in Json Parser: " + e.getMessage() + "[ERROR END]", e);
-				syslog.error("Error in Json Parser: " + e.getMessage() + "[ERROR END]", e);
+				log.error("Error in Json Parser: " + e.getMessage(), e);
+				syslog.error("Error in Json Parser: " + e.getMessage(), e);
 			}
 		}
 	}
@@ -111,7 +111,7 @@ public class JsonParserOperator extends BaseOperator implements OperatorSystemIn
 				}
 			}
 		} catch (Exception e) {
-			syslog.error("Error in Json Parser: " + e.getMessage() + "[ERROR END]", e);
+			syslog.error("Error in Json Parser: " + e.getMessage(), e);
 
 		}
 	}
@@ -135,7 +135,7 @@ public class JsonParserOperator extends BaseOperator implements OperatorSystemIn
 				}
 			}
 		} catch (Exception e) {
-			syslog.error("Error in Json Parser: " + e.getMessage() + "[ERROR END]", e);
+			syslog.error("Error in Json Parser: " + e.getMessage(), e);
 
 		}
 	}

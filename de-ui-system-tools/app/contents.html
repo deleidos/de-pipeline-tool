@@ -5,7 +5,8 @@
         </div>
 
         <div class="pull-right">
-
+            <i class="fa fa-question-circle fa-2x" ng-click="launchHelp($event)" style="float: right; margin-top:4px; margin-right: 5px; padding: 4px 6px; color: white"
+               uib-tooltip="View help documentation" tooltip-placement="left"></i>
             <img id="mainBusIconOnBanner" class="btn btn-primary" style="float: right; margin-top:4px; margin-right: 5px; padding: 4px 6px"
                  src="assets/img/white-tour-bus-22x22.png"
                  uib-tooltip="Take a tour of this page" tooltip-placement="left"
@@ -17,24 +18,38 @@
                  tour-step-order="10"
                  tour-step-orphan="false"
                 tour-step-placement="left-top">
-        <md-button class="navbar-header navbar-sub" ng-disabled="inTour === true" ng-click="curr = 'systemBuilder'" ng-class="{'navbar-inactive': curr === 'systemManager'}">
-            <span class="navbar-brand"><i class="fa fa-cubes"></i><span class="large-only">&nbsp;&nbsp;Pipeline Builder</span></span>
+        <md-button class="navbar-header navbar-sub" ng-disabled="inTour === true" ng-click="curr = 'systemBuilder'" ng-class="{'navbar-inactive': curr !== 'systemBuilder'}">
+            <span class="navbar-brand"><i class="fa fa-cubes"></i><span class="large-only">&nbsp;&nbsp;Builder</span></span>
         </md-button>
         <span tour-step
              tour-step-belongs-to="tour"
-             tour-step-content="Then, click on the Pipeline Manager tab to launch and view the system in operation. The tour will now continue with the Pipeline Manager."
+             tour-step-content="Then, click on the Manager tab to launch and view the system in operation. The tour will now continue with the Pipeline Manager."
              tour-step-order="110"
              tour-step-orphan="false"
              tour-step-placement="left-top"></span>
-        <md-button class="navbar-header navbar-sub" ng-disabled="inTour === true" ng-click="curr = 'systemManager'" ng-class="{'navbar-inactive': curr === 'systemBuilder'}">
-            <span class="navbar-brand"><i class="fa fa-table fa-lg"></i><span class="large-only">&nbsp;&nbsp;Pipeline Manager</span></span>
+        <span tour-step
+              tour-step-belongs-to="tour"
+              tour-step-content="Now let's continue to the Operator tab and look at how to create an operator"
+              tour-step-order="160"
+              tour-step-orphan="false"
+              tour-step-placement="left-top"></span>
+
+        <md-button class="navbar-header navbar-sub" ng-disabled="inTour === true" ng-click="curr = 'systemManager'" ng-class="{'navbar-inactive': curr !== 'systemManager'}">
+            <span class="navbar-brand"><i class="fa fa-table fa-lg"></i><span class="large-only">&nbsp;&nbsp;Manager</span></span>
+        </md-button>
+
+        <md-button class="navbar-header navbar-sub" ng-disabled="inTour === true" ng-click="curr = 'operatorLibrary'" ng-class="{'navbar-inactive': curr !== 'operatorLibrary'}">
+            <span class="navbar-brand"><i class="fa fa-cogs fa-lg"></i><span class="large-only">&nbsp;&nbsp;Operators</span></span>
         </md-button>
       </div>
     </div>
 </div>
-<div ng-hide="curr !== 'systemManager'" style="height: 100%;">
+<div ng-hide="curr !== 'systemManager'" style="height: calc(100% - 40px);">
     <system-manager ng-app="systemManager"></system-manager>
 </div>
-<div ng-hide="curr !== 'systemBuilder'">
+<div ng-hide="curr !== 'systemBuilder'" style="height: calc(100% - 40px)">
     <system-builder ng-app="systemBuilder"></system-builder>
+</div>
+<div ng-hide="curr !== 'operatorLibrary'" style="height: calc(100% - 40px)">
+    <operator-library ng-app="operatorLibrary"></operator-library>
 </div>

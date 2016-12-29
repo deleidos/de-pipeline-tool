@@ -55,7 +55,7 @@ public class RedisDimensionalEnrichmentOperator extends BaseOperator implements 
 		finder = new KeyFieldValueFinder();
 		client = new RedisClient(cacheHostname);
 		}catch(Exception e){
-			syslog.error("Error in Redis Dimensional Enrichment: " + e.getMessage() + "[ERROR END]", e);
+			syslog.error("Error in Redis Dimensional Enrichment: " + e.getMessage(), e);
 
 		}
 		
@@ -63,7 +63,7 @@ public class RedisDimensionalEnrichmentOperator extends BaseOperator implements 
 	}
 
 	/** Output port stream for tuple result emission. */
-	public final transient DefaultOutputPort<Map<String, Object>> output = new DefaultOutputPort<Map<String, Object>>();
+	public final transient DefaultOutputPort<Map<String, Object>> outputPort = new DefaultOutputPort<Map<String, Object>>();
 
 	/** Input port stream for tuple processing. */
 	public final transient DefaultInputPort<Map<String, Object>> input = new DefaultInputPort<Map<String, Object>>() {
@@ -92,10 +92,10 @@ public class RedisDimensionalEnrichmentOperator extends BaseOperator implements 
 			} catch (Throwable t) {
 				// Log the message and emit the original tuple unchanged.
 				log.error(t.getMessage(), t);
-				syslog.error("Error in Redis Dimensional Enrichment: " + t.getMessage() + "[ERROR END]", t);
+				syslog.error("Error in Redis Dimensional Enrichment: " + t.getMessage(), t);
 			}
 
-			output.emit(tuple);
+			outputPort.emit(tuple);
 		}
 	};
 

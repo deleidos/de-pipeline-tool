@@ -5,6 +5,9 @@
 	<artifactId>de-application-creator</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 
+	  <properties>
+	    <jersey.version>2.23.2</jersey.version>
+	  </properties>
 	<build>
 		<plugins>
 			<plugin>
@@ -36,11 +39,6 @@
 			<version>0.0.1-SNAPSHOT</version>
 		</dependency>
 		<dependency>
-			<groupId>com.deleidos.analytics</groupId>
-			<artifactId>analytics-config</artifactId>
-			<version>0.0.1-SNAPSHOT</version>
-		</dependency>
-		<dependency>
 			<groupId>com.deleidos</groupId>
 			<artifactId>de-framework-data-model</artifactId>
 			<version>0.0.1-SNAPSHOT</version>
@@ -49,6 +47,34 @@
 			<groupId>com.amazonaws</groupId>
 			<artifactId>aws-java-sdk</artifactId>
 			<version>1.11.14</version>
+		</dependency>
+		
+	    <dependency>
+		    <groupId>org.glassfish.jersey.core</groupId>
+		    <artifactId>jersey-client</artifactId>
+		    <version>${jersey.version}</version>
+		</dependency>
+		<dependency>
+		    <groupId>org.glassfish.jersey.core</groupId>
+		    <artifactId>jersey-common</artifactId>
+		    <version>${jersey.version}</version>
+		</dependency>
+		<dependency>
+		    <groupId>org.glassfish.jersey.core</groupId>
+		    <artifactId>jersey-server</artifactId>
+		    <version>${jersey.version}</version>
+		</dependency>
+		
+		<dependency>
+		    <groupId>org.glassfish.jersey.media</groupId>
+		    <artifactId>jersey-media-multipart</artifactId>
+		    <version>${jersey.version}</version>
+		</dependency>
+		
+		<dependency>
+		    <groupId>org.glassfish.jersey.containers</groupId>
+		    <artifactId>jersey-container-servlet-core</artifactId>
+			<version>${jersey.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>com.deleidos</groupId>

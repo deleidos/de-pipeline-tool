@@ -25,7 +25,6 @@ public class FlightDataEnrichmentTest {
 
 	@Test
 	public void testFlightDataEnrichment() throws Exception {
-		System.out.println(AnalyticsConfig.getInstance().getRedisHostname());
 		File file = new File(this.getClass().getClassLoader().getResource(filename).getFile());
 		String record = FileUtil.getFileContentsAsString(file);
 		System.out.println(record);
@@ -35,10 +34,10 @@ public class FlightDataEnrichmentTest {
 		operator.setNamespace("faa_data");
 		operator.setKeyField("reg");
 		operator.setDataField("FAA_Data");
-		operator.setCacheHostname(AnalyticsConfig.getInstance().getRedisHostname());
+		operator.setCacheHostname(null); // TODO
 
 		CollectorTestSink<Object> mapSink = new CollectorTestSink<Object>();
-		operator.output.setSink(mapSink);
+		operator.outputPort.setSink(mapSink);
 
 		operator.beginWindow(0);
 		operator.input.process(map);

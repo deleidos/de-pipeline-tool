@@ -1,137 +1,314 @@
 describe('SystemBuilderController', function () {
 	var testScope, testSocket;
 	var fakeInput = {
-		"name": "Input",
-		"class_name": "com.deleidos.framework.operators.s3.S3InputOperator",
-		"display_name": "S3 Input",
-		"properties": [{
-			"name": "bucketName",
-			"display_name": "Bucket Name",
-			"choices": null,
-			"required": true,
-			"type": "String",
-			"value": "rtws.flight.data"
-		}, {
-			"name": "splitter",
-			"display_name": "Splitter",
-			"choices": ["Line", "JSON"],
-			"required": true,
-			"type": "String",
-			"value": "JSON"
-		}, {
-			"name": "headerRows",
-			"display_name": "Header Row Count",
-			"choices": null,
-			"required": true,
-			"type": "Integer",
-			"value": 0
-		}],
-		"classType": "input",
-		"color": "#b77033",
-		"sources": [{
-			"uuid": 2056,
-			"connections": [{
-				"uuid": "2061"
-			}]
-		}],
-		"x": 1508,
-		"y": 1577,
-		"form": {
-			"$invalid": false,
-			"operatorName": {
-				"$invalid": false
-			},
-			"bucketName": {
-				"$invalid": false
-			},
-			"path": {
-				"$invalid": false
-			},
-			"accessKey": {
-				"$invalid": false
-			},
-			"secretKey": {
-				"$invalid": false
-			},
-			"endpoint": {
-				"$invalid": true
-			},
-			"splitter": {
-				"$invalid": false
-			},
-			"headerRows": {
-				"$invalid": false
-			}
-		}
-	};
+        "_id": "744d6597-109b-4394-88c6-4d4792b999fb",
+        "name": "S3InputOperat",
+        "className": "com.deleidos.framework.operators.s3.S3InputOperator",
+        "displayName": "S3 Input",
+        "jarName": "de-operator-s3-0.0.1-SNAPSHOT-jar-with-dependencies.jar",
+        "type": "input",
+        "properties": [{
+            "name": "bucketName",
+            "displayName": null,
+            "choices": null,
+            "required": true,
+            "type": "String",
+            "validation": {
+                "name": "String",
+                "type": "textInput",
+                "list": false,
+                "regex": ".+",
+                "options": null,
+                "file": null,
+                "$$hashKey": "object:373"
+            },
+            "$$hashKey": "object:786",
+            "value": "asdad"
+        }, {
+            "name": "path",
+            "displayName": null,
+            "choices": null,
+            "required": true,
+            "type": "String",
+            "validation": {
+                "name": "String",
+                "type": "textInput",
+                "list": false,
+                "regex": ".+",
+                "options": null,
+                "file": null,
+                "$$hashKey": "object:373"
+            },
+            "$$hashKey": "object:787",
+            "value": "asda"
+        }, {
+            "name": "accessKey",
+            "displayName": null,
+            "choices": null,
+            "required": true,
+            "type": "String",
+            "validation": {
+                "name": "String",
+                "type": "textInput",
+                "list": false,
+                "regex": ".+",
+                "options": null,
+                "file": null,
+                "$$hashKey": "object:373"
+            },
+            "$$hashKey": "object:788",
+            "value": "sdsadas"
+        }, {
+            "name": "secretKey",
+            "displayName": null,
+            "choices": null,
+            "required": true,
+            "type": "String",
+            "validation": {
+                "name": "String",
+                "type": "textInput",
+                "list": false,
+                "regex": ".+",
+                "options": null,
+                "file": null,
+                "$$hashKey": "object:373"
+            },
+            "$$hashKey": "object:789",
+            "value": "dasd"
+        }, {
+            "name": "endpoint",
+            "displayName": null,
+            "choices": null,
+            "required": false,
+            "type": "String",
+            "validation": {
+                "name": "String",
+                "type": "textInput",
+                "list": false,
+                "regex": ".+",
+                "options": null,
+                "file": null,
+                "$$hashKey": "object:373"
+            },
+            "$$hashKey": "object:790",
+            "value": "asdas"
+        }, {
+            "name": "splitter",
+            "displayName": null,
+            "choices": null,
+            "required": true,
+            "type": "String",
+            "validation": {
+                "name": "String",
+                "type": "textInput",
+                "list": false,
+                "regex": ".+",
+                "options": null,
+                "file": null,
+                "$$hashKey": "object:373"
+            },
+            "$$hashKey": "object:791",
+            "value": "asdasd"
+        }, {
+            "name": "headerRows",
+            "displayName": null,
+            "choices": null,
+            "required": true,
+            "type": "String",
+            "validation": {
+                "name": "String",
+                "type": "textInput",
+                "list": false,
+                "regex": ".+",
+                "options": null,
+                "file": null,
+                "$$hashKey": "object:373"
+            },
+            "$$hashKey": "object:792",
+            "value": "asda"
+        }],
+        "color": "#9b2743",
+        "sources": [{
+            "uuid": 2187,
+            "$$hashKey": "object:778",
+            "connections": [{
+                "uuid": "2188",
+                "$$hashKey": "object:968"
+            }]
+        }],
+        "x": 26917,
+        "y": 26948,
+        "form": {
+            "$invalid": false,
+            "operatorName": {
+                "$invalid": false
+            },
+            "bucketName": {
+                "$invalid": false
+            },
+            "path": {
+                "$invalid": false
+            },
+            "accessKey": {
+                "$invalid": false
+            },
+            "secretKey": {
+                "$invalid": false
+            },
+            "endpoint": {
+                "$invalid": true
+            },
+            "splitter": {
+                "$invalid": false
+            },
+            "headerRows": {
+                "$invalid": false
+            }
+        }
+    };
 
 	var fakeOutput = {
-		"name": "Output",
-		"class_name": "com.deleidos.framework.operators.mongodb.MongoDbOutputOperator",
-		"display_name": "MongoDB Output",
-		"properties": [{
-			"name": "hostName",
-			"display_name": "Hostname",
-			"choices": null,
-			"required": true,
-			"type": "String",
-			"value": "54.145.31.90"
-		}, {
-			"name": "hostPort",
-			"display_name": "Port",
-			"choices": null,
-			"required": true,
-			"type": "String",
-			"value": "27017"
-		}, {
-			"name": "database",
-			"display_name": "Database Name",
-			"choices": null,
-			"required": true,
-			"type": "String",
-			"value": "local"
-		}, {
-			"name": "userName",
-			"display_name": "Username",
-			"choices": null,
-			"required": false,
-			"type": "String"
-		}, {
-			"name": "password",
-			"display_name": "Password",
-			"choices": null,
-			"required": false,
-			"type": "String"
-		}],
-		"classType": "output",
-		"color": "#855093",
-		"targets": [{
-			"uuid": 2061
-		}],
-		"x": 2395,
-		"y": 1661,
-		"form": {
-			"$invalid": false,
-			"operatorName": {
-				"$invalid": false
-			},
-			"hostName": {
-				"$invalid": false
-			},
-			"hostPort": {
-				"$invalid": false
-			},
-			"database": {
-				"$invalid": false
-			},
-			"userName": {
-				"$invalid": false
-			},
-			"password": {
-				"$invalid": false
-			}
-		}
-	};
+        "_id": "ad607609-be3e-45c2-8cc5-b18056ff555b",
+        "name": "MongoDbOutput",
+        "className": "com.deleidos.framework.operators.mongodb.MongoDbOutputOperator",
+        "displayName": "MongoDB Output",
+        "jarName": "de-operator-mongodb-0.0.1-SNAPSHOT-jar-with-dependencies.jar",
+        "type": "output",
+        "properties": [{
+            "name": "hostName",
+            "displayName": "Host Name",
+            "choices": null,
+            "required": true,
+            "type": "String",
+            "validation": {
+                "name": "String",
+                "type": "textInput",
+                "list": false,
+                "regex": ".+",
+                "options": null,
+                "file": null,
+                "$$hashKey": "object:373"
+            },
+            "$$hashKey": "object:889",
+            "value": "asda"
+        }, {
+            "name": "hostPort",
+            "displayName": "Port",
+            "choices": null,
+            "required": true,
+            "type": "String",
+            "validation": {
+                "name": "String",
+                "type": "textInput",
+                "list": false,
+                "regex": ".+",
+                "options": null,
+                "file": null,
+                "$$hashKey": "object:373"
+            },
+            "$$hashKey": "object:890",
+            "value": "dasda"
+        }, {
+            "name": "database",
+            "displayName": "Database",
+            "choices": null,
+            "required": true,
+            "type": "String",
+            "validation": {
+                "name": "String",
+                "type": "textInput",
+                "list": false,
+                "regex": ".+",
+                "options": null,
+                "file": null,
+                "$$hashKey": "object:373"
+            },
+            "$$hashKey": "object:891",
+            "value": "sdasda"
+        }, {
+            "name": "collection",
+            "displayName": "Collection",
+            "choices": null,
+            "required": true,
+            "type": "String",
+            "validation": {
+                "name": "String",
+                "type": "textInput",
+                "list": false,
+                "regex": ".+",
+                "options": null,
+                "file": null,
+                "$$hashKey": "object:373"
+            },
+            "$$hashKey": "object:892",
+            "value": "sdasda"
+        }, {
+            "name": "userName",
+            "displayName": "Username",
+            "choices": null,
+            "required": false,
+            "type": "String",
+            "validation": {
+                "name": "String",
+                "type": "textInput",
+                "list": false,
+                "regex": ".+",
+                "options": null,
+                "file": null,
+                "$$hashKey": "object:373"
+            },
+            "$$hashKey": "object:893",
+            "value": "dasda"
+        }, {
+            "name": "password",
+            "displayName": "Password",
+            "choices": null,
+            "required": false,
+            "type": "String",
+            "validation": {
+                "name": "String",
+                "type": "textInput",
+                "list": false,
+                "regex": ".+",
+                "options": null,
+                "file": null,
+                "$$hashKey": "object:373"
+            },
+            "$$hashKey": "object:894",
+            "value": "asda"
+        }],
+        "color": "#00778b",
+        "targets": [{
+            "uuid": 2188,
+            "$$hashKey": "object:881"
+        }],
+        "x": 27640,
+        "y": 27072,
+        "form": {
+            "$invalid": false,
+            "operatorName": {
+                "$invalid": false
+            },
+            "hostName": {
+                "$invalid": false
+            },
+            "hostPort": {
+                "$invalid": false
+            },
+            "database": {
+                "$invalid": false
+            },
+            "collection": {
+                "$invalid": false
+            },
+            "userName": {
+                "$invalid": true
+            },
+            "password": {
+                "$invalid": true
+            }
+        }
+    };
 
 	var fakeSystemName = 'test';
 

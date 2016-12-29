@@ -10,6 +10,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import org.apache.log4j.Logger;
 
 import com.deleidos.analytics.common.util.JsonUtil;
+import com.deleidos.analytics.websocket.event.ServiceEventBus;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
@@ -56,9 +57,6 @@ public class StreamManager {
 		if (!consumerMap.containsKey(topic)) {
 			consumerMap.put(topic, new CopyOnWriteArrayList<String>());
 		}
-		// if (!producerMessageBufferMap.containsKey(webSocketId)) {
-		// producerMessageBufferMap.put(webSocketId, new LinkedBlockingQueue<String>());
-		// }
 	}
 
 	public void addConsumer(String webSocketId, String topic) {
@@ -66,6 +64,7 @@ public class StreamManager {
 			CopyOnWriteArrayList<String> consumerList = consumerMap.get(topic);
 			if (!consumerList.contains(webSocketId)) {
 				consumerList.add(webSocketId);
+				ServiceEventBus.getInstance().newConsumer(webSocketId, topic);
 				logger.info("Topic: " + topic + ", added consumer: " + webSocketId);
 			}
 		}

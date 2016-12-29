@@ -14,7 +14,6 @@ import com.datatorrent.api.Attribute;
 import com.datatorrent.api.Context;
 import com.datatorrent.api.Context.OperatorContext;
 import com.deleidos.analytics.common.util.FileUtil;
-import com.deleidos.analytics.config.AnalyticsConfig;
 import com.deleidos.analytics.redis.client.RedisClient;
 import com.deleidos.framework.operators.common.TupleUtil;
 
@@ -34,7 +33,8 @@ public class RedisOutputOperatorTest {
 
 	@Before
 	public void doBefore() {
-		client = new RedisClient(AnalyticsConfig.getInstance().getRedisHostname());
+		// TODO remove config dependency, implement a general solution.
+		client = new RedisClient(null);
 	}
 
 	@After
@@ -47,14 +47,13 @@ public class RedisOutputOperatorTest {
 	
 	@Test
 	public void testRedisOutputOperator() throws Exception {
-		System.out.println(AnalyticsConfig.getInstance().getRedisHostname());
 		File file = new File(this.getClass().getClassLoader().getResource(filename).getFile());
 		String record = FileUtil.getFileContentsAsString(file);
 		System.out.println(record);
 		Map<String, Object> map = TupleUtil.jsonToTupleMap(record);
 
 		RedisOutputOperator operator = new RedisOutputOperator();
-		operator.setHostname(AnalyticsConfig.getInstance().getRedisHostname());
+		operator.setHostname(null); // TODO
 		operator.setNamespace(namespace);
 		operator.setKeyField(keyField);
 

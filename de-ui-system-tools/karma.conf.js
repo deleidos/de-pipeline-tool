@@ -60,7 +60,8 @@ module.exports = function (config) {
 
         // list of files to exclude
         exclude: [
-            'app/tests/*.js'
+            'app/tests/*.js',
+            'app/assets/helpDocs/**'
         ],
 
 

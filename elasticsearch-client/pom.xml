@@ -6,23 +6,6 @@
 	<version>0.0.1-SNAPSHOT</version>
 	<name>elasticsearch-client</name>
 
-	<repositories>
-		<repository>
-			<snapshots>
-				<enabled>false</enabled>
-			</snapshots>
-			<id>advanced-analytics-releases</id>
-			<name>libs-release</name>
-			<url>http://captamerica.deleidos.com/artifactory/libs-release</url>
-		</repository>
-		<repository>
-			<snapshots />
-			<id>advanced-analytics-snapshots</id>
-			<name>libs-snapshot</name>
-			<url>http://captamerica.deleidos.com/artifactory/libs-snapshot</url>
-		</repository>
-	</repositories>
-
 	<build>
 		<plugins>
 			<plugin>
@@ -91,18 +74,6 @@
 			<groupId>com.deleidos.analytics</groupId>
 			<artifactId>analytics-common</artifactId>
 			<version>0.0.1-SNAPSHOT</version>
-		</dependency>
-		<dependency>
-			<groupId>com.deleidos.analytics</groupId>
-			<artifactId>analytics-config</artifactId>
-			<version>0.0.1-SNAPSHOT</version>
-		</dependency>
-		<dependency>
-			<groupId>com.deleidos.analytics</groupId>
-			<artifactId>analytics-config</artifactId>
-			<version>0.0.1-SNAPSHOT</version>
-			<type>test-jar</type>
-			<scope>test</scope>
 		</dependency>
 	</dependencies>
 </project>

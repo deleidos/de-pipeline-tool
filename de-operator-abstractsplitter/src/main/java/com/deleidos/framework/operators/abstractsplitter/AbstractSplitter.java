@@ -7,19 +7,19 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.datatorrent.api.DefaultOutputPort;
+import org.apache.log4j.Logger;
+
 import com.datatorrent.lib.io.SimpleSinglePortInputOperator;
 import com.deleidos.framework.operators.common.InputTuple;
 import com.deleidos.framework.operators.common.OperatorSystemInfo;
 
-public abstract class AbstractSplitter extends SimpleSinglePortInputOperator<String> implements OperatorSystemInfo {
-
-	protected void LineSplitter(InputStream is, DefaultOutputPort<InputTuple> output, int headerRows)
+public abstract class AbstractSplitter extends SimpleSinglePortInputOperator<InputTuple> implements OperatorSystemInfo {
+	private static final Logger log = Logger.getLogger(AbstractSplitter.class);
+	protected void LineSplitter(InputStream is, int headerRows)
 			throws IOException, InterruptedException {
 
 		BufferedReader reader = new BufferedReader(new InputStreamReader(is, "UTF-8"));
 		String line = null;
-		InputTuple outTuple = new InputTuple();
 		ArrayList<String> headers = new ArrayList<String>();
 		int headRowsLeft = headerRows;
 
@@ -32,12 +32,7 @@ public abstract class AbstractSplitter extends SimpleSinglePortInputOperator<Str
 				count = 0;
 			}
 			count++;
-			if (line.contains("firstrecord")) {
-				System.out.println("first record in: " + System.currentTimeMillis());
-			}
-			else if (line.contains("lastrecord")) {
-				System.out.println("last record in: " + System.currentTimeMillis());
-			}
+
 			if (headRowsLeft > 0) {
 				headers.add(line);
 				headRowsLeft--;
@@ -46,10 +41,12 @@ public abstract class AbstractSplitter extends SimpleSinglePortInputOperator<Str
 
 				String data = line;
 
-				if (data != null) {
+				if (data != null && outputPort.isConnected()) {
+					InputTuple outTuple = new InputTuple();
+
 					outTuple.setData(data);
 					outTuple.setHeader(headers);
-					output.emit(outTuple);
+					outputPort.emit(outTuple);
 
 				}
 
@@ -58,7 +55,7 @@ public abstract class AbstractSplitter extends SimpleSinglePortInputOperator<Str
 
 	}
 
-	protected void JSONSplitter(InputStream is, DefaultOutputPort<InputTuple> output, int headerRows)
+	protected void JSONSplitter(InputStream is, int headerRows)
 			throws IOException, InterruptedException {
 		BufferedReader reader = new BufferedReader(new InputStreamReader(is));
 		String fin_out = "";
@@ -71,8 +68,7 @@ public abstract class AbstractSplitter extends SimpleSinglePortInputOperator<Str
 		// Finished splitting a json object
 		boolean done = false;
 		List<String> headers = null;
-		InputTuple outTuple = new InputTuple();
-		outTuple.setHeader(headers);
+		
 
 		int count = 0;
 		while ((line = reader.readLine()) != null) {
@@ -115,12 +111,6 @@ public abstract class AbstractSplitter extends SimpleSinglePortInputOperator<Str
 				// line if the first { has been closed by a }
 
 				if (numOpen == 0) {
-
-					rec = temp.substring(0, a + 1);
-					outTuple.setData(rec);
-					output.emit(outTuple);
-
-					fin_out = rec;
 					done = true;
 				}
 			}
@@ -129,12 +119,22 @@ public abstract class AbstractSplitter extends SimpleSinglePortInputOperator<Str
 				record += temp;
 
 			}
+			else{
+				record += temp;
+				String out = record;
+				InputTuple outTuple = new InputTuple();
+				outTuple.setHeader(headers);
+				outTuple.setData(out);
+				outputPort.emit(outTuple);
+				record = "";
+			}
 
 		}
 		if (!fin_out.equals(rec)) {
+			InputTuple outTuple = new InputTuple();
+			outTuple.setHeader(headers);
 			outTuple.setData(record);
-
-			output.emit(outTuple);
+			outputPort.emit(outTuple);
 
 		}
 

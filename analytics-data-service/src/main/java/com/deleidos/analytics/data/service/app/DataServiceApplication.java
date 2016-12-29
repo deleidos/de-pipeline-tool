@@ -4,16 +4,22 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.log4j.Logger;
+import org.eclipse.jetty.server.Connector;
 import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.server.handler.ContextHandler;
 import org.eclipse.jetty.server.handler.HandlerList;
 import org.eclipse.jetty.server.handler.ResourceHandler;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
+import org.eclipse.jetty.util.resource.Resource;
+import org.eclipse.jetty.util.thread.QueuedThreadPool;
+import org.eclipse.jetty.xml.XmlConfiguration;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.servlet.ServletContainer;
 
 import com.codahale.metrics.servlets.AdminServlet;
+import com.deleidos.analytics.common.util.JsonUtil;
 import com.deleidos.analytics.config.AnalyticsConfig;
 import com.deleidos.analytics.data.service.app.listeners.HealthCheckServletContextListener;
 import com.deleidos.analytics.data.service.app.listeners.MetricsServletContextListener;
@@ -46,12 +52,12 @@ public class DataServiceApplication {
 
 	public void start() {
 		try {
-			//configureSwagger();
+			// configureSwagger();
 
 			final HandlerList handlers = new HandlerList();
 
 			// Handler for Swagger UI, static handler.
-			//handlers.addHandler(buildSwaggerUI());
+			// handlers.addHandler(buildSwaggerUI());
 
 			// Handler wsclient UI
 			handlers.addHandler(buildWSClientUI());
@@ -60,8 +66,12 @@ public class DataServiceApplication {
 			handlers.addHandler(buildContext());
 
 			// Start server
-			server = new Server(AnalyticsConfig.getInstance().getServerPort());
+			QueuedThreadPool threadPool = new QueuedThreadPool(1000, 10);
+			server = new Server(threadPool);
 			server.setHandler(handlers);
+			ServerConnector connector = new ServerConnector(server);
+			connector.setPort(AnalyticsConfig.getInstance().getServerPort());
+			server.setConnectors(new Connector[] { connector });
 			server.start();
 		}
 		catch (Exception e) {
@@ -87,27 +97,27 @@ public class DataServiceApplication {
 		}
 	}
 
-//	private void configureSwagger() {
-//		// This configures Swagger
-//		BeanConfig beanConfig = new BeanConfig();
-//		beanConfig.setVersion("1.5.0");
-//		// TODO make configurable
-//		beanConfig.setResourcePackage(StringUtils.join(combinedResourcePackageList, ","));
-//		beanConfig.setScan(true);
-//		beanConfig.setBasePath("/");
-//		beanConfig.setDescription("WebSocket endpoint: ws://&lt;host&gt;:8080/analytics");
-//		beanConfig.setTitle("Analytics Data Service API Documentation");
-//	}
-//
-//	private ContextHandler buildSwaggerUI() throws Exception {
-//		final ResourceHandler swaggerUIResourceHandler = new ResourceHandler();
-//		swaggerUIResourceHandler.setResourceBase(
-//				DataServiceApplication.class.getClassLoader().getResource("swaggerui").toURI().toString());
-//		final ContextHandler swaggerUIContext = new ContextHandler();
-//		swaggerUIContext.setContextPath("/api-docs/");
-//		swaggerUIContext.setHandler(swaggerUIResourceHandler);
-//		return swaggerUIContext;
-//	}
+	// private void configureSwagger() {
+	// // This configures Swagger
+	// BeanConfig beanConfig = new BeanConfig();
+	// beanConfig.setVersion("1.5.0");
+	// // TODO make configurable
+	// beanConfig.setResourcePackage(StringUtils.join(combinedResourcePackageList, ","));
+	// beanConfig.setScan(true);
+	// beanConfig.setBasePath("/");
+	// beanConfig.setDescription("WebSocket endpoint: ws://&lt;host&gt;:8080/analytics");
+	// beanConfig.setTitle("Analytics Data Service API Documentation");
+	// }
+	//
+	// private ContextHandler buildSwaggerUI() throws Exception {
+	// final ResourceHandler swaggerUIResourceHandler = new ResourceHandler();
+	// swaggerUIResourceHandler.setResourceBase(
+	// DataServiceApplication.class.getClassLoader().getResource("swaggerui").toURI().toString());
+	// final ContextHandler swaggerUIContext = new ContextHandler();
+	// swaggerUIContext.setContextPath("/api-docs/");
+	// swaggerUIContext.setHandler(swaggerUIResourceHandler);
+	// return swaggerUIContext;
+	// }
 
 	private ContextHandler buildWSClientUI() throws Exception {
 		final ResourceHandler resourceHandler = new ResourceHandler();
@@ -123,7 +133,7 @@ public class DataServiceApplication {
 	private ContextHandler buildContext() {
 		ResourceConfig resourceConfig = new ResourceConfig();
 		// list all Jersey resources and the Swagger ApiListingResource
-		//combinedResourcePackageList.add(ApiListingResource.class.getPackage().getName());
+		// combinedResourcePackageList.add(ApiListingResource.class.getPackage().getName());
 		resourceConfig.packages(combinedResourcePackageList.toArray(new String[] {}));
 		ServletContainer servletContainer = new ServletContainer(resourceConfig);
 		ServletHolder servletHolder = new ServletHolder(servletContainer);
@@ -144,15 +154,15 @@ public class DataServiceApplication {
 	}
 
 	public static void main(String[] args) throws Exception {
-//		String configFile = DEFAULT_CONFIG_FILE;
-//		if (args.length > 0) {
-//			configFile = args[0];
-//		}
-//		else {
-//			logger.warn("No configuration file passed, using default");
-//		}
+		// String configFile = DEFAULT_CONFIG_FILE;
+		// if (args.length > 0) {
+		// configFile = args[0];
+		// }
+		// else {
+		// logger.warn("No configuration file passed, using default");
+		// }
 
-		DataServiceApplication app = new DataServiceApplication(); //configFile);
+		DataServiceApplication app = new DataServiceApplication(); // configFile);
 		app.start();
 		app.join();
 	}

@@ -85,7 +85,7 @@ public class RedisOutputOperator extends BaseOperator implements OperatorSystemI
 				client.setValue(namespace, keyValue.toString(), jsonString);
 			}
 			}catch(Exception e){
-				syslog.error("Error in Redis Output: " + e.getMessage() + "[ERROR END]",e);
+				syslog.error("Error in Redis Output: " + e.getMessage() ,e);
 			}
 		}
 

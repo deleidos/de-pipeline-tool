@@ -5,7 +5,13 @@
             Operator Details
             <div style="display: inline-block; height: 2.5vh"></div>
         </span>
-        <span style="float: right; position: relative; top: -6px">
+        <span style="float: right; position: relative; top: -6px"
+              tour-step
+              tour-step-belongs-to="tour"
+              tour-step-content="You can also press this button to save an operator to the same clipboard"
+              tour-step-order="95"
+              tour-step-orphan="false"
+              tour-step-placement="bottom">
             <md-button class="butn butn-default butn-save" ng-click="saveOperator(activeState)">
                 Store Operator
             </md-button>
@@ -28,52 +34,48 @@
             </div>
             <h3>Properties</h3>
             <div class="form-group" ng-repeat="(i, prop) in activeState.properties">
-                <label>{{ prop.display_name }}</label> <span style="font-size: 8pt;">{{prop.type}}</span><span style="line-height: 243%" class="string-list-change"  ng-click="addToList(prop, activeState)" ng-if="prop.type === 'StringList'">Add <i class="fa fa-plus"></i></span>
-                <div ng-switch on="prop.type">
-                    <div ng-switch-when="String">
-                        <input drop-disable ng-class="{'has-error' : activeState.form[prop.name].$invalid && prop.required,
-                                          'no-error'  : !activeState.form[prop.name].$invalid && prop.required}"
-                               ng-if="prop.choices === null"
+                <label>{{ prop.displayName }}</label>
+                <span ng-hide="!prop.description || prop.description === undefined"><i class="fa fa-info-circle" uib-tooltip="{{prop.description}}" tooltip-placement="top"></i></span>
+                <span style="font-size: 8pt;">{{prop.type}}</span>
+                <span style="line-height: 243%" class="string-list-change"  ng-click="addToList(prop, activeState)" ng-if="prop.validation.list">Add <i class="fa fa-plus"></i></span>
+                <div ng-switch on="prop.validation.type">
+                    <div ng-switch-when="textInput">
+                        <input drop-disable ng-class="{'has-error' : activeState.form[prop.name].$invalid,
+                                          'no-error'  : !activeState.form[prop.name].$invalid}"
+                               ng-if="!prop.validation.list"
                                class="form-control" type="text" ng-model="prop.value" ng-change="validateForm(activeState, i, 'normal', null)">
-                        <select ng-class="{'has-error' : activeState.form[prop.name].$invalid && prop.required,
-                                          'no-error'  : !activeState.form[prop.name].$invalid && prop.required}"
-                                ng-if="prop.choices !== null"
-                                class="form-control" ng-model="prop.value"
-                                ng-options="choice as choice for choice in prop.choices" ng-change="validateForm(activeState, i, 'select', null)">
-                            <!--<option ng-repeat="choice in prop.choices">
-                                {{choice}}
-                            </option>-->
-                        </select>
-                    </div>
-                    <div ng-switch-when="Integer">
-                        <input drop-disable ng-class="{'has-error' : activeState.form[prop.name].$invalid && prop.required,
-                                          'no-error'  : !activeState.form[prop.name].$invalid && prop.required}"
-                               class="form-control" type="number" ng-model="prop.value" ng-change="validateForm(activeState, i, 'integer', null)">
-                    </div>
-                    <div ng-switch-when="StringList">
-                        <input drop-disable ng-class="{'has-error' : activeState.form[prop.name + '0'].$invalid && prop.required,
-                                          'no-error'  : !activeState.form[prop.name + '0'].$invalid && prop.required}"
-                            class="form-control" type="text" ng-model="prop.value[0]" ng-change="validateForm(activeState, i, 'list', 0)"><br>
-                        <span ng-repeat="value in prop.value track by $index" ng-show="$index > 0">
+                        <input drop-disable ng-class="{'has-error' : activeState.form[prop.name + '0'].$invalid,
+                                          'no-error'  : !activeState.form[prop.name + '0'].$invalid}"
+                               ng-if="prop.validation.list"
+                               class="form-control" type="text" ng-model="prop.value[0]" ng-change="validateForm(activeState, i, 'list', 0)">
+                        <span ng-if="prop.validation.list" ng-repeat="value in prop.value track by $index" ng-show="$index > 0">
                             <span class="string-list-change" ng-click="removeFromList(activeState, i, $index); prop.value.splice($index, 1)">Remove <i class="fa fa-minus"></i></span>
-                            <input drop-disable ng-class="{'has-error' : activeState.form[prop.name + $index].$invalid && prop.required,
-                                              'no-error'  : !activeState.form[prop.name + $index].$invalid && prop.required}"
-                                   class="form-control" type="text" ng-model="prop.value[$index]" ng-change="validateForm(activeState, i, 'list', $index)"><br>
+                            <input drop-disable ng-class="{'has-error' : activeState.form[prop.name + $index].$invalid,
+                                              'no-error'  : !activeState.form[prop.name + $index].$invalid}"
+                                   class="form-control" type="text" ng-model="prop.value[$index]" ng-change="validateForm(activeState, i, 'list', $index)">
                         </span>
                     </div>
-                    <div ng-switch-when="File" style="margin-top: -20px;">
+                    <div ng-switch-when="selectBox">
+                        <select ng-class="{'has-error' : activeState.form[prop.name].$invalid,
+                                              'no-error'  : !activeState.form[prop.name].$invalid}"
+                                class="form-control" ng-model="prop.value"
+                                ng-options="option as option for option in prop.validation.options" ng-change="validateForm(activeState, i, 'select', null)">
+                        </select>
+                    </div>
+                    <div ng-switch-when="fileInput" style="margin-top: -20px;">
                         <input drop-disable class="filePlaceHolder" placeholder="{{prop.fileName}}" disabled="disabled" title="{{prop.fileName}}">
-                        <input drop-disable ng-class="{'has-error' : activeState.form[prop.name].$invalid && prop.required,
-                                          'no-error'  : !activeState.form[prop.name].$invalid && prop.required}"
+                        <input drop-disable ng-class="{'has-error' : activeState.form[prop.name].$invalid,
+                                          'no-error'  : !activeState.form[prop.name].$invalid}"
                                ng-change="validateForm(activeState, i, 'file', null)"
-                               class="form-control fileHolder" type="file" ng-model="prop.value" accept=".json" app-filereader ng-name-val="prop.fileName">
+                               class="form-control fileHolder" type="file" ng-model="prop.value" accept="{{prop.validation.file}}" app-filereader ng-name-val="prop.fileName">
                     </div>
-                    <div ng-switch-default>
-                        <input drop-disable ng-class="{'has-error' : prop.value === undefined && prop.required,
-                                          'no-error'  : prop.value !== undefined && prop.required}"
-                               class="form-control" type="text" ng-model="prop.value" ng-required="prop.required"
-                               ng-change="validateForm(activeState, i, 'normal', null)">
-                    </div>
+                </div>
+                <div ng-if="prop.validation.type === 'fileInput'">
+                    <br>
+                    <label>File Name for {{prop.displayName}}</label> <span style="font-size: 8pt;">String</span>
+                    <input drop-disable ng-class="{'has-error' : activeState.form[prop.name].filenameField,
+                                          'no-error'  : !activeState.form[prop.name].filenameField}"
+                           class="form-control" type="text" ng-model="prop.filenameField" ng-change="validateForm(activeState, i, 'filenameField', null)">
                 </div>
             </div>
             <div md-whiteframe class="alert alert-info" ng-show="!activeState.properties || activeState.properties.length === 0">

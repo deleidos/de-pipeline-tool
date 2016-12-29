@@ -27,13 +27,8 @@ public class GetAppDetails extends BaseWebSocketMessage {
 	@Path("/getAppDetails")
 	@GET
 	public void processMessage() throws Exception {
-		try {
-			if (id != null && !id.equals("")) {
-				sendResponse(MonitoringUtil.getAppDetails(id));
-			}
-		}
-		catch(Throwable e) {
-			logger.debug(e.getMessage(), e);
+		if (id != null && !id.equals("")) {
+			sendResponse(MonitoringUtil.getAppDetails(id));
 		}
 	}
 

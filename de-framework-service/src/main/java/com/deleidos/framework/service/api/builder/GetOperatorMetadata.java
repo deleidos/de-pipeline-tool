@@ -27,6 +27,6 @@ public class GetOperatorMetadata extends BaseWebSocketMessage {
 	@Path("/getOperatorMetadata")
 	@GET
 	public void processMessage() throws Exception {
-		sendResponse(SystemDataManager.getInstance().getOperatorMetadata());
+		sendResponse(SystemDataManager.getInstance().getOperatorMetadataList());
 	}
 }

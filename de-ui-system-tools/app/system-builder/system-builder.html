@@ -9,11 +9,13 @@
     </div>
     <div tour-step
          tour-step-belongs-to="tour"
-         tour-step-content="A DigitalEdge system is a series of operators which process data, enrich the data as necessary, and store the data in a repository of your choice.<br><br>A system must contain the following operators in order:<br><br>1. Input Operator (required)<br>
+         tour-step-content="A DigitalEdge system is a series of operators which process data, enrich the data as necessary, and store the data in a repository of your choice.<br><br>A system must follow one of two guidelines:<br><br>1. Input Operator (required)<br>
 2. Parser Operator (required)<br>
 3. Mapping Operator (optional)<br>
 4. Enrichment Operator (optional)<br>
-5. Output Operator (required) <br>"
+5. Output Operator (required) <br><br>
+1. Binary Input (required) <br>
+2. Binary Output (required)"
          tour-step-order="20"
          tour-step-orphan="true">
     </div>
@@ -38,7 +40,7 @@
     <div tour-step
          tour-step-belongs-to="tour"
          tour-step-content="This concludes the tour of the DigitalEdge Pipeline Tool."
-         tour-step-order="150"
+         tour-step-order="300"
          tour-step-orphan="true"></div>
     <div id="system-builder-body">
         <div class="col-sm-8 system-builder-canvas">
@@ -78,15 +80,6 @@
                                tour-step-orphan="false">
                         <i class="fa fa-home fa-2x" style="margin-top: 5px"></i>
                     </md-button>
-                    <!--<md-button class="col-sm-1 md-fab md-mini" aria-label="Bring up a help modal" title="Bring up a help modal" ng-click="startDetached()" style="padding: 0; min-width: 0; float: right"
-                               tour-step
-                               tour-step-belongs-to="tour"
-                               tour-step-content="The question mark will also relaunch the tour."
-                               tour-step-order="65"
-                               tour-step-placement="left-bottom"
-                               tour-step-orphan="false">
-                        <i class="fa fa-question-circle fa-2x" style="margin-top: 7px"></i>
-                    </md-button>-->
                     <md-button class="col-sm-1 md-fab md-mini error-button" ng-class="{'errors': buildInvalid}" aria-label="See error log" title="See error log" ng-click="flipError(); $event.stopPropagation()" style="padding: 0; min-width: 0; float: right"
                                tour-step
                                tour-step-belongs-to="tour"
@@ -97,9 +90,6 @@
                         <i class="fa fa-exclamation-circle fa-2x" style="margin-top: 7px"></i>
                     </md-button>
                     <md-slider-container id="zoom-slider">
-                        <!-- <span class="fa fa-search-minus" ng-click="decreaseZoom()"></span>
-                        <rzslider rz-slider-model="canvas.zoomlevel" rz-slider-options="sliderOptions"></rzslider>
-                        <span class="fa fa-search-plus" ng-click="increaseZoom()"></span> -->
                         <md-slider md-discrete ng-model="canvas.zoomlevel" step="5" min="20" max="90" aria-label="Zoom Slider" md-vertical></md-slider>
                     </md-slider-container>
                     <p class="col-sm-2">{{saveText}}</p>

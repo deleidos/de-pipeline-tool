@@ -3,9 +3,14 @@ package com.deleidos.framework.service.api.manager;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 
+import org.apache.log4j.Logger;
+
 import com.deleidos.analytics.websocket.api.BaseWebSocketMessage;
-import com.deleidos.applicationcreator.Application_Creation;
+import com.deleidos.applicationcreator.AppCreationInterface;
+import com.deleidos.applicationcreator.local.ApplicationCreator;
+import com.deleidos.framework.service.config.ServiceConfig;
 import com.deleidos.framework.service.data.SystemDataManager;
+import com.deleidos.framework.model.event.SystemEventBus;
 import com.deleidos.framework.model.system.SystemDescriptor;
 
 /**
@@ -14,6 +19,8 @@ import com.deleidos.framework.model.system.SystemDescriptor;
  * @author vernona
  */
 public class DeploySystem extends BaseWebSocketMessage {
+
+	private Logger logger = Logger.getLogger(DeploySystem.class);
 
 	private String request;
 	private String id;
@@ -38,11 +45,22 @@ public class DeploySystem extends BaseWebSocketMessage {
 	@Path("/deploySystem")
 	@GET
 	public void processMessage() throws Exception {
+		//sendResponse("HEEEEEEY KEVVINNNNN");
+		logger.info("received request: " + request);
 		SystemDescriptor system = SystemDataManager.getInstance().getSystemDecriptor(id);
 		system.getApplication().setOperatorSystemNameProperty(system.getName());
-		Application_Creation app = new Application_Creation(system, system.getName());
 
-		String out = app.run();
-		sendResponse("Launching " + out);
+		// Create APA file
+		ApplicationCreator app = new ApplicationCreator(ServiceConfig.getInstance().getManagerServiceHostname(), system,
+				system.getName());
+		String out = ((AppCreationInterface) app).run();
+		logger.info("sending response to the websocket: " + out);
+		try {
+//			sendResponse("Launching " + out);
+			SystemEventBus.getInstance().deploymentComplete(id);
+		} catch (Exception e) {
+			logger.error("send response error: " + e.getMessage(), e);
+		}
+		logger.info("sent response to websocket");
 	}
 }

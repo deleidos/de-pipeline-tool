@@ -1,0 +1,43 @@
+operator-library {
+    height: 100%;
+}
+
+.operator-cell {
+    width: calc(25% - 10px);
+    word-wrap: break-word;
+}
+
+.delete-cell {
+    width: 40px;
+    font-size: 25px;
+}
+
+.property-row > td, .property-row > th {
+    width: calc(20% - 5px);
+    border: none;
+}
+
+.property-row > td{
+    display: inline-block;
+}
+
+.property-row {
+    width: 100%;
+    display: flex;
+}
+
+.fa-button-black:hover {
+    color: #504777;
+}
+
+.fa-button-black:active {
+    color: #706797;
+}
+
+.fa-button-white:hover {
+    color: #C0B7E7;
+}
+
+.fa-button-white:active {
+    color: #9087B7;
+}

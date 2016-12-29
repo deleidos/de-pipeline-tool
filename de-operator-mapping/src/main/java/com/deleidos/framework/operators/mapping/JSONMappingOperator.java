@@ -1,9 +1,12 @@
 package com.deleidos.framework.operators.mapping;
 
+import java.io.File;
 import java.io.IOException;
 
 import java.text.ParseException;
 import java.util.Map;
+
+import org.apache.log4j.Logger;
 
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
@@ -19,9 +22,10 @@ public class JSONMappingOperator extends BaseOperator implements OperatorSystemI
 	private String modelName;
 	private String inputFormatName;
 	private String modelVersion;
-	private String modelPath;
+	private String filename;
 
 	private String systemName;
+	private static final Logger log = Logger.getLogger(JSONMappingOperator.class);
 	private transient OperatorSyslogger syslog;
 
 	public void setModelName(String modelName) {
@@ -48,12 +52,12 @@ public class JSONMappingOperator extends BaseOperator implements OperatorSystemI
 		return this.modelVersion;
 	}
 
-	public void setModelPath(String modelPath) {
-		this.modelPath = modelPath;
+	public String getFilename() {
+		return filename;
 	}
 
-	public String getModelPath() {
-		return this.modelPath;
+	public void setFilename(String filename) {
+		this.filename = filename;
 	}
 
 	@Override
@@ -63,7 +67,7 @@ public class JSONMappingOperator extends BaseOperator implements OperatorSystemI
 
 	}
 
-	public transient DefaultOutputPort<Map<String, Object>> output = new DefaultOutputPort<Map<String, Object>>();
+	public transient DefaultOutputPort<Map<String, Object>> outputPort = new DefaultOutputPort<Map<String, Object>>();
 
 	public transient DefaultInputPort<Map<String, Object>> input = new DefaultInputPort<Map<String, Object>>() {
 
@@ -73,7 +77,8 @@ public class JSONMappingOperator extends BaseOperator implements OperatorSystemI
 			try {
 				processTuple(tuple);
 			} catch (Exception e) {
-				syslog.error("Error in JSON Mapping: " + e.getMessage() + "[ERROR END]", e);
+				syslog.error("Error in JSON Mapping: " + e.getMessage(), e);
+				log.error("Error in JSON Mapping: " + e.getMessage(), e);
 				throw new RuntimeException(e);
 			}
 
@@ -86,18 +91,17 @@ public class JSONMappingOperator extends BaseOperator implements OperatorSystemI
 			translator.setModelName(modelName);
 			translator.setInputFormatName(modelName);
 			translator.setModelVersion(modelVersion);
-
-			translator.loadDataModel(modelPath);
+			translator.loadDataModel("/"+filename);
 			// this is just the path to the datamodel zip file, which is
 			// modelname.zip
 			translator.initialize();
 			JsonObject parsedData = null;
 			parsedData = translator.recordTranslation(tuple, null, null);
 			Map<String, Object> out = TupleUtil.jsonToTupleMap(parsedData.toString());
-			output.emit(out);
+			outputPort.emit(out);
 		} catch (Exception e) {
-			syslog.error("Error in JSON Mapping: " + e.getMessage() + "[ERROR END]", e);
-
+			syslog.error("Error in JSON Mapping: " + e.getMessage() , e);
+			log.error("Error in JSON Mapping: " + e.getMessage(), e);
 		}
 
 	}

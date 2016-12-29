@@ -15,7 +15,8 @@ import com.deleidos.framework.model.system.SystemDescriptor;
 public class DeleteSystemDescriptorTest extends DataTestBase {
 
 	@Test
-	public void testDeleteSystemDescriptor() {
+	public void testDeleteSystemDescriptor() throws Exception {
+		SystemDescriptor exampleSystem = SystemDescriptorFactory.getInstance().getExampleSystemDescriptor();
 		String id = exampleSystem.get_id();
 		manager.insertSystemDescriptor(exampleSystem);
 		SystemDescriptor system = manager.getSystemDecriptor(id);

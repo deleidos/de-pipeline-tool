@@ -49,28 +49,24 @@ public class CsvParserOperator extends BaseOperator implements OperatorSystemInf
 	public void setup(OperatorContext context) {
 		syslog = new OperatorSyslogger(systemName, OperatorConfig.getInstance().getSyslogUdpHostname(),
 				OperatorConfig.getInstance().getSyslogUdpPort());
-		// syslog.error("Made it to csv setup");
-		// syslog.debug("yo");
-		// syslog.info("sup");
-
+		
 	}
 
 	public transient DefaultInputPort<InputTuple> input = new DefaultInputPort<InputTuple>() {
 		@Override
 		public void process(InputTuple inputTuple) {
 			incomingTuplesCount++;
-			// syslog.error("made it to input");
-			// syslog.debug("yo1");
-			// syslog.info("sup2");
+
 			try {
 				processTuple(inputTuple);
 			} catch (ClassNotFoundException e) {
-				syslog.error("Error in CSV Parser: " + e.getMessage() + "[ERROR END]", e);
-				// e.printStackTrace();
+				syslog.error("Error in CSV Parser: " + e.getMessage(), e);
+				log.error("Error in CSV Parser: " + e.getMessage(), e);
 
 			} catch (IOException e) {
-				syslog.error("Error in CSV Parser: " + e.getMessage() + "[ERROR END]", e);
-				// e.printStackTrace();
+				syslog.error("Error in CSV Parser: " + e.getMessage(), e);
+				log.error("Error in CSV Parser: " + e.getMessage(), e);
+
 
 			}
 		}
@@ -86,7 +82,7 @@ public class CsvParserOperator extends BaseOperator implements OperatorSystemInf
 	/**
 	 * Output port to emit validate records as JSONObject
 	 */
-	public transient DefaultOutputPort<Map<String, Object>> output = new DefaultOutputPort<Map<String, Object>>();
+	public transient DefaultOutputPort<Map<String, Object>> outputPort = new DefaultOutputPort<Map<String, Object>>();
 
 	/**
 	 * Metric to keep count of number of tuples emitted on {@link #output} port
@@ -100,13 +96,14 @@ public class CsvParserOperator extends BaseOperator implements OperatorSystemInf
 			outputMap = TupleUtil.csvInputTupleToMap(tuple, delimiter);
 
 			if (tuple != null) {
-				if (output.isConnected()) {
-					output.emit(outputMap);
+				if (outputPort.isConnected()) {
+					outputPort.emit(outputMap);
 					parsedOutputCount++;
 				}
 			}
 		} catch (Exception e) {
-			syslog.error("Error in CSV Parser: " + e.getMessage() + "[ERROR END]", e);
+			syslog.error("Error in CSV Parser: " + e.getMessage(), e);
+			log.error("Error in CSV Parser: " + e.getMessage(), e);
 
 		}
 

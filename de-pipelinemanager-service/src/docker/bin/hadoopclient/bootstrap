@@ -1,0 +1,24 @@
+#!/bin/bash
+set -ex
+
+SHUTDOWN=false
+
+_term() {
+
+  echo "Caught SIGTERM signal!"
+  SHUTDOWN=true
+}
+
+trap _term 15
+
+perl -i -pe "s:NAMENODE:$NAMENODE:g" /etc/hadoop/conf/core-site.xml
+perl -i -pe "s:NAMENODE:$NAMENODE:g" /etc/hadoop/conf/hdfs-site.xml
+perl -i -pe "s:NAMENODE:$NAMENODE:g" /etc/hadoop/conf/yarn-site.xml
+
+perl -i -pe "s:HISTORYSERVER:$HISTORYSERVER:g" /etc/hadoop/conf/mapred-site.xml
+
+perl -i -pe "s:RESOURCEMANAGER:$RESOURCEMANAGER:g" /etc/hadoop/conf/yarn-site.xml
+
+hdfs dfsadmin -safemode wait
+
+java -jar jetty-runner.jar de-pipelinemanager-service.war

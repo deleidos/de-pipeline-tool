@@ -25,22 +25,6 @@
 		</dependency>
 		<dependency>
 			<groupId>com.deleidos.analytics</groupId>
-			<artifactId>transportation-data-api</artifactId>
-			<version>1.0.0-SNAPSHOT</version>
-			<exclusions>
-				<exclusion>
-					<groupId>org.apache.hadoop</groupId>
-					<artifactId>hadoop-common</artifactId>
-				</exclusion>
-			</exclusions>
-		</dependency>
-		<dependency>
-			<groupId>com.deleidos</groupId>
-			<artifactId>de-framework-service</artifactId>
-			<version>0.0.1-SNAPSHOT</version>
-		</dependency>
-		<dependency>
-			<groupId>com.deleidos.analytics</groupId>
 			<artifactId>analytics-config</artifactId>
 			<version>0.0.1-SNAPSHOT</version>
 		</dependency>
@@ -50,6 +34,11 @@
 			<version>0.0.1-SNAPSHOT</version>
 			<type>test-jar</type>
 			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>com.deleidos</groupId>
+			<artifactId>de-framework-service</artifactId>
+			<version>0.0.1-SNAPSHOT</version>
 		</dependency>
 	</dependencies>
 	<build>

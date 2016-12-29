@@ -14,11 +14,11 @@ public class LogMessageStreamerTest {
 
 	public static void main(String[] args) throws Exception {
 		DatagramSocket clientSocket = new DatagramSocket();
-		InetAddress IPAddress = InetAddress.getByName("localhost");
+		InetAddress address = InetAddress.getByName("ec2-54-226-195-61.compute-1.amazonaws.com");
 		byte[] bytes = new byte[1024];
 		String message = "Hello World";
 		bytes = message.getBytes();
-		DatagramPacket sendPacket = new DatagramPacket(bytes, bytes.length, IPAddress, 1514);
+		DatagramPacket sendPacket = new DatagramPacket(bytes, bytes.length, address, 1514);
 		clientSocket.send(sendPacket);
 		clientSocket.close();
 	}

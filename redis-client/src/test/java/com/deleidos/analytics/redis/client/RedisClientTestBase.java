@@ -1,9 +1,9 @@
 package com.deleidos.analytics.redis.client;
 
+import static org.junit.Assert.assertNotNull;
+
 import org.junit.After;
 import org.junit.Before;
-
-import com.deleidos.analytics.config.AnalyticsConfig;
 
 /**
  * Redis client test base class responsible for initializing and closing resources.
@@ -14,9 +14,14 @@ public abstract class RedisClientTestBase {
 
 	protected RedisClient client = null;
 
+	private static final String redisHostnameEnv = "REDIS_HOSTNAME";
+	
 	@Before
 	public void doBefore() {
-		client = new RedisClient(AnalyticsConfig.getInstance().getRedisHostname());
+		String hostname = System.getenv(redisHostnameEnv);
+		assertNotNull(hostname);
+		System.out.println(redisHostnameEnv + "=" + hostname);
+		client = new RedisClient(hostname);
 	}
 
 	@After

@@ -41,12 +41,12 @@
 .system-holder{
     overflow-y: scroll;
     overflow-x: hidden;
-    padding: 10px;
+    padding: 10px 10px 30px 10px;
     width: 100%;
     height: 100%;
 }
 
-#system-holder {
+#system-holder, #operator-holder {
     height: 45%;
     top: 50px;
     position: relative;
@@ -58,7 +58,7 @@
     height: 100%;
 }
 
-#tab-holder {
+#tab-holder, #tab-holder-operator {
     width: 100%;
     top: 50px;
     position: relative;
@@ -92,7 +92,7 @@
     text-align: center;
     float: left;
     position: relative;
-    z-index: 10;
+    z-index: 2;
 }
 
 .confirm-window {
@@ -312,17 +312,17 @@ md-tabs.detail-tabs.md-default-theme md-ink-bar, md-tabs md-ink-bar {
 }
 
 .system-cell-status {
-    width: 85px;
+    width: 100px;
 }
 
 .system-cell-start, .system-cell-finish {
     min-width: 260px;
-    width: calc(29% - 24px);
+    width: calc(29% - 29px);
 }
 
 .system-cell-action {
     min-width: 250px;
-    width: calc(29% - 14px);
+    width: calc(29% - 19px);
 }
 
 .system-top-row {
@@ -331,20 +331,22 @@ md-tabs.detail-tabs.md-default-theme md-ink-bar, md-tabs md-ink-bar {
     color: white;
 }
 
-.mode-button, .log-button {
+.mode-button, .log-button, .arrow-holder > span, .purple-button {
     background-color: #504777;
+    color: white !important;
+}
+
+.mode-button:hover,
+.log-button:hover,
+.arrow-holder > span:hover, .purple-button:hover{
+    background-color: #706797;
     color: white;
 }
 
 .mode-button:active, .mode-button.active,
-.log-button:active{
+.log-button:active, .arrow-holder > span:active,
+.arrow-holder > span.active, .purple-button:active{
     background-color: #201747;
-    color: white;
-}
-
-.mode-button:hover, .mode-button:hover:active,
-.log-button:hover, .log-button:hover:active{
-    background-color: #706797;
     color: white;
 }
 
@@ -357,7 +359,7 @@ md-tabs.detail-tabs.md-default-theme md-ink-bar, md-tabs md-ink-bar {
     margin-right: 4px;
 }
 
-input#system-search.form-control {
+input#system-search.form-control, input#operator-search.form-control {
     height: 34px;
     width: 241px;
 }
@@ -435,12 +437,13 @@ _:-moz-tree-row(hover), .system-search > md-select {
     margin: 5px;
     padding: 5px;
     font-size: 12pt;
-    max-width: 400px;
+    width: 400px;
 }
 
 .detail-prop-container {
     font-weight: bold;
-    width: 140px;
+    max-width: 140px;
+    width: 39%;
     display: inline-block
 }
 
@@ -470,4 +473,49 @@ _:-moz-tree-row(hover), .system-search > md-select {
 md-tab-content > div {
     height: 100%;
     width: 100%;
+    overflow-y: hidden;
+}
+
+.operator-ribbon > md-tabs > md-tabs-wrapper{
+    position: relative;
+    width: calc(100% - 250px);
+    left: 250px;
+}
+
+.error-row {
+    display: inline-block;
+    width: 100%;
+}
+
+.error-log-operator {
+    width: 15%;
+    min-width: 160px;
+}
+
+.error-log-entry {
+    width: 85%;
+    max-width: calc(100% - 160px);
+    table-layout: fixed;
+    word-break: break-all;
+}
+
+.arrow-holder {
+    width: 50%;
+    display: inline;
+    position: absolute;
+    top: calc(100% - 36px);
+    padding-right: 17px;
+    font-size: 20pt;
+}
+
+.arrow-holder > span {
+    float: left;
+    padding: 2px 5px;
+    border-radius: 5px;
+    line-height: 0
+}
+
+.pause-monitoring {
+    margin-top: 5px;
+    margin-right: 5px;
 }

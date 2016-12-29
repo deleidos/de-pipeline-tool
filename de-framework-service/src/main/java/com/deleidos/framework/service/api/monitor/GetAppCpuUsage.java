@@ -27,13 +27,8 @@ public class GetAppCpuUsage extends BaseWebSocketMessage {
 	@Path("/getAppCpuUsage")
 	@GET
 	public void processMessage() throws Exception {
-		try {
-			if (id != null && !id.equals("")) {
-				sendResponse(MonitoringUtil.getAppCpuUsage(id));
-			}
-		}
-		catch (Throwable e) {
-			logger.debug(e.getMessage(), e);
+		if (id != null && !id.equals("")) {
+			sendResponse(MonitoringUtil.getAppCpuUsage(id));
 		}
 	}
 

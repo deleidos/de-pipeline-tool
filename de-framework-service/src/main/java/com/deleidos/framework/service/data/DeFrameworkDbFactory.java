@@ -1,6 +1,6 @@
 package com.deleidos.framework.service.data;
 
-import com.deleidos.analytics.config.AnalyticsConfig;
+import com.deleidos.framework.service.config.ServiceConfig;
 
 /**
  * DE Framework database factory.
@@ -11,7 +11,7 @@ public class DeFrameworkDbFactory {
 
 	private static final DeFrameworkDbFactory instance = new DeFrameworkDbFactory();
 
-	private DeFrameworkDb db = new DeFrameworkDb(AnalyticsConfig.getInstance().getMongodbHostname());
+	private DeFrameworkDb db = new DeFrameworkDb(ServiceConfig.getInstance().getMongodbHostname());
 
 	/**
 	 * Get the singleton instance.

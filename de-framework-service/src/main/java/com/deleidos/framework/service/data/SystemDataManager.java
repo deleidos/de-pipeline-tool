@@ -11,6 +11,7 @@ import org.bson.Document;
 import com.deleidos.framework.model.system.OperatorMetadata;
 import com.deleidos.framework.model.system.OperatorMetadataList;
 import com.deleidos.framework.model.system.SystemDescriptor;
+import com.deleidos.framework.model.system.ValidationRule;
 import com.google.gson.FieldNamingPolicy;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -29,8 +30,9 @@ import com.mongodb.client.FindIterable;
  */
 public class SystemDataManager {
 
+	@SuppressWarnings("unused")
 	private Logger logger = Logger.getLogger(SystemDataManager.class);
-	
+
 	private static final SystemDataManager instance = new SystemDataManager();
 
 	private DeFrameworkDb db;
@@ -57,11 +59,10 @@ public class SystemDataManager {
 	 * 
 	 * @return
 	 */
-	public List<OperatorMetadata> getOperatorMetadata() {
-		FindIterable<Document> documents = db.getOperatorMetadataCollection().find();
-		Document document = documents.first();
-		OperatorMetadataList metadata = gson.fromJson(document.toJson(), OperatorMetadataList.class);
-		return metadata.getMetadata();
+	public OperatorMetadata getOperatorMetadata(String id) {
+		FindIterable<Document> documents = db.getOperatorMetadataCollection().find(getIdFilter(id));
+		OperatorMetadata metadata = gson.fromJson(documents.first().toJson(), OperatorMetadata.class);
+		return metadata;
 	}
 
 	/**
@@ -72,8 +73,60 @@ public class SystemDataManager {
 	public void saveOperatorMetadata(List<OperatorMetadata> metadata) {
 		db.getOperatorMetadataCollection().drop();
 		OperatorMetadataList metadataList = new OperatorMetadataList(metadata);
-		Document document = new Document(objectToMap(metadataList));
-		db.getOperatorMetadataCollection().insertOne(document);
+		db.getOperatorMetadataCollection().insertOne(new Document(objectToMap(metadataList)));
+	}
+
+	/**
+	 * Get the operator metadata from the database.
+	 * 
+	 * @return
+	 */
+	public List<OperatorMetadata> getOperatorMetadataList() {
+		FindIterable<Document> documents = db.getOperatorMetadataCollection().find();
+		List<OperatorMetadata> metadataList = new ArrayList<OperatorMetadata>();
+		for (Document document : documents) {
+			metadataList.add(gson.fromJson(document.toJson(), OperatorMetadata.class));
+		}
+		return metadataList;
+	}
+
+	/**
+	 * Insert operator metadata.
+	 * 
+	 * @param metadata
+	 */
+	public void insertOperatorMetadata(OperatorMetadata metadata) {
+		Document document = new Document(objectToMap(metadata));
+		if (db.getOperatorMetadataCollection().find(new Document().append("className", metadata.getClassName()))
+				.first() != null) {
+			metadata.set_id(db.getOperatorMetadataCollection()
+					.find(new Document().append("className", metadata.getClassName())).first().getString("_id"));
+			db.getOperatorMetadataCollection().findOneAndReplace(
+					new Document().append("className", metadata.getClassName()), new Document(objectToMap(metadata)));
+
+		}
+		else {
+			db.getOperatorMetadataCollection().insertOne(document);
+		}
+	}
+
+	/**
+	 * Update operator metadata.
+	 * 
+	 * @param metadata
+	 */
+	public void updateOperatorMetadata(OperatorMetadata metadata) {
+		db.getOperatorMetadataCollection().findOneAndReplace(getIdFilter(metadata.get_id()),
+				new Document(objectToMap(metadata)));
+	}
+
+	/**
+	 * Delete operator metadata.
+	 * 
+	 * @param id
+	 */
+	public void deleteOperatorMetadata(String id) {
+		db.getOperatorMetadataCollection().deleteOne(getIdFilter(id));
 	}
 
 	/**
@@ -86,7 +139,6 @@ public class SystemDataManager {
 		List<SystemDescriptor> systems = new ArrayList<SystemDescriptor>();
 		if (documents != null && documents.first() != null) {
 			for (Document document : documents) {
-				System.out.println(document.toJson());
 				systems.add(gson.fromJson(document.toJson(), SystemDescriptor.class));
 			}
 		}
@@ -102,9 +154,7 @@ public class SystemDataManager {
 		FindIterable<Document> documents = db.getSystemCollection().find(getIdFilter(id));
 		SystemDescriptor system = null;
 		if (documents != null && documents.first() != null) {
-			Document document = documents.first();
-			System.out.println(document.toJson());
-			system = gson.fromJson(document.toJson(), SystemDescriptor.class);
+			system = gson.fromJson(documents.first().toJson(), SystemDescriptor.class);
 		}
 		return system;
 	}
@@ -147,7 +197,7 @@ public class SystemDataManager {
 		Document document = documents.first();
 		EnrichmentNamespaces namespaces = gson.fromJson(document.toJson(), new TypeToken<EnrichmentNamespaces>() {
 		}.getType());
-		
+
 		return namespaces.getNamespaces();
 	}
 
@@ -161,7 +211,66 @@ public class SystemDataManager {
 		Document document = new Document(objectToMap(new EnrichmentNamespaces(namespaces)));
 		db.getEnrichmentNamespaceCollection().insertOne(document);
 	}
-	
+
+	/**
+	 * Get a validation rule by ID.
+	 * 
+	 * @param id
+	 * @return
+	 */
+	public ValidationRule getValidationRule(String id) {
+		ValidationRule rule = null;
+		FindIterable<Document> documents = db.getValidationRuleCollection().find(getIdFilter(id));
+		if (documents != null && documents.first() != null) {
+			rule = gson.fromJson(documents.first().toJson(), ValidationRule.class);
+		}
+		return rule;
+	}
+
+	/**
+	 * Get all validation rules.
+	 * 
+	 * @return
+	 */
+	public List<ValidationRule> getValidationRules() {
+		List<ValidationRule> validationRules = new ArrayList<ValidationRule>();
+		FindIterable<Document> documents = db.getValidationRuleCollection().find();
+		if (documents != null && documents.first() != null) {
+			for (Document document : documents) {
+				validationRules.add(gson.fromJson(document.toJson(), ValidationRule.class));
+			}
+		}
+		return validationRules;
+	}
+
+	/**
+	 * Insert a validation rule.
+	 * 
+	 * @param rule
+	 */
+	public void insertValidationRule(ValidationRule rule) {
+		Document document = new Document(objectToMap(rule));
+		db.getValidationRuleCollection().insertOne(document);
+	}
+
+	/**
+	 * Update a validation rule.
+	 * 
+	 * @param rule
+	 */
+	public void updateValidationRule(ValidationRule rule) {
+		db.getValidationRuleCollection().findOneAndReplace(getIdFilter(rule.get_id()), new Document(objectToMap(rule)));
+	}
+
+	/**
+	 * Delete a validation rule.
+	 * 
+	 * @param id
+	 */
+	public void deleteValidationRule(String id) {
+		db.getValidationRuleCollection().deleteOne(getIdFilter(id));
+	}
+
 	//
 	// Protected methods:
 	//

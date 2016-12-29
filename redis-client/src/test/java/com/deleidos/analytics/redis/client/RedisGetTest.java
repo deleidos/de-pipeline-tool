@@ -9,11 +9,8 @@ import org.junit.Test;
  */
 public class RedisGetTest extends RedisClientTestBase {
 
-//	private static final String namespace = "sales_customer";
-//	private static final String key = "Customer#000098753"; // "N66848";
-
-	private static final String namespace = "orders";
-	private static final String key = "\"10279\"";
+	private static final String namespace = "sales_customer";
+	private static final String key = "Customer#000098753"; // "N66848";
 	
 	/**
 	 * Test set, get and delete.

@@ -1,0 +1,281 @@
+<div ng-controller="OperatorLibraryController" tour="TourService.getTourByName('tour')" style="overflow: hidden; width: 100%; height: 100%;">
+    <div tour-step
+         tour-step-belongs-to="tour"
+         tour-step-content="In this tab, you can examine, edit, create, and delete operators utilized in the system builder.<br><br>
+                            You can also create your own custom validations used for an operator property. This includes writing your own regular expressions,
+                            adding custom extensions to your file uploads, and even uploading a mapping file from Schema Wizard."
+         tour-step-order="170"
+         tour-step-orphan="true"></div>
+    <div tour-step
+         tour-step-belongs-to="tour"
+         tour-step-content="Validation rules allow you to control what is and isn't appropriate for each operator's properties. Currently, we have five built in validation rules.<br><br>
+                            -String: Allows anything that's typed in<br>
+                            -Integer: Allows any integer number (no decimal points)<br>
+                            -Floating Point: Allows any number (with decimal points)<br>
+                            -String List: Same as string but allows for multiple entries for one property<br>
+                            -File: Allows for a file upload with any extension"
+         tour-step-order="220"
+         tour-step-orphan="true"></div>
+    <div tour-step
+         tour-step-belongs-to="tour"
+         tour-step-content="Please keep in mind that if you change anything about an operator's properties and are already using that operator in a system, its settings won't be change and you must
+                            reinsert it into your system."
+         tour-step-order="225"
+         tour-step-orphan="true"></div>
+    <div tour-step
+         tour-step-belongs-to="tour"
+         tour-step-content="There are three types of validation you can make.<br><br>
+                            Text inputs let you specify the regular expression used to check the input as well as if you want multiple entries allows.<br><br>
+                            File inputs allow you to specify what kind of file the property accepts.<br><br>
+                            Select boxes give you a choice. You can import a mapping from Schema Wizard to generate the select box entries,
+                            or you can create your own entries and add them in."
+         tour-step-order="240"
+         tour-step-orphan="true"></div>
+    <div md-whiteframe style="width: 100%; position: fixed; z-index: 3; background-color: #eee; height: 48px;">
+        <div class="system-search search">
+            <md-select aria-label="Filter on..." ng-model="searchTerm">
+                <md-option value="name">&nbsp;&nbsp;&nbsp;&nbsp;Name</md-option>
+                <md-option value="type">&nbsp;&nbsp;&nbsp;&nbsp;Type</md-option>
+                <md-option value="className">&nbsp;&nbsp;&nbsp;&nbsp;Class</md-option>
+                <md-option value="jarName">&nbsp;&nbsp;&nbsp;&nbsp;Jar</md-option>
+            </md-select>
+            <label for="operator-search"><i class="fa fa-search"></i></label>
+            <input id="operator-search" type="text" class="form-control" placeholder="Search Operators..." ng-model="search[searchTerm]"/>
+        </div>
+    </div>
+    <div class="holder" id="operator-holder"
+         tour-step
+         tour-step-belongs-to="tour"
+         tour-step-content="Here all the current operators are displayed. You can also sort them by clicking the header you want them sorted by."
+         tour-step-order="180"
+         tour-step-orphan="false"
+         tour-step-placement="bottom">
+        <div class="system-holder resizableS" style="overflow: hidden">
+            <table st-table="rowCollection"  st-safe-src="operators" class="table" style="background-color: white">
+                <thread>
+                    <tr class="system-top-row">
+                        <th class="operator-cell" st-sort="name" ng-click="" style="border: none">Name</th>
+                        <th class="operator-cell" st-sort="type" ng-click="" style="border: none">Type</th>
+                        <th class="operator-cell" st-sort="className" ng-click="" style="border: none">Class</th>
+                        <th class="operator-cell" st-sort="jarName" ng-click="" style="border: none">Jar</th>
+                        <th class="delete-cell" style="border: none"
+                            tour-step
+                            tour-step-belongs-to="tour"
+                            tour-step-content="You can use this plus button to add a new operator, or you can use the trash icons below to delete one."
+                            tour-step-order="190"
+                            tour-step-orphan="false"
+                            tour-step-placement="bottom-right"><i class="fa fa-plus fa-button-white" style="font-size: 24px; position: absolute" ng-click="addOperator()"></i></th>
+                    </tr>
+                </thread>
+                <tbody style="overflow-y: scroll; height: calc(100% - 37px); width: 100%; display: inline-block">
+                <tr class="system-bottom-row" ng-repeat="(index, operator) in rowCollection | filter: search" ng-click="setActive(operator)" ng-init="index === 0 ? setActive(operator) : ''"  ng-class="{'system-selected-row': operator === active}" >
+                    <td class="operator-cell">{{operator.name}}</td>
+                    <td class="operator-cell">{{operator.type}}</td>
+                    <td class="operator-cell">{{operator.className}}</td>
+                    <td class="operator-cell">{{operator.jarName}}</td>
+                    <td class="delete-cell"><i class="fa fa-trash fa-button-black" ng-click="deleteOperator(index, operator._id)"></i></td>
+                    <br>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div id="tab-holder-operator" class='holder'
+         tour-step
+         tour-step-belongs-to="tour"
+         tour-step-content="Here, you can view and edit details of the selected operator."
+         tour-step-order="200"
+         tour-step-orphan="false"
+         tour-step-placement="top-left">
+        <div class="tab-holder resizableN" style="resize: vertical; z-index: 99">
+            <md-tabs class="detail-tabs" md-whiteframe style="min-height: 98%; background: #fff" md-selected="currTab.selected">
+                <md-tab label="Details">
+                    <div style="padding: 0 25px 0 25px; width: 40%; display: inline-block">
+                        <div ng-repeat="(key, prop) in active" ng-if="key !== 'properties' && key !== 'file' && key !== '_id' && key !== 'jar' && key !== 'jarName'" style="padding: 10px 25px; width: 100%;">
+                            <div style="display:inline-block; width: 100%">
+                                <div class="detail-prop-container" >{{key}}:</div>
+                                <input type="text" ng-model="active[key]" ng-if="key === 'name' || key === 'className' || key === 'displayName'" style="width: 100%; max-width: calc(100% - 150px); "/>
+                                <select ng-model="active[key]" ng-if="key === 'type'" style="width: 100%; max-width: calc(100% - 150px); ">
+                                    <option ng-repeat="type in types" value="{{type}}" >{{type}}</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div style="padding: 10px 25px; width: 100%;">
+                            <div style="display:inline-block; width: 100%">
+                                <div class="detail-prop-container" >jar:</div>
+                                <input type="radio" value="false" data-ng-model="useJar" ng-checked="true" ng-disabled="!active._id" />&nbsp;Use Existing Jar<br>
+                                <div class="detail-prop-container" style="color: rgba(0,0,0,0); user-select: none;" >jar:</div>
+                                <input type="radio" value="true" data-ng-model="useJar" />&nbsp;Use New Jar
+                            </div>
+                        </div>
+                        <div style="padding: 10px 25px; width: 100%;">
+                            <div style="display:inline-block; width: 100%">
+                                <div class="detail-prop-container" >jarName:</div>
+                                <span>{{active.jarName}}</span>
+                            </div>
+                        </div>
+                        <div style="padding: 10px 25px; width: 100%;" ng-show="useJar === 'true'" >
+                            <div style="display:inline-block; width: 100%">
+                                <div class="detail-prop-container" >jar_file:</div>
+                                <input type="file" id="jarFileInput" accept=".jar" style="width: 92px; display: inline; color: rgba(0,0,0,0)" />
+                            </div>
+                        </div>
+                    </div>
+                    <div style="padding: 0 25px 0 25px; display: inline-block; position: absolute; top: 0; width: 60%; height: 100%"
+                         tour-step
+                         tour-step-belongs-to="tour"
+                         tour-step-content="Over here, you can add properties to your operator, choose if they're required, and what validation it uses.
+                                            Like the operator list above, you can add and remove properties in as similar manner."
+                         tour-step-order="210"
+                         tour-step-orphan="false"
+                         tour-step-placement="left">
+                        <table st-table="propRows" st-safe-src="active.properties" class="table error-table op-prop-table" style="width: 100% !important; display: inline-block; height: calc(100% - 100px); overflow-y: hidden; margin-bottom: 0">
+                            <thread>
+                                <tr style="display: flex; width: 100%;" class="error-header property-row">
+                                    <th st-sort="name">
+                                        Property Name
+                                    </th>
+                                    <th st-sort="displayName">
+                                        Display Name
+                                    </th>
+                                    <th st-sort="required">
+                                        Required
+                                    </th>
+                                    <th st-sort="type">
+                                        Validation Rule
+                                    </th>
+                                    <th>
+                                        Description
+                                    </th>
+                                    <th style="width: 28px; padding: 8px 0">
+                                        <i class="fa fa-plus fa-button-black" style="font-size: 20px" ng-click="addProperty()"></i>
+                                    </th>
+                                </tr>
+                            </thread>
+                            <tbody style="overflow-y: scroll; height: calc(100% - 67px); width: 100%;">
+                            <tr class="property-row" ng-repeat="(index, prop) in propRows">
+                                <td>
+                                    <input type="text" ng-model="prop.name" style="width: 100%;">
+                                </td>
+                                <td>
+                                    <input type="text" ng-model="prop.displayName" style="width: 100%;">
+                                </td>
+                                <td>
+                                    <input type="checkbox" ng-model="prop.required" style="width: 100%;">
+                                </td>
+                                <td>
+                                    <select ng-model="prop.type" style="width: calc(100% - 20px)">
+                                        <option ng-repeat="validation in validations.concat(customValidations)" value="{{validation.name}}">{{validation.name}}</option>
+                                    </select>
+                                </td>
+                                <td>
+                                    <input type="button" class="btn purple-button" value="Edit" style="padding: 5px; font-size: 12px" ng-click="editDescription(active, index)"/>
+                                </td>
+                                <td style="width: 28px; padding: 8px 0">
+                                    <i class="fa fa-trash fa-button-black" style="font-size: 20px; float: left; position: relative" ng-click="removeProperty(index)"></i>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                        <input type="button" ng-click="saveOperator()" style="display: inline" value="Save Operator" class="btn purple-button" ng-disabled="
+                            disableSave ||
+                            (!active._id && !active.file) ||
+                            !active.name ||
+                            !active.displayName ||
+                            !active.className ||
+                            !active.jarName ||
+                            !active.type"
+                        />
+                    </div>
+                </md-tab>
+                <md-tab label="Validation Rules">
+                    <div class="validation-holder-outer"  style="width: 100%; padding: 0 15px 0 15px; height: 100%;">
+                        <div style="float: left; height: 100%; width: 40%; position: relative"
+                             tour-step
+                             tour-step-belongs-to="tour"
+                             tour-step-content="Here, as like previous lists, you can add and delete custom rulesets to be used by property validation."
+                             tour-step-order="230"
+                             tour-step-orphan="false"
+                             tour-step-placement="right">
+                            <div style="padding: 10px; font-weight: bold; width: 100%;">Rules<i class="fa fa-plus fa-button-black fa-2x" style="position:absolute; right: 15px" ng-click="newRule()"></i></div><br>
+                            <div style="height: calc(100% - 80px); overflow-y: scroll">
+                                <md-content>
+                                    <md-list flex>
+                                        <md-list-item ng-repeat="rule in customValidations track by $index" ng-click="selectRule($index)">
+                                            {{rule.name}} <i style="position: absolute; right: 5px; top: 10px" class="fa fa-trash fa-2x fa-button-black" ng-click="deleteValidation(rule, $index)"></i>
+                                        </md-list-item>
+                                    </md-list>
+                                </md-content>
+                            </div>
+                        </div>
+                        <div style="float: right; height: 100%; width: 59%;">
+                            <div style="height: calc(100% - 30px); padding: 10px; width: 100%; max-width: 1000px">
+                                <div style="padding: 0 25px 0 25px; width: 100%; display: inline-block; height: 100%">
+                                    <div style="padding: 10px 25px; width: 100%;">
+                                        <div style="display:inline-block; width: 100%">
+                                            <div class="detail-prop-container" >Name:</div>
+                                            <input type="text" ng-model="activeRule['name']" style="width: 100%; max-width: calc(100% - 150px); " />
+                                        </div>
+                                    </div>
+                                    <div style="padding: 10px 25px; width: 100%;">
+                                        <div style="display:inline-block; width: 100%">
+                                            <div class="detail-prop-container" >Type:</div>
+                                            <select ng-model="activeRule['type']" style="width: 100%; max-width: calc(100% - 150px); " ng-change="configureRule()" >
+                                                <option ng-repeat="type in validationTypes" value="{{type}}">{{type}}</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div style="padding: 10px 25px; width: 100%;" ng-if="activeRule.type === 'textInput'">
+                                        <div style="display:inline-block; width: 100%">
+                                            <div class="detail-prop-container" >RegEx:</div>
+                                            <input type="text" ng-model="activeRule['regex']" style="width: 100%; max-width: calc(100% - 150px); " ng-change="convertRegex()"/>
+                                        </div>
+                                    </div>
+                                    <div style="padding: 10px 25px; width: 100%;" ng-if="activeRule.type === 'textInput'">
+                                        <div style="display:inline-block; width: 100%">
+                                            <div class="detail-prop-container" >List:</div>
+                                            <input type="checkbox" ng-model="activeRule['list']" />
+                                        </div>
+                                    </div>
+                                    <div style="padding: 10px 25px; width: 100%;" ng-if="activeRule.type === 'fileInput'">
+                                        <div style="display:inline-block; width: 100%">
+                                            <div class="detail-prop-container" >Extension:</div>
+                                            <input type="text" ng-model="activeRule['file']" style="max-width: calc(100% - 150px); width: 100%;" />
+                                        </div>
+                                    </div>
+                                    <div style="padding: 10px 25px; width: 100%" ng-if="activeRule.type === 'selectBox'">
+                                        <div style="display:inline-block; width: 100%">
+                                            <div class="detail-prop-container" >Import Mapping:</div>
+                                            <input type="file"  accept=".json" ng-model="mappingFile.value" ng-change="addMapping()" app-filereader style="max-width: calc(100% - 150px); width: 100%; display: inline-block" /><br>
+                                        </div>
+                                    </div>
+                                    <div style="padding: 10px 25px; width: 100%; height: calc(100% - 150px)" ng-if="activeRule.type === 'selectBox'">
+                                        <div style="position: relative; display:inline-block; width: 100%; height: 100%">
+                                            <div class="detail-prop-container" style="width: 100%; padding-bottom: 5px">
+                                                Options:
+                                                <i class="fa fa-plus fa-2x fa-button-black" ng-click="addOption()" style="position: absolute; right: 25px"></i>
+                                            </div>
+                                            <div style="overflow-y: scroll; height: calc(100% - 25px); width: 100%;" >
+                                                <md-content>
+                                                    <md-list flex>
+                                                        <md-list-item ng-repeat="option in activeRule.options track by $index" >
+                                                            <input type="text" ng-model="activeRule.options[$index]" style="width: calc(100% - 30px)">
+                                                            <i class="fa fa-trash fa-button-black fa-2x" style="position: relative; left: 10px" ng-click="deleteOption($index)"></i>
+                                                        </md-list-item>
+                                                    </md-list>
+                                                </md-content>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <input type="button" class="btn purple-button" style="position: re" value="Save Rule" ng-click="saveValidation()" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </md-tab>
+            </md-tabs>
+        </div>
+    </div>
+</div>
+
+

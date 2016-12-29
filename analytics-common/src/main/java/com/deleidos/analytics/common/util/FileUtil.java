@@ -17,8 +17,8 @@ import org.apache.commons.io.filefilter.TrueFileFilter;
 public class FileUtil {
 
 	/**
-	 * Get all files under a base directory with a particular extension. If
-	 * recursive is true, sub-directories will be searched.
+	 * Get all files under a base directory with a particular extension. If recursive is true, sub-directories will be
+	 * searched.
 	 * 
 	 * @param baseDir
 	 * @param extension
@@ -53,13 +53,23 @@ public class FileUtil {
 	}
 
 	/**
-	 * Get the file name without the extension. Everything after the first dot
-	 * is excluded.
+	 * Get the file name without the extension. Everything after the first dot is excluded.
 	 * 
 	 * @param file
 	 * @return
 	 */
 	public static String getFileNameWithoutExtension(File file) {
 		return file.getName().substring(0, file.getName().indexOf("."));
+	}
+
+	/**
+	 * Write a byte array to a file.
+	 * 
+	 * @param file
+	 * @param bytes
+	 * @throws IOException
+	 */
+	public static void writeByteArray(File file, byte[] bytes) throws IOException {
+		FileUtils.writeByteArrayToFile(file, bytes);
 	}
 }

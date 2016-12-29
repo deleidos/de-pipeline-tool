@@ -4,7 +4,15 @@
             <label class="btn mode-button" ng-model="view" uib-btn-radio="'tile'">Tile</label>
             <label class="btn mode-button" ng-model="view" uib-btn-radio="'detail'">Detail</label>
         </div>
-        <div id="search" class="system-search">
+        <input type="button" class="btn purple-button pull-right pause-monitoring" value="{{monitoring ? 'Pause' : 'Start'}} Monitoring" ng-click="toggleMonitoring()"
+               tour-step
+               tour-step-belongs-to="tour"
+               tour-step-content="Up here, you can toggle the monitoring feature and toggle the manager views.<br><br>The view currently is the tile view which gives you a more visual look at all your systems. The detail view provides more information about your systems at a glance. It's also sortable."
+               tour-step-order="150"
+               tour-step-orphan="false"
+               tour-step-placement="left-top"/>
+        <input type="button" class="btn purple-button pull-right pause-monitoring" value="Refresh" ng-click="refresh()" />
+        <div class="system-search search">
             <md-select aria-label="Search on" ng-model="searchTerm">
                 <md-option value="name">&nbsp;&nbsp;&nbsp;&nbsp;Name</md-option>
                 <md-option value="class">&nbsp;&nbsp;&nbsp;&nbsp;Status</md-option>
@@ -17,7 +25,7 @@
     </div>
     <div tour-step
          tour-step-belongs-to="tour"
-         tour-step-content="Here, a system can be started, stopped (killed), edited, or deleted. The system modes are: <br><br>Green: The system is running normally<br>Grey: The system has been killed or is offline.<br><br>When starting or stopping a system, it can take a few minutes before it's completed."
+         tour-step-content="Here, a system can be started, stopped (killed), edited, or deleted. The system modes are: <br><br>Green: The system is running normally<br>Grey: The system has been killed or is offline.<br>Red: The system has stopped abruptly or run into an error.<br><br>When starting or stopping a system, it can take a few minutes before it's completed."
          tour-step-order="120"
          tour-step-orphan="true"></div>
     <div tour-step
@@ -31,7 +39,7 @@
                 'online-back': system.class === 'online',
                 'offline-back': system.class === 'offline',
                 'error-back': system.class === 'error',
-                'idle-back': system.class === 'running' || system.class === 'killing',
+                'idle-back': system.class === 'launching' || system.class === 'killing',
                 'new-back': system.class === 'new',
                 'active-state': system === active
             }">
@@ -39,39 +47,37 @@
                     <i title="Turn On System"
                        class="system-button fa fa-power-off"
                        ng-class="{
-                                    'disabled-button': system.class === 'online' || system.class === 'running' || system.class === 'killing'
+                                    'disabled-button': system.class === 'online' || system.class === 'launching' || system.class === 'killing'
                                }"
-                       ng-click="system.class !== 'running' && system.class !== 'killing' && toggleSystem(system) && event.stopPropagation()"></i><br>
+                       ng-click="system.class !== 'launching' && system.class !== 'killing' && toggleSystem(system)"></i><br>
                     <i title="Kill System"
                        class="system-button fa fa-times"
                        ng-class="{
-                            'disabled-button': system.class !== 'online' || system.class === 'running' || system.class === 'killing'
+                            'disabled-button': system.class !== 'online' || system.class === 'launching' || system.class === 'killing'
                        }"
-                       ng-click="system.class === 'online' && system.class !== 'running' && system.class !== 'killing' && killSystem(system) && event.stopPropagation()"></i><br>
+                       ng-click="system.class === 'online' && system.class !== 'launching' && system.class !== 'killing' && killSystem(system)"></i><br>
                     <i title="System Builder"
                        class="system-button fa fa-cubes"
                        ng-class="{
-                            'disabled-button': system.class === 'online' || system.class === 'running' || system.class === 'killing'
+                            'disabled-button': system.class === 'online' || system.class === 'launching' || system.class === 'killing'
                        }"
-                       ng-click="system.class !== 'online' && system.class !== 'running' && system.class !== 'killing' && sendId(system.uuid) && event.stopPropagation()"></i><br>
+                       ng-click="system.class !== 'online' && system.class !== 'launching' && system.class !== 'killing' && sendId(system.uuid)"></i><br>
                     <i title="Delete System"
                        class="system-button fa fa-trash"
                        ng-class="{
-                            'disabled-button': system.class === 'online' || system.class === 'running' || system.class === 'killing'
+                            'disabled-button': system.class === 'online' || system.class === 'launching' || system.class === 'killing'
                        }"
-                       ng-click="system.class !== 'online' && system.class !== 'running' && system.class !== 'killing' && deleteSystem(system) && event.stopPropagation()"></i>
+                       ng-click="system.class !== 'online' && system.class !== 'launching' && system.class !== 'killing' && deleteSystem(system)"></i>
                 </div>
-                <div class="system-title">{{system.name}}</div>
-                <div class="system-state" ng-if="system.properties.state && system.class !== 'running' && system.class !== 'killing'">{{system.properties.state.toLowerCase()}}</div>
-                <div class="system-state" ng-if="!system.properties.state && system.class !== 'running' && system.class !== 'killing'">offline</div>
-                <div class="system-state" ng-if="system.class === 'running' || system.class === 'killing'">{{system.class}}</div>
+                <div class="system-title">{{system.name.substr(0, 13)}}</div>
+                <div class="system-state">{{system.class}}</div>
                 <div class="system-symbol">
                     <i class="fa" ng-class="{
                     'fa-circle-o ': system.class === 'online',
                     'fa-power-off ': system.class === 'offline',
                     'fa-ban ': system.class === 'error',
                     'fa-question-circle ': system.class === 'new',
-                    'fa-spinner fa-pulse ': system.class === 'running' || system.class === 'killing'
+                    'fa-spinner fa-pulse ': system.class === 'launching' || system.class === 'killing'
                }" ></i>
                 </div>
 
@@ -88,57 +94,56 @@
                         <th class="system-cell-action" style="border: none">Actions</th>
                     </tr>
                 </thread>
-                <tbody style="overflow-y: auto; height: calc(100% - 37px); width: 100%; display: inline-block">
-                    <tr class="system-bottom-row" ng-repeat="(index, system) in rowCollection | filter: search" ng-click="setActive(system)" ng-class="{'system-selected-row': system === active}" >
+                <tbody style="overflow-y: scroll; height: calc(100% - 37px); width: 100%; display: inline-block">
+                    <tr class="system-bottom-row" ng-repeat="(index, system) in rowCollection | filter: search | orderBy: orderManager" ng-click="setActive(system)" ng-class="{'system-selected-row': system === active}" >
                         <td class="system-cell-name">{{system.name}}</td>
                         <td class="system-cell-status" ng-class="{
                             'online-color': system.class === 'online',
                             'offline-color': system.class === 'offline',
                             'error-color': system.class === 'error',
-                            'idle-color': system.class === 'running' || system.class === 'killing',
+                            'idle-color': system.class === 'launching' || system.class === 'killing',
                             'new-color': system.class === 'new',
                             'active-color': system === active
                         }">
                             <i class="fa fa-circle"></i>
-                            <span ng-if="system.class === 'running' || system.class === 'killing'">{{system.class}}</span>
-                            <span ng-if="!system.properties.state && system.class !== 'running' && system.class !== 'killing'">offline</span>
-                            <span ng-if="system.properties.state && system.class !== 'running' && system.class !== 'killing'">{{system.class}}</span></td>
+                            <span ng-if="system.class === 'launching' || system.class === 'killing'">{{system.class}}</span>
+                            <span ng-if="!system.properties.state && system.class !== 'launching' && system.class !== 'killing'">offline</span>
+                            <span ng-if="system.properties.state && system.class !== 'launching' && system.class !== 'killing'">{{system.class}}</span></td>
                         <td class="system-cell-start">{{system.startTime}}</td>
-                        <td class="system-cell-finish">{{system.endTime}}</td>
+                        <td class="system-cell-finish">{{system.class === 'offline' ? system.endTime : '-'}}</td>
                         <td class="system-cell-action">
                             <i title="Turn On System"
                                class="system-button fa fa-power-off detail-button"
                                ng-class="{
-                                    'disabled-button': system.class === 'online' || system.class === 'running' || system.class === 'killing'
+                                    'disabled-button': system.class === 'online' || system.class === 'launching' || system.class === 'killing'
                                }"
-                               ng-click="system.class !== 'running' && system.class !== 'killing' && toggleSystem(system) && event.stopPropagation()"></i>
+                               ng-click="system.class !== 'launching' && system.class !== 'killing' && toggleSystem(system)"></i>
                             <i title="Kill System"
                                class="system-button fa fa-times detail-button"
                                ng-class="{
-                                    'disabled-button': system.class !== 'online' || system.class === 'running' || system.class === 'killing'
+                                    'disabled-button': system.class !== 'online' || system.class === 'launching' || system.class === 'killing'
                             }"
-                               ng-click="system.class === 'online' && system.class !== 'running' && system.class !== 'killing' && killSystem(system) && event.stopPropagation()"></i>
+                               ng-click="system.class === 'online' && system.class !== 'launching' && system.class !== 'killing' && killSystem(system)"></i>
                             <i title="System Builder"
                                class="system-button fa fa-cubes detail-button"
                                ng-class="{
-                                    'disabled-button': system.class === 'online' || system.class === 'running' || system.class === 'killing'
+                                    'disabled-button': system.class === 'online' || system.class === 'launching' || system.class === 'killing'
                                 }"
-                               ng-click="system.class !== 'online' && system.class !== 'running' && system.class !== 'killing' && sendId(system.uuid) && event.stopPropagation()"></i>
+                               ng-click="system.class !== 'online' && system.class !== 'launching' && system.class !== 'killing' && sendId(system.uuid)"></i>
                             <i title="Delete System"
                                class="system-button fa fa-trash detail-button"
                                ng-class="{
-                                    'disabled-button': system.class === 'online' || system.class === 'running' || system.class === 'killing'
+                                    'disabled-button': system.class === 'online' || system.class === 'launching' || system.class === 'killing'
                                 }"
-                               ng-click="system.class !== 'online' && system.class !== 'running' && system.class !== 'killing' && deleteSystem(system) && event.stopPropagation()"></i>
+                               ng-click="system.class !== 'online' && system.class !== 'launching' && system.class !== 'killing' && deleteSystem(system)"></i>
                         </td><br>
                     </tr>
                 </tbody>
             </table>
         </div>
         <div class="system-holder resizableS" ng-if="down">
-            <div ng-if="!displayList.length" class="alert alert-warning" style="margin-right: 20px">
-                <i class="fa fa-warning"></i>
-                The data service is either down or no systems are present at the time. Please refresh the page to repopulate this list or create a system in the builder.
+            <div md-whiteframe class="alert alert-info" ng-if="!displayList.length" style="margin: 10px 20px 10px 10px">
+                <i class="fa fa-info-circle"></i>&nbsp;The data service is either down or no systems are present at the time. Please refresh the page to repopulate this list or create a system in the builder.
             </div>
         </div>
     </div>
@@ -146,7 +151,7 @@
         <div class="tab-holder resizableN" style="resize: vertical; z-index: 99">
             <md-tabs class="detail-tabs" md-whiteframe style="min-height: 98%; background: #fff">
                 <md-tab label="Monitor">
-                    <div ng-if="active.class === 'online'"  ng-controller="ChartController" style="width: 100%; height: 100%">
+                    <div ng-if="active.class === 'online' || active.class === 'launching'"  ng-controller="ChartController" style="width: 100%; height: 100%">
                         <div class="chart-holder" style="height: 100%; width: 100%;">
                             <span style="width:50%; float: left; height: 100%;">
                                 <canvas id="tuple-chart" class="chart chart-line" chart-data="tupleChartData"
@@ -155,98 +160,89 @@
                                 chart-colors="tupleChartColors" >
                                 </canvas>
                             </span>
-                            <span ng-show="active.class === 'online'" style="width:50%; float: right; height: 100%;">
+                            <span style="width:50%; float: right; height: 100%;">
                                 <canvas id="cpu-chart" class="chart chart-pie" chart-data="cpuChartData"
                                 chart-labels="cpuChartLabels" chart-options="cpuChartOptions" >
                                 </canvas>
                             </span>
                         </div>
                     </div>
+                    <div md-whiteframe class="alert alert-info" ng-show="!active || active.class !== online" style="margin: 10px">
+                        <i class="fa fa-info-circle"></i>&nbsp;Active system is down. No graphs available.
+                    </div>
                 </md-tab>
                 <md-tab label="Details">
                     <div style="padding: 0 25px 0 25px">
                         <div ng-repeat="list in activeProperties" style="display: inline-block; padding: 0 25px 0 25px">
                             <div ng-repeat="(prop, value) in list track by $index" class="detail-container">
-                                <div style="display:inline-block" ng-hide="prop === 'startedTime' || prop === 'finishedTime'" >
+                                <div style="display:inline-block; width: 100%;" ng-hide="prop === 'startedTime' || prop === 'finishedTime'" >
                                     <div class="detail-prop-container">{{prop}}:</div>
                                     {{value}}
                                 </div>
-                                <div style="display:inline-block" ng-hide="prop !== 'startedTime'" >
+                                <div style="display:inline-block; width: 100%;" ng-hide="prop !== 'startedTime'" >
                                     <div class="detail-prop-container">{{prop}}:</div>
                                     {{active.startTime}}
                                 </div>
-                                <div style="display:inline-block" ng-hide="prop !== 'finishedTime'" >
+                                <div style="display:inline-block; width: 100%;" ng-hide="prop !== 'finishedTime'" >
                                     <div class="detail-prop-container">{{prop}}:</div>
-                                    {{active.endTime}}
+                                    {{ active.class === 'offline' ? active.endTime : '-' }}
                                 </div>
                             </div>
                         </div>
                     </div>
                 </md-tab>
-                <!--<md-tab label="Logs" md-dynamic-height="true" style="height: 100%;">
-                    <div class="log-holder-outer" ng-init="changeLogCSS()" style="width: 100%; padding: 0 15px 0 15px; height: 100%;">
-                        <div style="float: left; height: 100%; width: 20%;">
-                            <span style="padding: 10px; font-weight: bold">Servers</span><br>
-                            <div style="height: calc(100% - 40px); overflow-y: scroll">
-                                <md-content>
-                                    <md-list flex>
-                                        <md-list-item ng-repeat="log in logs track by $index" ng-click="setLog(log)">
-                                            {{log}}
-                                        </md-list-item>
-                                    </md-list>
-                                </md-content>
-                            </div>
-                        </div>
-                        <div style="float: right; height: 100%; width: 79%;">
-                            <span style="padding: 10px; font-weight: bold">Log</span><br>
-                            <div style="height: calc(100% - 30px); padding: 10px;">
-                                <textarea style="resize: none; height: 100%; width: 100%;" readonly></textarea>
-                            </div>
-                        </div>
-                    </div>
-                </md-tab>-->
-                <md-tab label="Errors">
+                <md-tab label="Logging">
                     <div style="padding: 15px; height: 100%; width: 100%;" class="error-table-holder">
-                        <table st-table="rowCollection" class="table error-table" style="width: 50% !important; display: inline-table; height: 100%; overflow-y: hidden">
+                        <table st-table="rowCollection" st-safe-src="errors[active.name]" class="table error-table" style="width: 50% !important; display: inline-block; height: 100%; overflow-y: hidden">
                             <thread>
                                 <tr style="display: inline-table; width: 100%;" class="error-header">
-                                    <th style="width: 15%">
+                                    <th class="error-log-operator" st-sort="operator">
                                         Operator
                                     </th>
-                                    <th>
+                                    <th class="error-log-entry">
                                         Log Entry
                                         <span style="float: right;">
                                             <label class="btn log-button" ng-click="toggleLogs()">{{logService.readyState === 1 ? 'Pause' : 'Start'}}</label>
-                                            <label class="btn log-button" ng-click="clearLogs()">Clear</label>
+                                            <label class="btn log-button" ng-click="clearLogs(active.name)">Clear</label>
                                         </span>
                                     </th>
                                 </tr>
                             </thread>
-                            <tbody style="overflow-y: scroll; display: block; height: calc(100% - 37px);">
-                                <tr style="display: inline-table; width: 100%;" ng-repeat="error in errors[active.name]" ng-click="selectError(error)">
-                                    <td style="width: 15%">
-                                        {{error[0].substring(error[0].indexOf('Error in ') + 9, error[0].indexOf(': '))}}
+                            <tbody style="overflow-y: scroll; height: calc(100% - 67px); width: 100%;">
+                                <tr class="error-row" ng-repeat="error in rowCollection track by $index" ng-click="selectError(error)" ng-if="error.system === active.name"
+                                    ng-hide="($index < 25 && logPage !== 1) ||
+                                             ($index >= 25 && $index < 50 && logPage !== 2) ||
+                                             ($index >= 50 && $index < 75 && logPage !== 3) ||
+                                             ($index >= 75 && logPage !== 4)">
+                                    <td class="error-log-operator">
+                                        {{error.operator}}
                                     </td>
-                                    <td>
-                                        {{error[0].substring(error[0].indexOf(': ') + 2, error[0].indexOf('[ERROR END]'))}}
-                                    </td>
+                                    <td class="error-log-entry">
+                                        {{error.error.split('[NEW LINE]')[0]}}
                                     </td>
                                 </tr>
                             </tbody>
                         </table>
+                        <div class="arrow-holder">
+                            <span ng-click="changeLogPage('back')" ng-hide="logPage === 1">
+                                <i class="fa fa-angle-double-left"></i>
+                            </span>
+                            <span ng-click="changeLogPage('forward')" style="float: right"
+                                  ng-hide=" (errors[active.name] === null || errors[active.name] === undefined) ||
+                                          (logPage === 4 ||
+                                          (logPage === 3 && errors[active.name].length <= 75) ||
+                                          (logPage === 2 && errors[active.name].length <= 50) ||
+                                          (logPage === 1 && errors[active.name].length <= 25))">
+                                <i class="fa fa-angle-double-right"></i>
+                            </span>
+                        </div>
                         <div style="height: calc(100% - 42px); padding: 15px; float: right;  width: 50%; display: inline-block">
-                            <b>Error Log</b><br><br>
-                            <textarea readonly style="height: 100%; padding: 5px; resize: none; width: 100%;" >
-                                {{selectedError.join('\n')}}
-                            </textarea>
+                            <b>Log Details</b>
+                            <label class="btn log-button" ng-click="openErrorWindow(selectedError.fullError)">Details Window</label><br><br>
+                            <textarea readonly style="height: 100%; padding: 5px; resize: none; width: 100%; word-break: break-all" >{{selectedError.fullError}}</textarea>
                         </div>
                     </div>
                 </md-tab>
-                <!--<md-tab label="Scheduling">
-                    <div>
-
-                    </div>
-                </md-tab>-->
             </md-tabs>
         </div>
     </div>

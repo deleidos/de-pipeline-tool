@@ -1,0 +1,65 @@
+{
+  "metadata": {
+    "metadata": {
+      "name": "S3InputOperator",
+      "className": "com.deleidos.framework.operators.s3.S3InputOperator",
+      "displayName": "S3 Input",
+      "properties": [
+        {
+          "name": "bucketName",
+          "displayName": null,
+          "choices": null,
+          "required": true,
+          "type": "String"
+        },
+        {
+          "name": "path",
+          "displayName": null,
+          "choices": null,
+          "required": true,
+          "type": "String"
+        },
+        {
+          "name": "accessKey",
+          "displayName": null,
+          "choices": null,
+          "required": true,
+          "type": "String"
+        },
+        {
+          "name": "secretKey",
+          "displayName": null,
+          "choices": null,
+          "required": true,
+          "type": "String"
+        },
+        {
+          "name": "endpoint",
+          "displayName": null,
+          "choices": null,
+          "required": false,
+          "type": "String"
+        },
+        {
+          "name": "splitter",
+          "displayName": null,
+          "choices": null,
+          "required": true,
+          "type": "String"
+        },
+        {
+          "name": "headerRows",
+          "displayName": null,
+          "choices": null,
+          "required": true,
+          "type": "String"
+        }
+      ],
+      "jarName": "de-operator-s3-0.0.1-SNAPSHOT-jar-with-dependencies.jar",
+      "type": "input",
+      "_id": "744d6597-109b-4394-88c6-4d4792b999fb"
+    },
+    "bytes": null
+  },
+  "request": "saveOperatorMetadata"
+}

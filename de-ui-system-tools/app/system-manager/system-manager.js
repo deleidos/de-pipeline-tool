@@ -2,8 +2,8 @@
     "use strict";
 
     angular.module('systemManager')
-        .controller('SystemManagerController', ['$scope', '$uibModal', 'MonitorData', '$rootScope', '$websocket', '$timeout', 'uiTourService', 'tourSteps', SystemManagerController])
-        .controller('ConfirmDelete', ['$scope', '$uibModalInstance', ConfirmDelete]);
+        .controller('SystemManagerController', ['$scope', '$uibModal', 'MonitorData', '$rootScope', '$websocket', 'tourSteps', SystemManagerController])
+        .controller('Confirm', ['$scope', '$uibModalInstance', 'task', 'system', Confirm]);
 
     /**
      * @desc This is the function that represents the confirmation of deletion modal. When a system is chosen for
@@ -11,8 +11,12 @@
      * cancel cancels it
      * @param $scope The scope of the controller
      * @param $uibModalInstance The modal instance (itself really)
+     * @param task
+     * @param system
      */
-    function ConfirmDelete($scope, $uibModalInstance) {
+    function Confirm($scope, $uibModalInstance, task, system) {
+        $scope.task = task;
+        $scope.system = system;
         $scope.ok = function() {
             $uibModalInstance.close();
         };
@@ -29,76 +33,96 @@
      * @param MonitorData
      * @param $rootScope The scope of the module, used to pass down the data-service url which changes based on the url
      * @param $websocket The websocket function used to make sockets
-     * @param $timeout Timer function
+     * @param tourSteps Controls where the tour currently is
      */
-    function SystemManagerController($scope, $uibModal, MonitorData, $rootScope, $websocket, $timeout, TourService, tourSteps) {
-
-        //Contains the currently active system
+    function SystemManagerController($scope, $uibModal, MonitorData, $rootScope, $websocket, tourSteps) {
         $scope.active = undefined;
+        //Currently selected system
         $scope.activeProperties = [];
-
+        //Currently selected system's properties. Used for formatting
         $scope.runningSystem = [];
+        //The systems being deployed
         $scope.killingSystem = [];
-
+        //The systems being killed
         $scope.onlineSystems = [];
-
-        $scope.logs = ['log1', 'log2', 'log3', 'log4'];
-        $scope.currLog = null;
+        //Online systems. Used by builder to see if you can save a system or not.
+        $scope.logPage = 1;
+        //The current index of the log page (out of 4)
         $scope.errors = {};
-        $scope.prevName = '';
+        //Object that contains errors
+        //Key is the system name
         $scope.selectedError = '';
-        $scope.selectError = function(error) {
-            $scope.selectedError = error;
-        };
-        $scope.setLog = function(log) {
-            $scope.currLog = log;
-        };
-
+        //The currently selected error
+        $scope.monitoring = false;
+        //Whether or not monitoring is turned on
         $scope.view = 'tile';
-
+        //Sets the view of the manager
+        //Either tile or detail
         $scope.searchTerm = 'name';
-
+        //The variable used to search on
+        $scope.down = true;
+        //Whether or not the data-service is down
+        //Asserted to true until proved otherwise
+        $scope.dataStream = $websocket($rootScope.dataService);
+        //Websocket used to deploy, kill, or delete systems
+        var deployService = $websocket($rootScope.dataService);
+        //Consumer websocket for deployment complete
         $scope.logService = $websocket($rootScope.dataService);
+        //Consumer websocket for logging
 
+        //Refreshes on message (when something's deleted, saved, or stopped)
+        $scope.dataStream.onMessage(function() {
+            $scope.refresh();
+        });
+
+        //Consumes response whenever a system is deployed
+        deployService.send({
+            "consume": "deployment_complete_notification"
+        });
+
+        //Refreshes on response
+        deployService.onMessage(function() {
+            $scope.refresh();
+        });
+
+        //Consumes whenever an error comes in
         $scope.logService.send({
             "consume": "log_message"
         });
-        $scope.logService.onMessage(function(message) {
-            //console.log('LOGS GOING HERE');
-            console.log(message.data);
-            var matches = /\[ERROR]\s\S+/g.exec(message.data);
-            if (matches && matches.length > 0) {
-                $scope.prevName = matches[0].substr(8);
-                if (!$scope.errors[$scope.prevName]) {
-                    $scope.errors[$scope.prevName] = [];
+
+        //On error, parses out the message and pushes it to $scope.errors under the corresponding system and operator
+        //in the system
+        $scope.logService.onMessage(function(data) {
+            var messages;
+            if (data.data[0] === '[' && data.data[data.data.length - 1] === ']') {
+                messages = JSON.parse(data.data);
+            } else {
+                messages = [data.data];
+            }
+            angular.forEach(messages, function(message) {
+                var errorMatches = /\[[a-zA-Z]+]\s[a-zA-Z0-9\-_]+\sError\sin\s[a-zA-Z0-9\-_\s]+:/g.exec(message);
+                var system = null;
+                if (errorMatches) {
+                    system = errorMatches[0].substring(errorMatches[0].indexOf('[ERROR] ') + 8, errorMatches[0].indexOf(' Error in '));
+                    if ($scope.errors[system] === null || $scope.errors[system] === undefined) {
+                        $scope.errors[system] = [];
+                    }
+                    $scope.errors[system].push({
+                        'system': system,
+                        'operator': errorMatches[0].substring(errorMatches[0].indexOf(' in ') + 4, errorMatches[0].indexOf(':')),
+                        'error': errorMatches[0],
+                        'fullError': message
+                    });
                 }
-                $scope.errors[$scope.prevName].push([]);
-            }
+                if (system && $scope.errors[system].length >= 100) {
+                    $scope.errors[system].shift();
+                }
+            });
 
-            $scope.errors[$scope.prevName][$scope.errors[$scope.prevName].length - 1].push(message.data);
             console.log($scope.errors);
-
         });
 
-        $scope.clearLogs = function() {
-            $scope.errors[$scope.active.name] = [];
-        };
-
-        $scope.toggleLogs = function() {
-            if ($scope.logService.readyState === 1) {
-                $scope.logService.close();
-            } else if ($scope.logService.readyState === 3 || $scope.logService.readyState === 0) {
-                $scope.logService = $websocket($rootScope.dataService);
-                $scope.logService.send({
-                    "consume": "log_message"
-                });
-            }
-        };
-
-        angular.element('.log-holder-outer').ready(function() {
-            $(".log-holder-outer").parent().css('height', '100%');
-        });
-
+        //Jquery calls start
 
         angular.element('.system-top-row').ready(function() {
             $(".system-top-row").parent().css('display', 'flex');
@@ -127,7 +151,7 @@
                     sizes: [45, 45]
                 });
                 $('#system-holder').height('45%');
-                $('#tab-holder').height('45%');
+                $('#tab-holder').height('calc(45% - 10px)');
             }
         });
 
@@ -143,57 +167,75 @@
             }
         });
 
+        //Jquery calls end
 
-        $scope.saveLog = function() {
-            var pom = document.createElement('a');
-            pom.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent($scope.currLog));
-            pom.setAttribute('download', 'Log.txt');
+        //Clears the selected system's logs visually
+        $scope.clearLogs = function(name) {
+            $scope.errors[name] = [];
+            $scope.selectedError = "";
+        };
 
-            if (document.createEvent) {
-                var event = document.createEvent('MouseEvents');
-                event.initEvent('click', true, true);
-                pom.dispatchEvent(event);
-            } else {
-                pom.click();
+        //Starts or pauses logging
+        $scope.toggleLogs = function() {
+            if ($scope.logService.readyState === 1) {
+                $scope.logService.close();
+            } else if ($scope.logService.readyState === 3) {
+                $scope.logService = $websocket($rootScope.dataService);
+                $scope.logService.send({
+                    "consume": "log_message"
+                });
             }
         };
+
+        //Sets the currently selected error to the selected one
+        $scope.selectError = function(error) {
+            $scope.selectedError = error;
+        };
+
+        //Changes the log page (max of 4)
+        $scope.changeLogPage = function(style) {
+            if (style === 'back' && $scope.logPage > 1) {
+                $scope.logPage--;
+            } else if (style === 'forward' && $scope.logPage < 4) {
+                $scope.logPage++;
+            }
+        };
+
+        //Forces the scrollbar of log display to move to the bottom
+        //Not currently used but kept because useful for tailing
         $scope.moveScrollDown = function() {
             var textarea = document.getElementById('log-display');
             textarea.scrollTop = textarea.scrollHeight;
         };
+
+        //Forces the scrollbar of log display to move to the top
+        //Not currently used but kept because useful for tailing
         $scope.moveScrollUp = function() {
             var textarea = document.getElementById('log-display');
             textarea.scrollTop = 0;
         };
 
-        $scope.down = true;
-        var dataStream = $websocket($rootScope.dataService);
-        var deployService = $websocket($rootScope.dataService);
-        var deployed = false;
-        deployService.send({
-            "consume": "deployment_complete_notification"
-        });
-        deployService.onMessage(function(message) {
-            deployed = true;
-            $scope.runningSystem.splice($scope.runningSystem.indexOf(JSON.parse(message.data).id), 1);
-            MonitorData.getAppList($scope.refreshSystems);
-        });
-        dataStream.onMessage(function(message) {
-            //add launched check and timeout
-            if (message.data.indexOf('System Killed ') > -1) {
-                $scope.killingSystem.splice(message.data.substring(message.data.indexOf('System Killed ') + 14), 1);
-                MonitorData.getAppList($scope.refreshSystems);
-            }
-        });
-
+        //Refreshes the manager on a broadcast
         $scope.$on('refreshManager', function() {
-            MonitorData.getAppList($scope.refreshSystems);
+            $scope.refresh();
         });
 
-        // Real System population
+        //Checks if an active is selected and saves it if it is
+        //Tells monitordata to update the system list
+        $scope.refresh = function() {
+            if ($scope.active && $scope.active !== undefined) {
+                $scope.activeUuid = $scope.active.uuid;
+            }
+            MonitorData.getAppList($scope.refreshSystems);
+        };
+
+        //After systems are gotten, sets the system list to be a combination of system descriptors and active systems
+        //This is because system descriptors won't be in apex if they haven't been ran
+        //Combines both lists to form a system list
         $scope.refreshSystems = function() {
             $scope.down = false;
             $scope.systems = MonitorData.systems;
+            console.log($scope.systems);
             angular.forEach(MonitorData.descriptors, function(a) {
                 var present = false;
                 for (var i = 0; i < $scope.systems.length; i++) {
@@ -219,14 +261,12 @@
             var names = {};
             $scope.onlineSystems = [];
 
+            //Goes through the new system list and sets class to be used by UI
+            //Checks if a running system is online or errored or if a closing system is offline
+            //Creates a list of names to be sent to the system builder to check name uniqueness
+
 	        angular.forEach($scope.systems, function(system) {
-                if ($scope.runningSystem.indexOf(system.uuid) > -1) {
-                    system.class = 'running';
-                    $scope.onlineSystems.push(system.uuid);
-                } else if ($scope.killingSystem.indexOf(system.name) > -1) {
-                    system.class = 'killing';
-                    $scope.onlineSystems.push(system.uuid);
-                } else if (system.properties.state === 'RUNNING' ||
+                if (system.properties.state === 'RUNNING' ||
 			        system.properties.state === 'ACCEPTED' ||
 			        system.properties.state === 'SUBMITTED') {
 			        system.class = 'online';
@@ -239,12 +279,30 @@
 		        } else {
 			        system.class = 'offline';
 		        }
+
+                if ($scope.runningSystem.indexOf(system.uuid) > -1) {
+                    if (system.class === 'online' || system.class === 'error') {
+                        $scope.runningSystem.splice($scope.runningSystem.indexOf(system.uuid), 1);
+                    } else {
+                        system.class = 'launching';
+                    }
+                }
+                if ($scope.killingSystem.indexOf(system.name) > -1) {
+                    if (system.class === 'offline') {
+                        $scope.killingSystem.splice($scope.killingSystem.indexOf(system.uuid), 1);
+                    } else {
+                        system.class = 'killing';
+                    }
+                }
+
                 names[system.name] = system.uuid;
                 $scope.$emit('Sending online systems', $scope.onlineSystems);
 
                 system.startTime = '-';
                 system.endTime = '-';
                 var date = null;
+
+                //Sets startTime and endTime manually so that invalid times will not appear
 
                 if (system.properties.startedTime && system.properties.startedTime !== 0) {
                     date = new Date(system.properties.startedTime * 1);
@@ -255,16 +313,33 @@
                     date = new Date(system.properties.finishedTime * 1);
                     system.endTime = "" + date.getFullYear() + '-' + ('0' + (date.getMonth() + 1).toString()).slice(-2) + '-' + ('0' + date.getDate().toString()).slice(-2) + ' ' + date.toTimeString().substr(0, 17);
                 }
+                if ($scope.activeUuid && $scope.activeUuid !== undefined && $scope.activeUuid === system.uuid) {
+                    $scope.setActive(system);
+                }
 	        });
+
+            //If there was an active system before, goes through and selects that one
+            if (!$scope.active || $scope.active === undefined) {
+                var sorted = $scope.systems.sort($scope.orderManager);
+                for (var i = 0; i < sorted.length; i++) {
+                    if (sorted[i].class === 'online') {
+                        $scope.setActive(sorted[i]);
+                        i = sorted.length;
+                    }
+                }
+            }
+            delete $scope.activeUuid;
+
+            //Sends unique names to system builder
             $scope.$emit('Unique names', names);
         };
         // This requests a list of apps from the web socket, and passes a callback
-        MonitorData.getAppList($scope.refreshSystems);
+        $scope.refresh();
 
         // Tell the monitor which system to fetch data for when $scope.active is changed
         $scope.$watch("active", function(system) {
             if (system) {
-                MonitorData.start(system.class !== 'online' && system.class !== 'running' ? "" : system._id);
+                MonitorData.start(!$scope.monitoring || system.class !== 'online' ? "" : system._id);
                 $scope.selectedError = "";
                 if (system.properties) {
                     var prevI = 0;
@@ -309,17 +384,24 @@
         $scope.deleteSystem = function(system) {
             var modalInstance = $uibModal.open({
                 animation: true,
-                templateUrl: 'system-manager/confirm-delete.html',
-                controller: 'ConfirmDelete',
+                templateUrl: 'system-manager/confirm.html',
+                controller: 'Confirm',
                 size: 'sm',
-                resolve: {}
+                resolve: {
+                    task: function() {
+                        return 'deleteSystem';
+                    },
+                    system: function() {
+                        return system;
+                    }
+                }
             });
 
             modalInstance.result.then(function() {
                 $scope.systems.splice($scope.systems.indexOf(system), 1);
                 if (($scope.active && $scope.active.name === system.name) || !$scope.active) {
                     $scope.active = undefined;
-                    dataStream.send({
+                    $scope.dataStream.send({
                         "request": "deleteSystem",
                         "id": system.uuid
                     });
@@ -335,23 +417,14 @@
          * @param system The system that's being requested to be toggled
          */
         $scope.toggleSystem = function(system) {
-            /*if (system.state === 'online' && $scope.killingSystem.indexOf(system.name) < 0) {
-                $scope.killingSystem.push(system.name);
-                system.class = 'killing';
-                dataStream.send({
-                    "request": "stopSystem",
-                    "id": system.uuid
-                });
-            } else if ($scope.runningSystem.indexOf(system.name) < 0) {
-                */$scope.runningSystem.push(system.uuid);
-                system.class = 'running';
-                dataStream.send({
-                    "request": "deploySystem",
-                    "id": system.uuid
-                });
+            $scope.runningSystem.push(system.uuid);
+            system.class = 'launching';
+            $scope.dataStream.send({
+                "request": "deploySystem",
+                "id": system.uuid
+            });
 
-                MonitorData.start(system._id);
-            //}
+            MonitorData.start(system._id);
 
             $scope.onlineSystems.push(system.uuid);
             $scope.$emit('Sending online systems', $scope.onlineSystems);
@@ -363,28 +436,55 @@
          * @param system The system that's being requested to be killed
          */
         $scope.killSystem = function(system) {
-            if ($scope.killingSystem.indexOf(system.name) < 0) {
-                $scope.killingSystem.push(system.name);
-                system.class = 'killing';
-                dataStream.send({
-                    "request": "killSystem",
-                    "id": system.uuid
-                });
-            }
+            var modalInstance = $uibModal.open({
+                animation: true,
+                templateUrl: 'system-manager/confirm.html',
+                controller: 'Confirm',
+                size: 'sm',
+                resolve: {
+                    task: function() {
+                        return 'killSystem';
+                    },
+                    system: function() {
+                        return system;
+                    }
+                }
+            });
 
-            if ($scope.active && system.name === $scope.active.name) {
-                MonitorData.start('');
-            }
+            modalInstance.result.then(function() {
+                if ($scope.killingSystem.indexOf(system.name) < 0) {
+                    $scope.killingSystem.push(system.name);
+                    system.class = 'killing';
+                    $scope.dataStream.send({
+                        "request": "killSystem",
+                        "id": system.uuid
+                    });
+                }
 
-            $scope.onlineSystems.push(system.uuid);
-            $scope.$emit('Sending online systems', $scope.onlineSystems);
+                if ($scope.active && system.name === $scope.active.name) {
+                    MonitorData.start('');
+                }
+
+                $scope.onlineSystems.push(system.uuid);
+                $scope.$emit('Sending online systems', $scope.onlineSystems);
+            }, function() {
+
+            });
         };
 
+        //Opens the selected error into a seperate window
+        $scope.openErrorWindow = function(errorText) {
+            var myWindow = window.open("", "MsgWindow", "width=200,height=100");
+            console.log(errorText);
+            myWindow.document.write("<p>" + errorText.split('[NEW LINE]').join("<br>") + "</p>");
+        };
+
+        //Used to sort the systems
         $scope.orderManager = function(system) {
             switch (system.class) {
                 case 'online':
                     return 0;
-                case 'running':
+                case 'launching':
                     return 1;
                 case 'killing':
                     return 2;
@@ -397,45 +497,32 @@
             }
         };
 
-        $scope.next = function() {
+        //Toggles monitoring on and off but only if the system is online
+        $scope.toggleMonitoring = function() {
+            if ($scope.monitoring) {
+                $scope.monitoring = false;
+                MonitorData.start("");
+            } else if (!$scope.monitoring && $scope.active.class === 'online') {
+                $scope.monitoring = true;
+                MonitorData.start($scope.active._id);
+            }
+        };
 
+        //Tour Functions
+
+        $scope.next = function() {
             tourSteps.next();
-            if (TourService.getTourByName('tour').getCurrentStep().order === 120) {
-                $scope.forcedFlip = true;
-                console.log("flip");
-            }
-            if (TourService.getTourByName('tour').getCurrentStep().order === 130) {
-                $scope.forcedFlip = false;
-                console.log("flop");
-                $scope.setActive($scope.systems[0]);
-            }
-            if (TourService.getTourByName('tour').getCurrentStep().order === 140) {
-                console.log("flop");
-                if ($scope.active.state !== 'online') {
-                    $scope.toggleSystem($scope.systems[0]);
-                }
-            }
-            console.log("manager next");
         };
 
         $scope.prev = function() {
             tourSteps.prev();
-            if (TourService.getTourByName('tour').getCurrentStep().order === 140) {
-                $scope.forcedFlip = false;
-                console.log("flop");
-                $scope.setActive($scope.systems[0]);
-            }
-            if (TourService.getTourByName('tour').getCurrentStep().order === 150) {
-                console.log("flop");
-                if ($scope.active.state !== 'online') {
-                    $scope.toggleSystem($scope.systems[0]);
-                }
-            }
         };
 
         $scope.end = function() {
             tourSteps.end();
         };
+
+        //End Tour Functions
 
     }
 
