@@ -15,7 +15,6 @@ import com.datatorrent.api.Context;
 import com.datatorrent.api.Context.OperatorContext;
 import com.deleidos.analytics.common.logging.LogUtil;
 import com.deleidos.analytics.common.util.FileUtil;
-import com.deleidos.analytics.config.AnalyticsConfig;
 import com.deleidos.analytics.kafka.client.MessageConsumer;
 import com.deleidos.analytics.kafka.client.MessageHandler;
 import com.deleidos.analytics.kafka.client.QueueConfig;

@@ -41,7 +41,8 @@ public class StopSystem extends BaseWebSocketMessage {
 	@GET
 	public void processMessage() throws Exception {
 		SystemDescriptor system = SystemDataManager.getInstance().getSystemDecriptor(id);
-		String appID = MonitoringUtil.getAppIdByName(system.getName());
+		MonitoringUtil util = new MonitoringUtil(ServiceConfig.getInstance().getHadoopNameNodeHostname());
+		String appID = util.getAppIdByName(system.getName());
 		APAClientNode clientNode = new APAClientNode(ServiceConfig.getInstance().getManagerServiceHostname());
 		clientNode.postStop(appID);
 		sendResponse(appID);

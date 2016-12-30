@@ -6,7 +6,6 @@ import java.util.function.ToDoubleFunction;
 
 import com.deleidos.analytics.common.rest.RestClient;
 import com.deleidos.analytics.common.util.JsonUtil;
-import com.deleidos.analytics.config.AnalyticsConfig;
 import com.deleidos.framework.monitoring.response.AppsResponse;
 import com.deleidos.framework.monitoring.response.App;
 import com.deleidos.framework.monitoring.response.InfoResponse;
@@ -23,37 +22,30 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 
 public class MonitoringUtil {
 
-	private static RestClient rc;
-	private static AppsResponse aResponse;
-	private static InfoResponse iResponse;
-	private static PhysicalPlan_ContainersResponse ppcResponse;
-	private static PhysicalPlan_OperatorsResponse ppoResponse;
-	private static long aTime = 0, iTime = 0, ppcTime = 0, ppoTime = 0, cacheTime = 2000;
-	private static String iAppId = "", ppcAppId = "", ppoAppId = "";
+	private RestClient rc;
+	private AppsResponse aResponse;
+	private InfoResponse iResponse;
+	private PhysicalPlan_ContainersResponse ppcResponse;
+	private PhysicalPlan_OperatorsResponse ppoResponse;
+	private long aTime = 0, iTime = 0, ppcTime = 0, ppoTime = 0, cacheTime = 2000;
+	private String iAppId = "", ppcAppId = "", ppoAppId = "";
 
-	static {
-		if (Boolean.getBoolean("LOCAL_TEST")) {
-			rc = new RestClient(
-					String.format("http://%s:8088", AnalyticsConfig.getInstance().getApexNameNodeHostname()));
-		}
-		else {
-			// TODO Support a better way to look stuff up, and also not assume running in AWS
-			rc = new RestClient(
-					String.format("http://%s:8088", AnalyticsConfig.getInstance().getApexNameNodeHostname()));
-		}
+	public MonitoringUtil(String apexNameNodeHostname) {
+		rc = new RestClient(
+				String.format("http://%s:8088", apexNameNodeHostname));
 	}
 
 	// Note: These methods will throw exceptions if their GET requests fail.
 	// The requests are expected to fail if the given app ID refers to an
 	// application that doesn't support a given call.
-	private static void updateAResponse() throws Exception {
+	private void updateAResponse() throws Exception {
 		if (System.currentTimeMillis() > aTime + cacheTime) {
 			aResponse = rc.getObject(AppsResponse.PATH, AppsResponse.class);
 			aTime = System.currentTimeMillis();
 		}
 	}
 
-	private static void updateIResponse(String appId) throws Exception {
+	private void updateIResponse(String appId) throws Exception {
 		System.out.println(appId);
 		if (!iAppId.equals(appId) || System.currentTimeMillis() > iTime + cacheTime) {
 			iResponse = rc.getObject(InfoResponse.PATH.replace("${APP_ID}", appId), InfoResponse.class);
@@ -62,7 +54,7 @@ public class MonitoringUtil {
 		}
 	}
 
-	private static void updatePpcResponse(String appId) throws Exception {
+	private void updatePpcResponse(String appId) throws Exception {
 		if (!ppcAppId.equals(appId) || System.currentTimeMillis() > ppcTime + cacheTime) {
 			ppcResponse = rc.getObject(PhysicalPlan_ContainersResponse.PATH.replace("${APP_ID}", appId),
 					PhysicalPlan_ContainersResponse.class);
@@ -71,7 +63,7 @@ public class MonitoringUtil {
 		}
 	}
 
-	private static void updatePpoResponse(String appId) throws Exception {
+	private void updatePpoResponse(String appId) throws Exception {
 		if (!ppoAppId.equals(appId) || System.currentTimeMillis() > ppoTime + cacheTime) {
 			ppoResponse = rc.getObject(PhysicalPlan_OperatorsResponse.PATH.replace("${APP_ID}", appId),
 					PhysicalPlan_OperatorsResponse.class);
@@ -81,7 +73,7 @@ public class MonitoringUtil {
 	}
 
 	@SuppressWarnings("rawtypes")
-	private static Object getSummedIField(AppValue v) throws Exception {
+	private Object getSummedIField(AppValue v) throws Exception {
 		updateAResponse();
 		if (aResponse.getApps() != null) {
 			for (App a : aResponse.getApps().getApp()) {
@@ -94,7 +86,7 @@ public class MonitoringUtil {
 	}
 
 	@SuppressWarnings("rawtypes")
-	private static Object getSummedPpoField(AppValue v) throws Exception {
+	private Object getSummedPpoField(AppValue v) throws Exception {
 		updateAResponse();
 		if (aResponse.getApps() != null) {
 			for (App a : aResponse.getApps().getApp()) {
@@ -106,35 +98,35 @@ public class MonitoringUtil {
 		return v.getValue();
 	}
 
-	public static Object getAField(String field) throws Exception {
+	public Object getAField(String field) throws Exception {
 		updateAResponse();
 		return AppsResponse.class.getField(field).get(aResponse);
 	}
 
-	public static Object getIField(String appId, String field) throws Exception {
+	public Object getIField(String appId, String field) throws Exception {
 		updateIResponse(appId);
 		return InfoResponse.class.getField(field).get(iResponse);
 	}
 
-	public static Object getIStatsField(String appId, String field) throws Exception {
+	public Object getIStatsField(String appId, String field) throws Exception {
 		updateIResponse(appId);
 		return Stats.class.getField(field).get(InfoResponse.class.getField("stats").get(iResponse));
 	}
 
-	public static Object getCField(String appId, int containerIndex, String field) throws Exception {
+	public Object getCField(String appId, int containerIndex, String field) throws Exception {
 		updatePpcResponse(appId);
 		return Container.class.getField(field).get(((Container[]) PhysicalPlan_ContainersResponse.class
 				.getField("containers").get(ppoResponse))[containerIndex]);
 	}
 
-	public static Object getOField(String appId, int operatorIndex, String field) throws Exception {
+	public Object getOField(String appId, int operatorIndex, String field) throws Exception {
 		updatePpoResponse(appId);
 		return Container.class.getField(field).get(((Operator[]) PhysicalPlan_OperatorsResponse.class
 				.getField("operators").get(ppcResponse))[operatorIndex]);
 	}
 
 	// Returns total VCores allocated to applications
-	public static int getCpuCoreCount() throws Exception {
+	public int getCpuCoreCount() throws Exception {
 		return (Integer) getSummedIField(new AppValue<Integer>() {
 			int sum = 0;
 
@@ -149,7 +141,7 @@ public class MonitoringUtil {
 	}
 
 	// Returns utilized cores across all applications
-	public static double getCpuUsage() throws Exception {
+	public double getCpuUsage() throws Exception {
 		return (Double) getSummedPpoField(new AppValue<Double>() {
 			double sum = 0;
 
@@ -168,7 +160,7 @@ public class MonitoringUtil {
 	}
 
 	// Returns total allocated memory of all applications in MB
-	public static int getCurrentlyAllocatedMemory() throws Exception {
+	public int getCurrentlyAllocatedMemory() throws Exception {
 		return (Integer) getSummedIField(new AppValue<Integer>() {
 			int sum;
 
@@ -183,7 +175,7 @@ public class MonitoringUtil {
 	}
 
 	// Returns total allocated memory for each application as JSON
-	public static String getCurrentlyAllocatedMemoryApps() throws Exception {
+	public String getCurrentlyAllocatedMemoryApps() throws Exception {
 		ObjectNode root = JsonNodeFactory.instance.objectNode();
 		ArrayNode data = root.putArray("data");
 		data.addAll((ArrayNode) getSummedIField(new AppValue<Object>() {
@@ -207,7 +199,7 @@ public class MonitoringUtil {
 
 	// Returns a JSON object containing an array of objects representing the
 	// running operators in {name: string, cpuPercentageMA: number} form
-	public static String getAppCpuUsage(String appId) throws Exception {
+	public String getAppCpuUsage(String appId) throws Exception {
 		updatePpoResponse(appId);
 		ObjectNode root = JsonNodeFactory.instance.objectNode();
 		ArrayNode data = root.putArray("operators");
@@ -222,7 +214,7 @@ public class MonitoringUtil {
 	}
 
 	// Returns total preempted memory of all applications in MB
-	public static int getPreemptedMemory() throws Exception {
+	public int getPreemptedMemory() throws Exception {
 		return (Integer) getSummedIField(new AppValue<Integer>() {
 			int sum;
 
@@ -238,7 +230,7 @@ public class MonitoringUtil {
 
 	// Returns count of running, pending, failed, finished, killed, and
 	// total(submitted) applications as JSON
-	public static String getApplicationCounts() throws Exception {
+	public String getApplicationCounts() throws Exception {
 		int running = 0, pending = 0, failed = 0, finished = 0, killed = 0, submitted = 0;
 		updateAResponse();
 		if (aResponse.getApps() != null) {
@@ -295,7 +287,7 @@ public class MonitoringUtil {
 	}
 
 	// Returns total count of running containers across all applications
-	public static int getContainerCount() throws Exception {
+	public int getContainerCount() throws Exception {
 		return (Integer) getSummedIField(new AppValue<Integer>() {
 			int sum;
 
@@ -310,7 +302,7 @@ public class MonitoringUtil {
 	}
 
 	// Returns total count of running operators across all applications
-	public static int getOperatorCount() throws Exception {
+	public int getOperatorCount() throws Exception {
 		return (Integer) getSummedIField(new AppValue<Integer>() {
 			int sum;
 
@@ -325,7 +317,7 @@ public class MonitoringUtil {
 	}
 
 	// Returns total number of processed tuples across all applications
-	public static int getProcessedTuplesCount() throws Exception {
+	public int getProcessedTuplesCount() throws Exception {
 		return (Integer) getSummedIField(new AppValue<Integer>() {
 			int sum;
 
@@ -340,7 +332,7 @@ public class MonitoringUtil {
 	}
 
 	// Returns total number of emitted tuples across all applications
-	public static int getEmittedTuplesCount() throws Exception {
+	public int getEmittedTuplesCount() throws Exception {
 		return (Integer) getSummedIField(new AppValue<Integer>() {
 			int sum;
 
@@ -355,7 +347,7 @@ public class MonitoringUtil {
 	}
 
 	// Returns number of processed tuples per second across all applications
-	public static int getProcessedTuplesPerSecond() throws Exception {
+	public int getProcessedTuplesPerSecond() throws Exception {
 		return (Integer) getSummedIField(new AppValue<Integer>() {
 			int sum;
 
@@ -370,7 +362,7 @@ public class MonitoringUtil {
 	}
 
 	// Returns number of emitted tuples per second across all applications
-	public static int getEmittedTuplesPerSecond() throws Exception {
+	public int getEmittedTuplesPerSecond() throws Exception {
 		return (Integer) getSummedIField(new AppValue<Integer>() {
 			int sum;
 
@@ -385,13 +377,13 @@ public class MonitoringUtil {
 	}
 
 	// Returns cursory info about all apps in an array via JSON
-	public static String getAppInfo() throws Exception {
+	public String getAppInfo() throws Exception {
 		updateAResponse();
 		return JsonUtil.toJsonString(aResponse);
 	}
 
 	@Deprecated
-	public static String getAppListDEPRECATED() throws Exception {
+	public String getAppListDEPRECATED() throws Exception {
 		System.out.println(aResponse);
 		updateAResponse();
 		JsonNodeFactory factory = JsonNodeFactory.instance;
@@ -408,7 +400,7 @@ public class MonitoringUtil {
 		return stream.toString(java.nio.charset.StandardCharsets.UTF_8.name());
 	}
 
-	public static String getAppSummaryByName(String appName) throws Exception {
+	public String getAppSummaryByName(String appName) throws Exception {
 		updateAResponse();
 		App firstOnline = null, firstOffline = null;
 		JsonNodeFactory factory = JsonNodeFactory.instance;
@@ -452,7 +444,7 @@ public class MonitoringUtil {
 	// Tries to return the ID of the youngest running app of the specified name,
 	// and falls back to the youngest
 	// stopped/finished/killed app of the specified name.
-	public static String getAppIdByName(String appName) throws Exception {
+	public String getAppIdByName(String appName) throws Exception {
 		updateAResponse();
 		String firstOffline = "", firstOnline = "";
 		if (aResponse != null && aResponse.getApps() != null) {
@@ -471,13 +463,13 @@ public class MonitoringUtil {
 	}
 
 	// Returns detailed info about a single specified app via JSON
-	public static String getAppDetails(String appId) throws Exception {
+	public String getAppDetails(String appId) throws Exception {
 		updateIResponse(appId);
 		return JsonUtil.toJsonString(iResponse);
 	}
 
 	// Returns an array of containers belonging to the specified app via JSON
-	public static String getContainers(String appId) throws Exception {
+	public String getContainers(String appId) throws Exception {
 		updatePpcResponse(appId);
 		return JsonUtil.toJsonString(ppcResponse);
 	}

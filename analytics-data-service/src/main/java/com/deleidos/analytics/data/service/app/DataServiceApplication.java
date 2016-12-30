@@ -12,15 +12,11 @@ import org.eclipse.jetty.server.handler.HandlerList;
 import org.eclipse.jetty.server.handler.ResourceHandler;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
-import org.eclipse.jetty.util.resource.Resource;
 import org.eclipse.jetty.util.thread.QueuedThreadPool;
-import org.eclipse.jetty.xml.XmlConfiguration;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.servlet.ServletContainer;
 
 import com.codahale.metrics.servlets.AdminServlet;
-import com.deleidos.analytics.common.util.JsonUtil;
-import com.deleidos.analytics.config.AnalyticsConfig;
 import com.deleidos.analytics.data.service.app.listeners.HealthCheckServletContextListener;
 import com.deleidos.analytics.data.service.app.listeners.MetricsServletContextListener;
 import com.deleidos.analytics.websocket.WebSocketServer;

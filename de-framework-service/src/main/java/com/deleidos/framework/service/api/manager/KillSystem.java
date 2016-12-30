@@ -47,7 +47,8 @@ public class KillSystem extends BaseWebSocketMessage {
 	public void processMessage() throws Exception {
 		sendResponse("YOU'RE KILLING A SYSTEM!!!!!!!!!!!!");
 		SystemDescriptor system = SystemDataManager.getInstance().getSystemDecriptor(id);
-		String appID = MonitoringUtil.getAppIdByName(system.getName());
+		MonitoringUtil util = new MonitoringUtil(ServiceConfig.getInstance().getHadoopNameNodeHostname());
+		String appID = util.getAppIdByName(system.getName());
 		APAClientNode clientNode = new APAClientNode(ServiceConfig.getInstance().getManagerServiceHostname());
 		clientNode.postKill(appID);
 		logger.info("Killing app: " + appID);

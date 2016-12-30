@@ -3,7 +3,7 @@ package com.deleidos.framework.service.config;
 import org.apache.log4j.Logger;
 
 /**
- * Service configuration values. Intialized from environment variables.
+ * Service configuration values. Initialized from environment variables.
  * 
  * @author vernona
  */

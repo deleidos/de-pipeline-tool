@@ -5,6 +5,7 @@ import javax.ws.rs.Path;
 
 import com.deleidos.analytics.websocket.api.BaseWebSocketMessage;
 import com.deleidos.framework.monitoring.MonitoringUtil;
+import com.deleidos.framework.service.config.ServiceConfig;
 
 /**
  * Get Cpu usage of the system, (TODO) an application, or an operator.
@@ -28,7 +29,8 @@ public class GetCpuUsage extends BaseWebSocketMessage {
 	@GET
 	public void processMessage() throws Exception {
 		try {
-			sendResponse(MonitoringUtil.getCpuUsage());
+			MonitoringUtil util = new MonitoringUtil(ServiceConfig.getInstance().getHadoopNameNodeHostname());
+			sendResponse(util.getCpuUsage());
 		}
 		catch (Throwable e) {
 			logger.debug(e.getMessage(), e);

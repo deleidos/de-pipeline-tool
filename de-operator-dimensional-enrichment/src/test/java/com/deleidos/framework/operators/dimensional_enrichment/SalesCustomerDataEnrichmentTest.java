@@ -15,7 +15,6 @@ import com.datatorrent.api.Context.OperatorContext;
 
 import com.datatorrent.lib.testbench.CollectorTestSink;
 import com.deleidos.analytics.common.util.FileUtil;
-import com.deleidos.analytics.config.AnalyticsConfig;
 import com.deleidos.framework.operators.common.TupleUtil;
 import com.google.gson.Gson;
 

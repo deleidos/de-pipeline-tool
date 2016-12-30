@@ -83,15 +83,5 @@
       </plugin>
     </plugins>
   </build>
- 
-  <dependencies>
-    <dependency>
-      <groupId>com.deleidos.analytics</groupId>
-      <artifactId>analytics-config</artifactId>
-      <version>0.0.1-SNAPSHOT</version>
-      <type>test-jar</type>
-      <scope>test</scope>
-    </dependency>
-  </dependencies>
 </project>
 
