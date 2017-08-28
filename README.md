@@ -38,7 +38,21 @@ Supported output data stores:
 * A pre-configured Hadoop cluster with Apache Apex installed including a name node with dtCli installed. See instructions under the hadoop sub-project.
 * A MongoDB instance. See instructions below for populating Apex operator metadata.
 
+### Hadoop Apex Cluster
+
 The hadoop project contains a Docker-based DevOps process for deploying an Apex-enabled hadoop cluster. [See the hadoop README file for instructions](hadoop/README.md).
+
+### Apex Pipeline Operator Metadata
+
+In order for the Pipeline UI Tool to work, operator metadata must be installed into the MongoDB instance. The operator metadata is used to generically populate the available Apex operator data in the UI. A sample tool for populating data is located in the de-framework-service OperatorMetaDataLoader class in the package: 
+(https://github.com/deleidos/de-pipeline-tool/tree/master/de-framework-service/src/main/java/com/deleidos/framework/service/tools)
+
+The OperatorMetaDataLoader class can be executed from any machine that has port access to the MongoDB instance. Simply set a MONGODB_HOSTNAME environment variable on that machine, and the loader will populate the data into MongoDB from the JSON file.
+
+The default operator metadata is located in the following JSON file:
+(https://github.com/deleidos/de-pipeline-tool/blob/master/de-framework-service/src/main/resources/operator_metadata.json)
+
+The OperatorMetaDataLoader class can be executed from any machine that has port access to the MongoDB instance. Simply set a MONGODB_HOSTNAME environment variable on that machine, and the loader will populate the data into MongoDB from the JSON file.
 
 ## Installing from Docker Containers
 
@@ -97,9 +111,11 @@ The following environment variables must be configured on the instance running t
 * MANAGER_SERVICE_HOSTNAME - The hostname or IP of Hadoop client node running the Manager Service container.
 * HADOOP_NAME_NODE_HOSTNAME - The hostname or IP of a Hadoop name node.
 
+The /opt/apex-deployment volume that is mapped must be populated with the pre-compiled Apex operator jar files. To facilitate this process, a set of default operator jars are provided. Unzip this file under /opt on the same instance that is to run the de-framework-service container (do this before running the container so the volume can be mapped).
+
 ### DE Manager Service
 
-The Manager Service container is installed on the client node of the Hadoop cluster. The Manager Service receives pipeline system management requests from the Framework Service and executes them locally using the Apache Apex DTCLI client tool.
+The Manager Service container is installed on the client node of the Hadoop cluster. The Manager Service receives pipeline system management requests from the Framework Service and executes them locally using the Apache Apex dtCli client tool.
 
 The Manager Service container may be run with Docker Compose as shown below:
 
