@@ -2,13 +2,13 @@
 
 ## About
 
-### Overview
+## Overview
 
 The DigitalEdge Pipeline Tool is an Apache Apex-based data ingestion and processing framework. Data is read from input sources, parsed into records, mapped via a schema, optionally enriched, and persisted to a data store.
 
 The tool allows the user to create, deploy, manage and monitor systems using an intuitive graphical interface.
 
-### Supported Apache Apex Operators
+## Supported Apache Apex Operators
 
 Support input sources:
 * S3
@@ -31,16 +31,16 @@ Supported output data stores:
 * REST services
 * Kafka
 
-## Installation
+# Installation
 
-### Prerequisites
+## Prerequisites
 
 * A pre-configured Hadoop cluster with Apache Apex installed including a name node with dtCli installed. See instructions under the hadoop sub-project.
 * A MongoDB instance. See instructions below for populating Apex operator metadata.
 
 The hadoop project contains a Docker-based DevOps process for deploying an Apex-enabled hadoop cluster. [See the hadoop README file for instructions](hadoop/README.md).
 
-### Installing from Docker Containers
+## Installing from Docker Containers
 
 In addition to the Hadoop Apex cluster and MongoDB, there are three applications that need to be installed. 
 
@@ -50,7 +50,7 @@ In addition to the Hadoop Apex cluster and MongoDB, there are three applications
 
 The three application containers are described in more detail below.
 
-# DE Pipeline UI Tool 
+### DE Pipeline UI Tool 
 
 The Pipeline UI Tool is a graphical user interface that is used to create, deploy, and manage pipelines and their associated operators.
 
@@ -69,8 +69,9 @@ de-pipeline-tool:
 ```
 
 The following environment variables must be configured on the instance running the container:
+* VIRTUAL_HOST - The hostname or IP of the instance running the Framework Service container.
 
-# DE Framework Service
+### DE Framework Service
 
 The Framework Service is the middle tier for the Pipeline UI Tool and provides WebSocket-based service functionality to create and manage pipeline systems.
 
@@ -92,9 +93,11 @@ de-framework-service:
 ```
 
 The following environment variables must be configured on the instance running the container:
-*
+* MONGODB_HOSTNAME - The hostname or IP of the MongoDB instance.
+* MANAGER_SERVICE_HOSTNAME - The hostname or IP of Hadoop client node running the Manager Service container.
+* HADOOP_NAME_NODE_HOSTNAME - The hostname or IP of a Hadoop name node.
 
-# DE Manager Service
+### DE Manager Service
 
 The Manager Service container is installed on the client node of the Hadoop cluster. The Manager Service receives pipeline system management requests from the Framework Service and executes them locally using the Apache Apex DTCLI client tool.
 
@@ -113,7 +116,12 @@ de-manager-service:
     stdin_open: true
 ```	
 
-### Security and Firewall Access
+The following environment variables must be configured on the instance running the container:
+* NAMENODE - The hostname or IP of a name node of the Hadoop cluster.
+* RESOURCEMANAGER - The hostname or IP of the resource manager node of the Hadoop cluster.
+* HISTORYSERVER - The hostname or IP of the history server node of the Hadoop cluster.
+
+## Security and Firewall Access
 
 * The Framework Service instance must be open to the web app instance on port 8080.
 * The Hadoop cluster must be open to the application server instance on ports 22 and 8088.
