@@ -17,6 +17,6 @@ public class EnrichmentNamespaceLoader {
 		List<String> namespaces = EnrichmentNamespaceFactory.getInstance().getNamespaces();
 		manager.saveEnrichmentNamespaces(namespaces);
 		namespaces = manager.getEnrichmentNamespaces();
-		System.out.println(GsonFactory.getInstance().getGson().toJson(namespaces));
+		System.out.println(GsonFactory.getInstance().getGsonWithCollectionDeserializers().toJson(namespaces));
 	}
 }

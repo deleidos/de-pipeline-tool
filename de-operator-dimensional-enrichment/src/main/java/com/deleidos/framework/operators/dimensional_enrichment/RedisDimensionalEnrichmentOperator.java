@@ -7,7 +7,6 @@ import org.apache.log4j.Logger;
 import com.datatorrent.api.Context;
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
-import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.common.util.BaseOperator;
 import com.deleidos.analytics.redis.client.RedisClient;
 import com.deleidos.framework.operators.common.KeyFieldValueFinder;

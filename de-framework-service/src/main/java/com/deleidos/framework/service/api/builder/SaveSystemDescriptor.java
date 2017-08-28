@@ -5,6 +5,9 @@ import java.util.UUID;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 
+import org.apache.log4j.Logger;
+
+import com.deleidos.analytics.common.util.GsonFactory;
 import com.deleidos.analytics.websocket.api.BaseWebSocketMessage;
 import com.deleidos.framework.service.data.SystemDataManager;
 import com.deleidos.framework.model.system.SystemDescriptor;
@@ -16,6 +19,8 @@ import com.deleidos.framework.model.system.SystemDescriptor;
  * @author vernona
  */
 public class SaveSystemDescriptor extends BaseWebSocketMessage {
+
+	private static final Logger log = Logger.getLogger(SaveSystemDescriptor.class);
 
 	private String request;
 	private SystemDescriptor systemDescriptor;
@@ -40,7 +45,8 @@ public class SaveSystemDescriptor extends BaseWebSocketMessage {
 	@Path("/saveSystemDescriptor")
 	@POST
 	public void processMessage() throws Exception {
-		if (systemDescriptor.get_id() == null) {
+		log.info(GsonFactory.getInstance().getGsonWithNoDeserializers().toJson(systemDescriptor));
+		if (systemDescriptor.get_id() == null || systemDescriptor.get_id().trim().equals("")) {
 			systemDescriptor.set_id(UUID.randomUUID().toString());
 			SystemDataManager.getInstance().insertSystemDescriptor(systemDescriptor);
 		}

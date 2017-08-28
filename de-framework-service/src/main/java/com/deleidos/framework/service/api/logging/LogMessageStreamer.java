@@ -27,7 +27,7 @@ public class LogMessageStreamer implements UdpMessageHandler {
 	private static LogMessageStreamer instance = new LogMessageStreamer();
 	private UdpListener udpListener;
 	private ArrayList<String> messageBacklog = new ArrayList<String>();
-	private Gson gson = GsonFactory.getInstance().getGson();
+	private Gson gson = GsonFactory.getInstance().getGsonWithCollectionDeserializers();
 
 	private static final int backlogCount = 500;
 

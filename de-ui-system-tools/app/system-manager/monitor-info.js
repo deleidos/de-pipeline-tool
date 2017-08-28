@@ -87,6 +87,7 @@
                 getAppListSocket.send(JSON.stringify({
                     request: "getAppList"
                 }));
+                config.refreshFunction();
             }
 
             // Log List response

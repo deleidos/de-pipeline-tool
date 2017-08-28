@@ -55,7 +55,7 @@ public class GenericCacheLoader {
 		this.namespace = namespace;
 		this.keyField = keyField;
 
-		gson = GsonFactory.getInstance().getGson();
+		gson = GsonFactory.getInstance().getGsonWithCollectionDeserializers();
 		redisClient = new RedisClient(redisHost);
 	}
 

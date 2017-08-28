@@ -16,8 +16,6 @@ public class LogUtil {
 	 * Programmatically initialize a console appender to the root logger. This method may be called from unit tests and
 	 * main functions as an alternative to placing duplicate log4j.properties files in various places. Don't use in code
 	 * intended to run on a server.
-	 * 
-	 * @param log
 	 */
 	public static void initializeLog4jConsoleAppender() {
 		ConsoleAppender console = new ConsoleAppender(new PatternLayout("%d [%p|%c|%C{1}] %m%n"));

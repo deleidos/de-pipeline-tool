@@ -26,7 +26,7 @@ public class ApplicationDescriptorFactory {
 	}
 
 	public ApplicationDescriptor getExampleApplicationDescriptor() throws Exception {
-		return GsonFactory.getInstance().getGson().fromJson(loadExampleJson(),
+		return GsonFactory.getInstance().getGsonWithCollectionDeserializers().fromJson(loadExampleJson(),
 				ApplicationDescriptor.class);
 	}
 

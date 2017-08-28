@@ -4,13 +4,11 @@ import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 
 import org.apache.log4j.Logger;
-import org.mortbay.log.Log;
 
 import com.deleidos.analytics.websocket.api.BaseWebSocketMessage;
 import com.deleidos.applicationcreator.APAClientNode;
 import com.deleidos.framework.service.config.ServiceConfig;
 import com.deleidos.framework.service.data.SystemDataManager;
-import com.deleidos.framework.model.event.SystemEventBus;
 import com.deleidos.framework.model.system.SystemDescriptor;
 import com.deleidos.framework.monitoring.MonitoringUtil;
 
@@ -45,7 +43,6 @@ public class KillSystem extends BaseWebSocketMessage {
 	@Path("/killSystem")
 	@GET
 	public void processMessage() throws Exception {
-		sendResponse("YOU'RE KILLING A SYSTEM!!!!!!!!!!!!");
 		SystemDescriptor system = SystemDataManager.getInstance().getSystemDecriptor(id);
 		MonitoringUtil util = new MonitoringUtil(ServiceConfig.getInstance().getHadoopNameNodeHostname());
 		String appID = util.getAppIdByName(system.getName());

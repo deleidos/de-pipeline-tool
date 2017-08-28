@@ -1,0 +1,41 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>com.deleidos</groupId>
+	<artifactId>de-framework-aggregator</artifactId>
+	<version>0.0.1-SNAPSHOT</version>
+	<name>de-framework-aggregator</name>
+	<packaging>pom</packaging>
+
+	<profiles>
+		<profile>
+			<id>activate-core-aggregator</id>
+			<activation>
+				<file>
+					<exists>../../core/analytics-core-aggregator/pom.xml</exists>
+				</file>
+			</activation>
+			<modules>
+				<module>../../core/analytics-core-aggregator</module>
+			</modules>
+		</profile>
+		<profile>
+			<id>activate-services-aggregator</id>
+			<activation>
+				<file>
+					<exists>../../services/analytics-services-aggregator/pom.xml</exists>
+				</file>
+			</activation>
+			<modules>
+				<module>../../services/analytics-services-aggregator</module>
+			</modules>
+		</profile>
+	</profiles>
+
+	<modules>
+		<module>../de-framework-service</module>
+		<module>../de-framework-monitoring</module>
+		<module>../de-framework-data-model</module>
+		<module>../de-application-creator</module>
+	</modules>
+</project>

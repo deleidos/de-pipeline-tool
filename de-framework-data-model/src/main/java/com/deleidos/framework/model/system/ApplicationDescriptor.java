@@ -36,7 +36,7 @@ public class ApplicationDescriptor implements Serializable {
 	 */
 	@JsonIgnore
 	public String getApexAppJson() throws Exception {
-		return GsonFactory.getInstance().getGson().toJson(this);
+		return GsonFactory.getInstance().getGsonWithCollectionDeserializers().toJson(this);
 	}
 
 	public void setOperatorSystemNameProperty(String systemName) {

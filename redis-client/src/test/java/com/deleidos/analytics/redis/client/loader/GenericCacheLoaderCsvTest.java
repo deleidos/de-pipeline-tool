@@ -35,7 +35,7 @@ public class GenericCacheLoaderCsvTest {
 		GenericCacheLoader gcl = new GenericCacheLoader(redisHost, path, namespace, keyField);
 		gcl.loadFile();
 
-		Gson gson = GsonFactory.getInstance().getGson();
+		Gson gson = GsonFactory.getInstance().getGsonWithNoDeserializers();
 		RedisClient client = new RedisClient(redisHost);
 		Type type = new TypeToken<Map<String, Object>>() {
 		}.getType();

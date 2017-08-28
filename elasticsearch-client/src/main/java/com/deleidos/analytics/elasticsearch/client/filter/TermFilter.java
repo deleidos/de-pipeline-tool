@@ -10,32 +10,33 @@ import java.util.Map;
  */
 public class TermFilter implements Filter {
 
-	private Map<String, String> fieldValues;
+	private Map<String, Object> fieldValues;
 
 	/**
 	 * Constructor for a map of field values.
 	 * 
 	 * @param fieldValues
 	 */
-	public TermFilter(Map<String, String> fieldValues) {
+	public TermFilter(Map<String, Object> fieldValues) {
 		this.fieldValues = fieldValues;
 	}
 
 	/**
 	 * Constructor for a single field value.
 	 * 
-	 * @param fieldValues
+	 * @param fieldName
+	 * @param value
 	 */
-	public TermFilter(String fieldName, String value) {
-		fieldValues = new HashMap<String, String>();
+	public TermFilter(String fieldName, Object value) {
+		fieldValues = new HashMap<String, Object>();
 		fieldValues.put(fieldName, value);
 	}
 
-	public Map<String, String> getFieldValues() {
+	public Map<String, Object> getFieldValues() {
 		return fieldValues;
 	}
 
-	public void setFieldValues(Map<String, String> fieldValues) {
+	public void setFieldValues(Map<String, Object> fieldValues) {
 		this.fieldValues = fieldValues;
 	}
 }

@@ -70,10 +70,13 @@ public class SystemDataManager {
 	 * 
 	 * @param metadata
 	 */
-	public void saveOperatorMetadata(List<OperatorMetadata> metadata) {
+	public void saveOperatorMetadata(List<OperatorMetadata> metadataList) {
 		db.getOperatorMetadataCollection().drop();
-		OperatorMetadataList metadataList = new OperatorMetadataList(metadata);
-		db.getOperatorMetadataCollection().insertOne(new Document(objectToMap(metadataList)));
+		// OperatorMetadataList metadataList = new OperatorMetadataList(metadata);
+		// db.getOperatorMetadataCollection().insertOne(new Document(objectToMap(metadataList)));
+		for (OperatorMetadata metadata : metadataList) {
+			db.getOperatorMetadataCollection().insertOne(new Document(objectToMap(metadata)));
+		}
 	}
 
 	/**

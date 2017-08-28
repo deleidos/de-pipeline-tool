@@ -5,6 +5,7 @@ package com.deleidos.analytics.elasticsearch.client;
  * 
  * @author vernona
  */
+@Deprecated
 public class ElasticsearchData {
 
 	private String indexName;

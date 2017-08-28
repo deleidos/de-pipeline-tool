@@ -45,7 +45,6 @@ public class DeploySystem extends BaseWebSocketMessage {
 	@Path("/deploySystem")
 	@GET
 	public void processMessage() throws Exception {
-		//sendResponse("HEEEEEEY KEVVINNNNN");
 		logger.info("received request: " + request);
 		SystemDescriptor system = SystemDataManager.getInstance().getSystemDecriptor(id);
 		system.getApplication().setOperatorSystemNameProperty(system.getName());

@@ -5,8 +5,10 @@ import java.io.InputStreamReader;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.client.config.RequestConfig;
+import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.client.methods.HttpPut;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.HttpClientBuilder;
@@ -36,16 +38,14 @@ public class RestClient {
 	 * @param baseUri
 	 */
 	public RestClient(String baseUri) {
-		this.baseUri = baseUri;
-
-		requestConfig = RequestConfig.custom().setConnectionRequestTimeout(defaultTimeoutMillis)
-				.setConnectTimeout(defaultTimeoutMillis).setSocketTimeout(defaultTimeoutMillis).build();
+		this(baseUri, defaultTimeoutMillis);
 	}
-	
+
 	/**
 	 * Constructor.
 	 * 
 	 * @param baseUri
+	 * @param timeoutMillis
 	 */
 	public RestClient(String baseUri, int timeoutMillis) {
 		this.baseUri = baseUri;
@@ -63,7 +63,7 @@ public class RestClient {
 	 */
 	public String get(String uriPath) throws Exception {
 		logger.debug("get, uri=" + baseUri + uriPath);
-		
+
 		HttpGet request = new HttpGet(baseUri + uriPath);
 		request.setConfig(requestConfig);
 		String response = execute(request);
@@ -73,11 +73,14 @@ public class RestClient {
 	/**
 	 * Execute a GET request, returning the response object.
 	 * 
+	 * Stop using this - it's better to let the client control their JSON unmarshalling.
+	 * 
 	 * @param uriPath
 	 * @param classOfT
 	 * @return
 	 * @throws Exception
 	 */
+	@Deprecated
 	public <T> T getObject(String uriPath, Class<T> classOfT) throws Exception {
 		String response = get(uriPath);
 		T t = JsonUtil.fromJsonString(response, classOfT);
@@ -85,26 +88,60 @@ public class RestClient {
 	}
 
 	/**
-	 * Execute a POST request.
+	 * Execute a POST request on a String.
 	 * 
 	 * @param uriPath
-	 * @param content
+	 * @param data
 	 * @return
 	 * @throws Exception
 	 */
-	public <T> String post(String uriPath, T object) throws Exception {
+	public String post(String uriPath, String data) throws Exception {
 		logger.debug("post, uri=" + baseUri + uriPath);
 		HttpPost request = new HttpPost(baseUri + uriPath);
 		request.setConfig(requestConfig);
-		
-		String json = JsonUtil.toJsonString(object);
-		logger.debug("post, object=" + json);
-		if (json != null) {
-			request.setEntity(new StringEntity(json));
+
+		logger.debug("post, data=" + data);
+		if (data != null) {
+			request.setEntity(new StringEntity(data));
 		}
 		return execute(request);
 	}
 
+	/**
+	 * Execute a PUT request on a String.
+	 * 
+	 * @param uriPath
+	 * @param data
+	 * @return
+	 * @throws Exception
+	 */
+	public String put(String uriPath, String data) throws Exception {
+		logger.debug("put, uri=" + baseUri + uriPath);
+		HttpPut request = new HttpPut(baseUri + uriPath);
+		request.setConfig(requestConfig);
+
+		logger.debug("put, data=" + data);
+		if (data != null) {
+			request.setEntity(new StringEntity(data));
+		}
+		return execute(request);
+	}
+
+	/**
+	 * Execute a DELETE request.
+	 * 
+	 * @param uriPath
+	 * @param data
+	 * @return
+	 * @throws Exception
+	 */
+	public String delete(String uriPath) throws Exception {
+		logger.debug("put, uri=" + baseUri + uriPath);
+		HttpDelete request = new HttpDelete(baseUri + uriPath);
+		request.setConfig(requestConfig);
+		return execute(request);
+	}
+	
 	//
 	// Private methods:
 	//
@@ -125,13 +162,15 @@ public class RestClient {
 
 		HttpResponse response = HttpClientBuilder.create().build().execute(request);
 		boolean parseResponse = true;
-		if (response.getStatusLine().getStatusCode() != 200) {
+		int status = response.getStatusLine().getStatusCode();
+		if (status < 200 || status > 299) {
+			// Handle non-2xx responses.
 			String message = request.getURI().toString() + ":" + response.getStatusLine().getStatusCode() + " "
 					+ response.getStatusLine().getReasonPhrase();
 			logger.error(message);
 			// It's not an error per se if the object is not found on a get. Just return null in that case and let the
-			// client decide what to do. // TODO refactor to make this more OO
-			if (request instanceof HttpGet && response.getStatusLine().getStatusCode() == 404) {
+			// client decide what to do.
+			if ((request instanceof HttpGet || request instanceof HttpDelete) && response.getStatusLine().getStatusCode() == 404) {
 				parseResponse = false;
 			}
 			else {

@@ -3,7 +3,6 @@ package com.deleidos.framework.operators.xml.parser;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.hadoop.classification.InterfaceStability;
 import org.json.JSONObject;
 import org.json.XML;
 
@@ -47,7 +46,7 @@ public class XmlParserOperator extends BaseOperator implements OperatorSystemInf
 	public void processTuple(InputTuple tuple) {
 		String inputTuple = tuple.getData();
 		JSONObject json = XML.toJSONObject(inputTuple);
-		Gson gson = GsonFactory.getInstance().getGson();
+		Gson gson = GsonFactory.getInstance().getGsonWithCollectionDeserializers();
 		JsonObject asJson = gson.fromJson(json.toString(), JsonObject.class);
 		Map<String, Object> outputMap = new HashMap<String, Object>();
 		outputMap = TupleUtil.jsonToTupleMap(asJson.toString());

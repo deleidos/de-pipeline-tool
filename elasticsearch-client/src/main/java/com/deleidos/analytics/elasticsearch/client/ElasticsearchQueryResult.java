@@ -13,6 +13,7 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
  * 
  * @author vernona
  */
+@Deprecated
 public class ElasticsearchQueryResult {
 
 	private String id;
@@ -172,6 +173,12 @@ public class ElasticsearchQueryResult {
 
 	public void setFieldValues(Map<String, List<Object>> fieldValues) {
 		this.fieldValues = fieldValues;
+	}
+
+	@SuppressWarnings("unchecked")
+	public Map<String, Object> getPartialFieldObject() {
+		List<Object> values = getFieldValues().get("partial1");
+		return (Map<String, Object>) values.get(0);
 	}
 
 	@Override

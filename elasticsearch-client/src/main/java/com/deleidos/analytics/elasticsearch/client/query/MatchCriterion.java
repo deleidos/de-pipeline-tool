@@ -4,6 +4,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.deleidos.analytics.common.util.StringUtil;
+
 /**
  * Match criterion class for specifying query parameters.
  * 
@@ -55,9 +57,8 @@ public class MatchCriterion {
 		this.queryType = queryType;
 		this.matchType = matchType;
 		fieldValues = new HashMap<String, String>();
-		for (String value : values) {
-			fieldValues.put(fieldName, value);
-		}
+		fieldValues.put(fieldName,
+				StringUtil.stringArrayToSpaceDelimitedString(values.toArray(new String[values.size()])));
 	}
 
 	public QueryType getQueryType() {

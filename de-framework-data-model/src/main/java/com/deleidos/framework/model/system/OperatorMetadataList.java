@@ -16,7 +16,8 @@ public class OperatorMetadataList implements Serializable {
 	/**
 	 * Public no-arg constructor needed for serialization.
 	 */
-	public OperatorMetadataList() {}
+	public OperatorMetadataList() {
+	}
 
 	/**
 	 * Constructor.

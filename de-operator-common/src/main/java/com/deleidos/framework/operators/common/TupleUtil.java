@@ -24,7 +24,7 @@ public class TupleUtil {
 	@SuppressWarnings("unused")
 	private static final Logger log = Logger.getLogger(TupleUtil.class);
 
-	private static Gson gson = GsonFactory.getInstance().getGson();
+	private static Gson gson = GsonFactory.getInstance().getGsonWithCollectionDeserializers();
 
 	/**
 	 * Get a tuple map as a JSON string.

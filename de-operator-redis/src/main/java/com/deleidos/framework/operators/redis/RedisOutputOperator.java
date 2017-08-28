@@ -2,8 +2,6 @@ package com.deleidos.framework.operators.redis;
 
 import java.util.Map;
 
-import org.apache.log4j.Logger;
-
 import com.datatorrent.api.Context;
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.common.util.BaseOperator;

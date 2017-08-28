@@ -10,9 +10,10 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
 public class QueueConfig {
 
 	private String[] hostnames;
+	private int port = 9092;
 
 	/**
-	 * Constructor.
+	 * Constructor using default port.
 	 * 
 	 * @param hostnames
 	 */
@@ -20,6 +21,16 @@ public class QueueConfig {
 		this.hostnames = hostnames;
 	}
 
+	/**
+	 * Constructor.
+	 * 
+	 * @param hostnames
+	 */
+	public QueueConfig(String[] hostnames, int port) {
+		this.hostnames = hostnames;
+		this.port = port;
+	}
+	
 	public String[] getHostnames() {
 		return hostnames;
 	}
@@ -37,7 +48,7 @@ public class QueueConfig {
 		String bootstrapServers = "";
 		for (int i = 0; i < hostnames.length; i++) {
 			String hostname = hostnames[i];
-			bootstrapServers += hostname + ":9092" + (i < hostnames.length - 1 ? "," : "");
+			bootstrapServers += hostname + ":" + port + (i < hostnames.length - 1 ? "," : "");
 		}
 		return bootstrapServers;
 	}

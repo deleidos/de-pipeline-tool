@@ -1,7 +1,0 @@
-{
-	"server_port": "8080",
-	"api_plugins": [
-		"com.deleidos.analytics.stream.StreamWebSocketApiPlugin",
-		"com.deleidos.framework.service.FrameworkServiceDataApiPlugin"
-	]
-}

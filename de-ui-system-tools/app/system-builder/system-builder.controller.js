@@ -541,7 +541,6 @@
 				    "state": JSON.stringify($scope.stateObjects),
 				    "name": $scope.systemName,
 				    "application": {
-					    "description": "Example Application",
 					    "operators": [],
 					    "streams": []
 				    },

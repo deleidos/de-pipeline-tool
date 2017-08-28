@@ -29,6 +29,16 @@ public class QueryParams {
 	 * 
 	 * @param index
 	 * @param size
+	 */
+	public QueryParams(String index, int size) {
+		this(index, size, null);
+	}
+
+	/**
+	 * Constructor.
+	 * 
+	 * @param index
+	 * @param size
 	 * @param fields
 	 */
 	public QueryParams(String index, int size, String[] fields) {

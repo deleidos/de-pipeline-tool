@@ -14,7 +14,7 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
 public class StringUtil {
 
 	/**
-	 * Get an object as a printable string for logging.F
+	 * Get an object as a printable string for logging.
 	 * 
 	 * @param o
 	 * @return

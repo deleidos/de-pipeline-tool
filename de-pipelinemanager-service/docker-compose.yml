@@ -2,11 +2,11 @@ version: '2'
 services:
   rest-server:
     container_name: rest-server
-    image: ""
+    image: "der.deleidos.com/pipelinerestserver:prs1.0.0"
     ports: 
       - "8080:8080"
     environment:
-      - NAMENODE=
-      - RESOURCEMANAGER=
-      - HISTORYSERVER=
+      - NAMENODE
+      - RESOURCEMANAGER
+      - HISTORYSERVER
     stdin_open: true

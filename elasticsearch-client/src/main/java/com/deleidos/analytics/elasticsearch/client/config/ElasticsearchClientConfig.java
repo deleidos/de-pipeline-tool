@@ -11,7 +11,7 @@ public class ElasticsearchClientConfig {
 
 	private String clusterName;
 	private String[] clusterHostnames;
-	private static final int port = 9300;
+	private int port = 9300;
 
 	/**
 	 * Constructor.
@@ -22,6 +22,18 @@ public class ElasticsearchClientConfig {
 	public ElasticsearchClientConfig(String clusterName, String[] clusterHostnames) {
 		this.clusterName = clusterName;
 		this.clusterHostnames = clusterHostnames;
+	}
+
+	/**
+	 * Constructor.
+	 * 
+	 * @param clusterName
+	 * @param clusterHostnames
+	 * @param port
+	 */
+	public ElasticsearchClientConfig(String clusterName, String[] clusterHostnames, int port) {
+		this(clusterName, clusterHostnames);
+		this.port = port;
 	}
 
 	public String getClusterName() {

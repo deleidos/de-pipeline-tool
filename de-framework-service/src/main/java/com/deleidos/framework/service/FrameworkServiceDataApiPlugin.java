@@ -9,6 +9,11 @@ import com.deleidos.analytics.websocket.api.WebSocketMessageFactory;
 import com.deleidos.framework.service.api.builder.GetOperatorMetadata;
 import com.deleidos.framework.service.api.monitor.GetCpuUsage;
 
+/**
+ * Pipeline framework service data API plugin.
+ * 
+ * @author vernona
+ */
 public class FrameworkServiceDataApiPlugin implements WebSocketApiPlugin {
 
 	FrameworkServiceMessageFactory frameworkServiceMessageFactory = new FrameworkServiceMessageFactory();
@@ -25,6 +30,7 @@ public class FrameworkServiceDataApiPlugin implements WebSocketApiPlugin {
 
 	@Override
 	public List<String> getResourcePackages() {
-		return Arrays.asList(GetOperatorMetadata.class.getPackage().getName(), GetCpuUsage.class.getPackage().getName());
+		return Arrays.asList(GetOperatorMetadata.class.getPackage().getName(),
+				GetCpuUsage.class.getPackage().getName());
 	}
 }

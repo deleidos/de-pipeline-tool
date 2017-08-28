@@ -3,12 +3,10 @@ package com.deleidos.analytics.kafka.client;
 import java.io.Serializable;
 import java.util.Properties;
 import java.util.UUID;
-import java.util.concurrent.Future;
 
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.Producer;
 import org.apache.kafka.clients.producer.ProducerRecord;
-import org.apache.kafka.clients.producer.RecordMetadata;
 
 /**
  * Queue message producer implementation using Kafka.
@@ -19,7 +17,8 @@ import org.apache.kafka.clients.producer.RecordMetadata;
 @SuppressWarnings("serial")
 public class MessageProducer extends QueueBase implements Serializable {
 
-	private Producer<String, String> producer;
+	private Producer<String, String> stringProducer;
+	private Producer<String, byte[]> byteProducer;
 
 	/**
 	 * Initialize a queue message producer.
@@ -33,27 +32,29 @@ public class MessageProducer extends QueueBase implements Serializable {
 	}
 
 	/**
-	 * Put a message in the queue.
+	 * Put a string message in the queue.
 	 * 
 	 * @param message
 	 */
-	@SuppressWarnings("unused")
 	public void produce(String message) throws Exception {
-		Future<RecordMetadata> future = producer.send(new ProducerRecord<String, String>(topic, UUID.randomUUID().toString(), message));
-		try {
-			RecordMetadata metadata = future.get();
-		}
-		catch(Exception e) {
-			e.printStackTrace(System.out);
-			throw e;
-		}
+		stringProducer.send(new ProducerRecord<String, String>(topic, UUID.randomUUID().toString(), message));
+	}
+
+	/**
+	 * Put a byte[] message in the queue.
+	 * 
+	 * @param message
+	 */
+	public void produce(byte[] message) throws Exception {
+		byteProducer.send(new ProducerRecord<String, byte[]>(topic, UUID.randomUUID().toString(), message));
 	}
 
 	/**
 	 * Close the producer.
 	 */
 	public void close() {
-		producer.close();
+		stringProducer.close();
+		byteProducer.close();
 	}
 
 	/**
@@ -76,6 +77,8 @@ public class MessageProducer extends QueueBase implements Serializable {
 	 * Initialize the producer.
 	 */
 	private void init() {
-		producer = new KafkaProducer<String, String>(buildProperties());
+		Properties properties = buildProperties();
+		stringProducer = new KafkaProducer<String, String>(properties);
+		byteProducer = new KafkaProducer<String, byte[]>(properties);
 	}
 }

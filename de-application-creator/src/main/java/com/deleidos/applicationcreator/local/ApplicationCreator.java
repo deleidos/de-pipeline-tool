@@ -60,7 +60,7 @@ public class ApplicationCreator implements AppCreationInterface {
 
 					String opFilePath = "/opt/apex-deployment/files/" + opName + "/";
 					File file = new File(opFilePath + filename);
-					FileUtil.writeByteArray(file, opFile.getBytes());
+					FileUtil.writeByteArrayToFile(file, opFile.getBytes());
 
 					op.getProperties().put(opFile.getFilenameField(), filename);
 

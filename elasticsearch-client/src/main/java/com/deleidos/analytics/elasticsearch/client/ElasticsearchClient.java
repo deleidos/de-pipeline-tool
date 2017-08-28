@@ -57,6 +57,7 @@ import org.elasticsearch.search.sort.SortBuilder;
 import org.elasticsearch.search.sort.SortBuilders;
 import org.elasticsearch.search.sort.SortOrder;
 
+import com.deleidos.analytics.common.util.StringUtil;
 import com.deleidos.analytics.elasticsearch.client.aggregation.Metric;
 import com.deleidos.analytics.elasticsearch.client.aggregation.SignificantTermScore;
 import com.deleidos.analytics.elasticsearch.client.aggregation.TermMetricValue;
@@ -76,10 +77,11 @@ import com.google.common.base.Charsets;
 import com.google.common.io.Resources;
 
 /**
- * Elasticsearch client.
+ * Elasticsearch client. Deprecated: Use ElasticsearchRestClient now.
  *
  * @author vernona
  */
+@Deprecated
 public class ElasticsearchClient {
 
 	private Logger logger = Logger.getLogger(ElasticsearchClient.class);
@@ -88,6 +90,8 @@ public class ElasticsearchClient {
 
 	protected TransportClient client;
 	protected ElasticsearchClientConfig config;
+
+	private static final String _all = "_all";
 
 	/**
 	 * Constructor.
@@ -483,26 +487,19 @@ public class ElasticsearchClient {
 	 * @param matchCriteria
 	 * @param dateRangeCriterion
 	 * @param filterCriterion
-	 * @param geoCriterion
 	 * @param nestedQueryPath
 	 * @return
 	 */
 	private QueryBuilder buildQuery(Collection<MatchCriterion> matchCriteria, DateRangeCriterion dateRangeCriterion,
 			FilterCriteria filterCriteria, String nestedQueryPath) {
-
-		// QueryBuilders.geoShapeQuery(geoCriterion.getLocationFieldName(), ShapeBuilder.)
-		// if (geoCriterion != null) {
-		// QueryBuilder qb = geoBoundingBoxQuery(geoCriterion.getLocationFieldName())
-		// .topLeft(40.73, -74.1)
-		// .bottomRight(40.717, -73.99);
-		// }
-
 		QueryBuilder queryBuilder = null;
 		QueryBuilder baseQuery = null;
 		if ((matchCriteria != null && !matchCriteria.isEmpty()) || dateRangeCriterion != null) {
 			baseQuery = new BoolQueryBuilder();
 			BoolQueryBuilder boolQuery = (BoolQueryBuilder) baseQuery;
-			boolQuery.minimumNumberShouldMatch(1);
+			// 3<75% : If 3 or less clauses are specified, all are required; otherwise, 75% are required.
+			// TODO This parameter should probably be exposed in the API for the client to specify.
+			boolQuery.minimumShouldMatch("3<75%");
 
 			if (dateRangeCriterion != null) {
 				boolQuery.must(buildRangeQuery(dateRangeCriterion));
@@ -515,7 +512,15 @@ public class ElasticsearchClient {
 						switch (criterion.getMatchType()) {
 						case match:
 							for (Entry<String, String> entry : criterion.getFieldValues().entrySet()) {
-								boolQuery.must(QueryBuilders.matchQuery(entry.getKey(), entry.getValue()));
+								if (entry.getKey().equals(_all)) {
+									String[] values = StringUtil.splitWhiteSpaceDelimitedString(entry.getValue());
+									for (String value : values) {
+										boolQuery.must(QueryBuilders.matchQuery(_all, value));
+									}
+								}
+								else {
+									boolQuery.must(QueryBuilders.matchQuery(entry.getKey(), entry.getValue()));
+								}
 							}
 							break;
 						case matchPhrase:
@@ -581,7 +586,7 @@ public class ElasticsearchClient {
 		List<FilterBuilder> filters = new ArrayList<FilterBuilder>();
 		for (Filter filter : criteria) {
 			if (filter instanceof TermFilter) {
-				for (Entry<String, String> entry : ((TermFilter) filter).getFieldValues().entrySet()) {
+				for (Entry<String, Object> entry : ((TermFilter) filter).getFieldValues().entrySet()) {
 					filters.add(FilterBuilders.termFilter(entry.getKey(), entry.getValue()));
 				}
 			}
@@ -616,7 +621,6 @@ public class ElasticsearchClient {
 	 * @param size
 	 * @return
 	 */
-	@SuppressWarnings("deprecation")
 	private List<ElasticsearchQueryResult> getQueryResults(String index, QueryBuilder queryBuilder,
 			SortCriterion sortCriterion, String[] fields, String[] partialFields, int size) {
 		SearchRequestBuilder searchBuilder = new SearchRequestBuilder(client);

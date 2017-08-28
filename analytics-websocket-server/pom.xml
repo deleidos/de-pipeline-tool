@@ -13,13 +13,11 @@
 	</properties>
 
 	<dependencies>
-
 		<dependency>
 			<groupId>org.eclipse.jetty.websocket</groupId>
 			<artifactId>websocket-server</artifactId>
 			<version>${jetty.version}</version>
 		</dependency>
-
 		<dependency>
 			<groupId>org.glassfish.jersey.core</groupId>
 			<artifactId>jersey-server</artifactId>
@@ -30,7 +28,6 @@
 			<artifactId>jersey-container-servlet</artifactId>
 			<version>${jersey.version}</version>
 		</dependency>
-
 		<dependency>
 			<groupId>org.slf4j</groupId>
 			<artifactId>slf4j-api</artifactId>
@@ -53,14 +50,13 @@
 			<version>4.10</version>
 			<scope>test</scope>
 		</dependency>
-
 		<dependency>
 			<groupId>com.deleidos.analytics</groupId>
 			<artifactId>analytics-common</artifactId>
 			<version>0.0.1-SNAPSHOT</version>
 		</dependency>
-
 	</dependencies>
+	
 	<build>
 		<plugins>
 			<plugin>

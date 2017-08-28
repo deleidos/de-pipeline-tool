@@ -1,0 +1,12 @@
+de-framework-service:
+  container_name: de-framework-service
+  image: der.deleidos.com/digitaledge/de-framework-service:${TAG}
+  volumes:
+    - "/opt/apex-deployment:/opt/apex-deployment:rw"
+  ports:
+    - "80:8080"
+    - "1514:1514/udp"
+  environment:
+    - MONGODB_HOSTNAME
+    - MANAGER_SERVICE_HOSTNAME
+    - HADOOP_NAME_NODE_HOSTNAME

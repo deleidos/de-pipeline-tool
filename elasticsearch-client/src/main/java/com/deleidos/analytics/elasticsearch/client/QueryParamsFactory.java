@@ -21,7 +21,8 @@ public class QueryParamsFactory {
 	 * 
 	 * @throws Exception
 	 */
-	private QueryParamsFactory() {}
+	private QueryParamsFactory() {
+	}
 
 	/**
 	 * Get the singleton instance.
@@ -65,6 +66,17 @@ public class QueryParamsFactory {
 			params.setMatchCriteria(Collections.singleton(match));
 		}
 		params.setFilterCriteria(filters);
+		return params;
+	}
+
+	public QueryParams getQueryParams(String index, int size, String[] fields, MatchCriterion match,
+			FilterCriteria filters, DateRangeCriterion dateRange) {
+		QueryParams params = getQueryParams(index, size, fields);
+		if (match != null) {
+			params.setMatchCriteria(Collections.singleton(match));
+		}
+		params.setFilterCriteria(filters);
+		params.setDateRangeCriterion(dateRange);
 		return params;
 	}
 

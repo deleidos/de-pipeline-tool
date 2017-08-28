@@ -1,0 +1,427 @@
+{
+  "metadata": [
+    {
+      "name": "S3InputOperator",
+      "className": "com.deleidos.framework.operators.s3.S3InputOperator",
+      "displayName": "S3 Input",
+      "type": "input",
+      "properties": [
+        {
+          "name": "bucketName",
+          "displayName": "Bucket Name",
+          "choices": null,
+          "required": true,
+          "type": "String"
+        },
+        {
+          "name": "path",
+          "displayName": "Path",
+          "choices": null,
+          "required": true,
+          "type": "String"
+        },
+        {
+          "name": "accessKey",
+          "displayName": "Access Key",
+          "choices": null,
+          "required": true,
+          "type": "String"
+        },
+        {
+          "name": "secretKey",
+          "displayName": "Secret Key",
+          "choices": null,
+          "required": true,
+          "type": "String"
+        },
+        {
+          "name": "endpoint",
+          "displayName": "Endpoint",
+          "choices": null,
+          "required": false,
+          "type": "String"
+        },
+        {
+          "name": "splitter",
+          "displayName": "Splitter",
+          "choices": [
+            "Line",
+            "JSON"
+          ],
+          "required": true,
+          "type": "String"
+        },
+        {
+          "name": "headerRows",
+          "displayName": "Header Row Count",
+          "choices": null,
+          "required": true,
+          "type": "Integer"
+        }
+      ]
+    },
+    {
+      "name": "CsvParserOperator",
+      "className": "com.deleidos.framework.operators.csv.parser.CsvParserOperator",
+      "displayName": "CSV Parser",
+      "type": "parser",
+      "properties": [
+        {
+          "name": "delimiter",
+          "displayName": "Delimiter",
+          "choices": null,
+          "required": true,
+          "type": "String"
+        }
+      ]
+    },
+    {
+      "name": "ElasticSearchOutputOperator",
+      "className": "com.deleidos.framework.operators.elasticsearch.ElasticSearchOutputJsonOperator",
+      "displayName": "Elasticsearch Output",
+      "type": "output",
+      "properties": [
+        {
+          "name": "idField",
+          "displayName": "ID Field",
+          "choices": null,
+          "required": true,
+          "type": "String"
+        },
+        {
+          "name": "indexName",
+          "displayName": "Index Name",
+          "choices": null,
+          "required": true,
+          "type": "String"
+        },
+        {
+          "name": "type",
+          "displayName": "Type",
+          "choices": null,
+          "required": true,
+          "type": "String"
+        },
+        {
+          "name": "batchSize",
+          "displayName": "Batch Size",
+          "choices": null,
+          "required": false,
+          "type": "Integer"
+        },
+        {
+          "name": "clusterName",
+          "displayName": "Cluster Name",
+          "choices": null,
+          "required": true,
+          "type": "String"
+        },
+        {
+          "name": "clusterHostnames",
+          "displayName": "Cluster Host Names",
+          "choices": null,
+          "required": true,
+          "type": "StringList"
+        }
+      ]
+    },
+    {
+      "name": "JsonParserOperator",
+      "className": "com.deleidos.framework.operators.json.parser.JsonParserOperator",
+      "displayName": "JSON Parser",
+      "type": "parser",
+      "properties": [
+      ]
+    },
+    {
+      "name": "JSONMappingOperator",
+      "className": "com.deleidos.framework.operators.mapping.JSONMappingOperator",
+      "displayName": "JSON Mapping",
+      "type": "mapping",
+      "properties": [
+        {
+          "name": "modelName",
+          "displayName": "Model Name",
+          "choices": null,
+          "required": true,
+          "type": "String"
+        },
+        {
+          "name": "modelVersion",
+          "displayName": "Model Version",
+          "choices": null,
+          "required": true,
+          "type": "String"
+        },
+        {
+          "name": "mappingFile",
+          "displayName": "Mapping File",
+          "choices": null,
+          "required": true,
+          "type": "File"
+        }
+      ]
+    },
+    {
+      "name": "MongoDbOutputOperator",
+      "className": "com.deleidos.framework.operators.mongodb.MongoDbOutputOperator",
+      "displayName": "MongoDB Output",
+      "type": "output",
+      "properties": [
+        {
+          "name": "hostName",
+          "displayName": "Hostname",
+          "choices": null,
+          "required": true,
+          "type": "String"
+        },
+        {
+          "name": "hostPort",
+          "displayName": "Port",
+          "choices": null,
+          "required": true,
+          "type": "String"
+        },
+        {
+          "name": "database",
+          "displayName": "Database Name",
+          "choices": null,
+          "required": true,
+          "type": "String"
+        },
+        {
+          "name": "collection",
+          "displayName": "Collection Name",
+          "choices": null,
+          "required": true,
+          "type": "String"
+        },
+        {
+          "name": "userName",
+          "displayName": "Username",
+          "choices": null,
+          "required": false,
+          "type": "String"
+        },
+        {
+          "name": "password",
+          "displayName": "Password",
+          "choices": null,
+          "required": false,
+          "type": "String"
+        }
+      ]
+    },
+    {
+      "name": "DimensionalEnrichmentOperator",
+      "className": "com.deleidos.framework.operators.dimensional_enrichment.RedisDimensionalEnrichmentOperator",
+      "displayName": "Dimensional Enrichment",
+      "type": "enrichment",
+      "properties": [
+        {
+          "name": "cacheHostname",
+          "displayName": "Redis Cache Hostname",
+          "choices": null,
+          "required": true,
+          "type": "String"
+        },
+        {
+          "name": "namespace",
+          "displayName": "Namespace",
+          "choices": null,
+          "required": false,
+          "type": "String"
+        },
+        {
+          "name": "keyField",
+          "displayName": "Key Field",
+          "choices": null,
+          "required": true,
+          "type": "String"
+        },
+        {
+          "name": "dataField",
+          "displayName": "Data Field",
+          "choices": null,
+          "required": true,
+          "type": "String"
+        },
+        {
+          "name": "parentDataField",
+          "displayName": "Parent Data Field",
+          "choices": null,
+          "required": false,
+          "type": "String"
+        }
+      ]
+    },
+    {
+      "name": "RESTOutputOperator",
+      "className": "com.deleidos.framework.operators.rest.RESTOutputOperator",
+      "displayName": "REST Output",
+      "type": "output",
+      "properties": [
+        {
+          "name": "url",
+          "displayName": "URL",
+          "choices": null,
+          "required": true,
+          "type": "String"
+        }
+      ]
+    },
+    {
+      "name": "RedisOutputOperator",
+      "className": "com.deleidos.framework.operators.redis.RedisOutputOperator",
+      "displayName": "Redis Output",
+      "type": "output",
+      "properties": [
+        {
+          "name": "hostname",
+          "displayName": "Redis Hostname",
+          "choices": null,
+          "required": true,
+          "type": "String"
+        },
+        {
+          "name": "keyField",
+          "displayName": "Key Field",
+          "choices": null,
+          "required": true,
+          "type": "String"
+        },
+        {
+          "name": "namespace",
+          "displayName": "Namespace",
+          "choices": null,
+          "required": true,
+          "type": "String"
+        }
+      ]
+    },
+    {
+      "name": "GeoInputParserOperator",
+      "className": "com.deleidos.framework.operators.geodata.GeoInputParserOperator",
+      "displayName": "Geo Input Parser",
+      "type": "binaryInput",
+      "properties": [
+        {
+          "name": "shapefilePath",
+          "displayName": "Shape File Path",
+          "choices": null,
+          "required": true,
+          "type": "String"
+        },
+        {
+          "name": "metadataGuideIdPrefix",
+          "displayName": "Meta Data Guide ID Prefix",
+          "choices": null,
+          "required": true,
+          "type": "String"
+        },
+        {
+          "name": "securityProfileResourceName",
+          "displayName": "Security Profile Resource Name",
+          "choices": null,
+          "required": true,
+          "type": "String"
+        }
+      ]
+    },
+    {
+      "name": "GeoAccumuloOutputOperator",
+      "className": "com.deleidos.framework.operators.geo.accumulo.GeoAccumuloOutputOperator",
+      "displayName": "Geo Accumulo",
+      "type": "output",
+      "properties": [
+        {
+          "name": "instanceName",
+          "displayName": "Instance Name",
+          "choices": null,
+          "required": true,
+          "type": "String"
+        },
+        {
+          "name": "masterHostname",
+          "displayName": "Master Hostname",
+          "choices": null,
+          "required": true,
+          "type": "String"
+        },
+        {
+          "name": "zookeeperHostname",
+          "displayName": "Zookeeper Hostname",
+          "choices": null,
+          "required": true,
+          "type": "String"
+        },
+        {
+          "name": "username",
+          "displayName": "Accumulo Username",
+          "choices": null,
+          "required": true,
+          "type": "String"
+        },
+        {
+          "name": "password",
+          "displayName": "Accumulo Password",
+          "choices": null,
+          "required": true,
+          "type": "String"
+        }
+      ]
+    },
+    {
+      "name": "GeoPostGisOutputOperator",
+      "className": "com.deleidos.framework.operators.geo.postgis.GeoPostGisOutputOperator",
+      "displayName": "PostGIS",
+      "type": "output",
+      "properties": [
+        {
+          "name": "hostname",
+          "displayName": "Hostname",
+          "choices": null,
+          "required": true,
+          "type": "String"
+        },
+        {
+          "name": "databaseName",
+          "displayName": "Database Name",
+          "choices": null,
+          "required": true,
+          "type": "String"
+        },
+        {
+          "name": "username",
+          "displayName": "Username",
+          "choices": null,
+          "required": true,
+          "type": "String"
+        },
+        {
+          "name": "password",
+          "displayName": "Password",
+          "choices": null,
+          "required": true,
+          "type": "String"
+        }
+      ]
+    },
+    {
+      "name": "GeoCatalogMappingOperator",
+      "className": "com.deleidos.framework.operators.geo.catalogmapping.GeoCatalogMappingOperator",
+      "displayName": "Geo Catalog Mapping",
+      "type": "mapping",
+      "properties": [
+      ]
+    },
+    {
+      "name": "ConsoleOutputOperator",
+      "className": "com.datatorrent.lib.io.ConsoleOutputOperator",
+      "displayName": "Console Output",
+      "type": "output",
+      "properties": [
+      ]
+    }
+  ]
+}

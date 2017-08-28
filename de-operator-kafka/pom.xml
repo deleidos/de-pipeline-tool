@@ -12,11 +12,6 @@
 	<dependencies>
 		<dependency>
 			<groupId>com.deleidos.analytics</groupId>
-			<artifactId>analytics-config</artifactId>
-			<version>0.0.1-SNAPSHOT</version>
-		</dependency>
-		<dependency>
-			<groupId>com.deleidos.analytics</groupId>
 			<artifactId>kafka-client</artifactId>
 			<version>0.0.1-SNAPSHOT</version>
 		</dependency>

@@ -57,18 +57,6 @@
 			<version>0.0.1-SNAPSHOT</version>
 		</dependency>
 		<dependency>
-			<groupId>com.deleidos.analytics</groupId>
-			<artifactId>analytics-config</artifactId>
-			<version>0.0.1-SNAPSHOT</version>
-		</dependency>
-		<dependency>
-			<groupId>com.deleidos.analytics</groupId>
-			<artifactId>analytics-config</artifactId>
-			<version>0.0.1-SNAPSHOT</version>
-			<type>test-jar</type>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
 			<groupId>org.apache.apex</groupId>
 			<artifactId>apex-common</artifactId>
 			<version>${apex.version}</version>
