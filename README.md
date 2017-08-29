@@ -112,7 +112,7 @@ The following environment variables must be configured on the instance running t
 * HADOOP_NAME_NODE_HOSTNAME - The hostname or IP of a Hadoop name node.
 
 The /opt/apex-deployment volume that is mapped must be populated with the pre-compiled Apex operator jar files. To facilitate this process, a set of default operator jars are provided:
-(https://s3.console.aws.amazon.com/s3/buckets/apex-deployment/?region=us-east-1)
+(https://s3.amazonaws.com/apex-deployment/apex-deployment.tar.gz)
 
 Unzip this file under /opt on the same instance that is to run the de-framework-service container (do this before running the container so the volume can be mapped).
 
