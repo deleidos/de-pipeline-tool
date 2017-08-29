@@ -111,7 +111,10 @@ The following environment variables must be configured on the instance running t
 * MANAGER_SERVICE_HOSTNAME - The hostname or IP of Hadoop client node running the Manager Service container.
 * HADOOP_NAME_NODE_HOSTNAME - The hostname or IP of a Hadoop name node.
 
-The /opt/apex-deployment volume that is mapped must be populated with the pre-compiled Apex operator jar files. To facilitate this process, a set of default operator jars are provided. Unzip this file under /opt on the same instance that is to run the de-framework-service container (do this before running the container so the volume can be mapped).
+The /opt/apex-deployment volume that is mapped must be populated with the pre-compiled Apex operator jar files. To facilitate this process, a set of default operator jars are provided:
+(https://s3.console.aws.amazon.com/s3/buckets/apex-deployment/?region=us-east-1)
+
+Unzip this file under /opt on the same instance that is to run the de-framework-service container (do this before running the container so the volume can be mapped).
 
 ### DE Manager Service
 
