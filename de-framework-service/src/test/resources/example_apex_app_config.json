@@ -11,10 +11,10 @@
 		"class": "com.deleidos.framework.operators.s3.S3InputOperator",
 		"properties": {
 			"name": null,
-			"bucketName": "rtws.flight.data",
-			"path": "fd_small_updated",
-			"accessKey": "AKIAITMAS3RXDKITGU7Q",
-			"secretKey": "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",
+			"bucketName": "",
+			"path": "",
+			"accessKey": "",
+			"secretKey": "",
 			"endPoint": null,
 			"splitter": "JSON",
 			"headerRows": "0",
@@ -25,19 +25,19 @@
 		"class": "com.deleidos.framework.operators.mapping.JSONMappingOperator",
 		"properties": {
 			"name": null,
-			"modelName": "position",
-			"inputFormatName": "position",
-			"modelVersion": "1.4",
-			"modelPath": "\/tmp\/position_v1.4"
+			"modelName": "",
+			"inputFormatName": "",
+			"modelVersion": "",
+			"modelPath": ""
 		}
 	}, {
 		"name": "mongo",
 		"class": "com.deleidos.framework.operators.mongodb.MongoDbOutputOperator",
 		"properties": {
 			"name": null,
-			"hostName": "54.146.251.23",
-			"hostPort": "0",
-			"database": "local",
+			"hostName": "",
+			"hostPort": "",
+			"database": "",
 			"userName": null,
 			"password": null,
 			"modelToIndexMapping": null
